@@ -1,16 +1,39 @@
 import { revalidatePath, revalidateTag } from "next/cache";
+import {
+  MOVIE_GROUPS,
+  RAMADAN_GROUPS,
+  SERIES_GROUPS,
+  catalogHref,
+} from "./catalog";
 import { SITE_URL } from "./site";
-import { discoverBrowse, discoverFranchises, homeCatalog, type CategoryKey } from "./tmdb";
+import {
+  discoverBrowse,
+  discoverFranchises,
+  discoverNewEpisodes,
+  homeCatalog,
+  type CategoryKey,
+} from "./tmdb";
 
 const LANGS = ["ar", "en"] as const;
 const CATEGORIES: CategoryKey[] = ["trending", "movies", "series", "anime"];
-const PAGE_PATHS = ["/", "/movies", "/series", "/anime", "/browse", "/arabic", "/turkish", "/asian"];
-const WARM_PATHS = [
+const EPISODE_GROUPS = ["foreign", "anime", "arabic"] as const;
+
+const SECTION_PATHS = [
   "/",
   "/movies",
   "/series",
   "/anime",
   "/browse",
+  "/arabic",
+  "/turkish",
+  "/asian",
+  ...MOVIE_GROUPS.map((item) => catalogHref("movie", item.group)),
+  ...SERIES_GROUPS.map((item) => catalogHref("tv", item.group)),
+  ...RAMADAN_GROUPS.map((item) => catalogHref("tv", item.group)),
+];
+
+const WARM_PATHS = [
+  ...SECTION_PATHS,
   "/api/discover?category=trending&lang=ar",
   "/api/discover?category=movies&lang=ar",
   "/api/discover?category=movies&lang=en",
@@ -18,6 +41,10 @@ const WARM_PATHS = [
   "/api/discover?category=series&lang=en",
   "/api/discover?category=anime&lang=ar",
   "/api/discover?category=anime&lang=en",
+  ...MOVIE_GROUPS.filter((item) => item.group !== "franchises").map(
+    (item) => `/api/discover?kind=movie&group=${item.group}&lang=ar`
+  ),
+  ...SERIES_GROUPS.map((item) => `/api/discover?kind=tv&group=${item.group}&lang=ar`),
   "/sitemap.xml",
   "/sitemap/0.xml",
   "/sitemap/1.xml",
@@ -41,13 +68,19 @@ export async function refreshCatalog() {
     ...LANGS.flatMap((lang) => [
       homeCatalog(lang),
       ...CATEGORIES.map((category) => discoverBrowse({ category }, lang, 1)),
+      ...EPISODE_GROUPS.map((group) => discoverNewEpisodes(group, lang)),
+      ...MOVIE_GROUPS.filter((item) => item.group !== "franchises").map((item) =>
+        discoverBrowse({ kind: "movie", group: item.group }, lang, 1)
+      ),
+      ...SERIES_GROUPS.map((item) => discoverBrowse({ kind: "tv", group: item.group }, lang, 1)),
+      ...RAMADAN_GROUPS.map((item) => discoverBrowse({ kind: "tv", group: item.group }, lang, 1)),
     ]),
     discoverFranchises("ar", 1),
   ]);
 
   revalidateTag("catalog");
   revalidateTag("tmdb");
-  for (const path of PAGE_PATHS) revalidatePath(path);
+  for (const path of SECTION_PATHS) revalidatePath(path);
   revalidatePath("/sitemap.xml");
   for (const id of [0, 1, 2, 3, 4]) revalidatePath(`/sitemap/${id}.xml`);
 
@@ -66,5 +99,10 @@ export async function refreshCatalog() {
     ms: Date.now() - started,
     fetched,
     warmed,
+    sections: {
+      movies: MOVIE_GROUPS.map((item) => item.group),
+      series: SERIES_GROUPS.map((item) => item.group),
+      episodes: [...EPISODE_GROUPS],
+    },
   };
 }
