@@ -200,11 +200,15 @@ export async function discover(
     tmdb<ListResponse>("/discover/tv", {
       ...common,
       with_origin_country: "JP|KR|CN|TH|IN|TW|HK",
+      without_genres: "16",
+      without_keywords: "210024",
       sort_by: "popularity.desc",
     }),
     tmdb<ListResponse>("/discover/movie", {
       ...common,
       with_origin_country: "JP|KR|CN|TH|IN|TW|HK",
+      without_genres: "16",
+      without_keywords: "210024",
       sort_by: "popularity.desc",
     }),
   ]);
@@ -239,6 +243,8 @@ export async function discoverCatalog(
     common.with_origin_country = "US|GB|CA|AU|FR|DE|IT|ES";
   } else if (group === "asian") {
     common.with_origin_country = "JP|KR|CN|TH|TW|HK";
+    common.without_genres = "16";
+    common.without_keywords = "210024";
   } else if (group === "anime") {
     common.with_genres = "16";
     if (kind === "tv") {
