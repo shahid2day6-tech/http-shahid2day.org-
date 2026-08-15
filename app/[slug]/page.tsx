@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import TitleView from "../components/TitleView";
 import { parseTitleSlug } from "../lib/slug";
 import { getTitleBySlug, listingTitle } from "../lib/tmdb";
+import { titleKeywords } from "../lib/seo";
 
 export const revalidate = 3600;
 
@@ -13,9 +14,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!parseTitleSlug(slug)) return { title: "شاهد تو داي" };
   const title = await getTitleBySlug(slug, "ar");
   if (!title) return { title: "شاهد تو داي" };
+  const heading = listingTitle(title);
   return {
-    title: listingTitle(title),
-    description: title.overview || title.title,
+    title: heading,
+    description: title.overview || heading,
+    keywords: titleKeywords(title.title, heading),
+    openGraph: {
+      title: `${heading} | شاهد تو داي | SHAHID2DAY`,
+      description: title.overview || heading,
+    },
   };
 }
 

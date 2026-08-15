@@ -3,6 +3,7 @@ import { Bebas_Neue, Tajawal } from "next/font/google";
 import { LanguageProvider } from "./context/LanguageContext";
 import SiteShell from "./components/SiteShell";
 import { SITE_LOGO, SITE_NAME_AR, SITE_NAME_EN, SITE_URL } from "./lib/site";
+import { pageKeywords, SEO_DESCRIPTION } from "./lib/seo";
 import "./globals.css";
 
 const tajawal = Tajawal({
@@ -18,29 +19,17 @@ const bebas = Bebas_Neue({
 });
 
 const title = `${SITE_NAME_AR} | ${SITE_NAME_EN}`;
-const description =
-  "شاهد تو داي — اكتشف أحدث الأفلام والمسلسلات والأنمي العربية والتركية والآسيوية. SHAHID2DAY catalog for movies, series, and anime.";
+const description = SEO_DESCRIPTION;
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   applicationName: SITE_NAME_EN,
   title: {
     default: title,
-    template: `%s | ${SITE_NAME_AR}`,
+    template: `%s | ${SITE_NAME_AR} | ${SITE_NAME_EN}`,
   },
   description,
-  keywords: [
-    "شاهد تو داي",
-    "SHAHID2DAY",
-    "shahid2day",
-    "شاهد لليوم",
-    "أفلام",
-    "مسلسلات",
-    "أنمي",
-    "مسلسلات عربية",
-    "مسلسلات تركية",
-    "مسلسلات آسيوية",
-  ],
+  keywords: pageKeywords(),
   authors: [{ name: SITE_NAME_EN, url: SITE_URL }],
   creator: SITE_NAME_EN,
   publisher: SITE_NAME_EN,
@@ -50,7 +39,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title,
-    description: "أفلام ومسلسلات وأنمي عربي وتركي وآسيوي",
+    description: SEO_DESCRIPTION,
     url: SITE_URL,
     siteName: SITE_NAME_EN,
     locale: "ar_SA",
@@ -100,6 +89,7 @@ const jsonLd = {
   alternateName: SITE_NAME_EN,
   url: SITE_URL,
   inLanguage: ["ar", "en"],
+  keywords: pageKeywords().join(", "),
   image: `${SITE_URL}${SITE_LOGO}`,
   publisher: {
     "@type": "Organization",
