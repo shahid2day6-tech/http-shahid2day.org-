@@ -53,8 +53,8 @@ export const metadata: Metadata = {
     images: [
       {
         url: SITE_LOGO,
-        width: 512,
-        height: 512,
+        width: 1024,
+        height: 1024,
         alt: title,
       },
     ],
@@ -67,8 +67,8 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/favicon.svg", type: "image/svg+xml" },
-      { url: "/logo.png", sizes: "512x512", type: "image/png" },
+      { url: "/logo.png", sizes: "1024x1024", type: "image/png" },
+      { url: "/icon.png", sizes: "1024x1024", type: "image/png" },
     ],
     apple: [{ url: "/apple-icon.png", sizes: "180x180" }],
     shortcut: "/logo.png",
