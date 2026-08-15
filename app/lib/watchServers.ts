@@ -29,8 +29,26 @@ export function buildWatchServers(
     type === "tv"
       ? `https://1embed.cc/embed/tv/${id}/${season}/${episode}`
       : `https://1embed.cc/embed/movie/${id}`;
+  const fileHosts =
+    type === "tv"
+      ? {
+          dood: `https://watch.embed-api.stream/embed/tv/${id}/${season}/${episode}`,
+          mixdrop: `https://vsembed.su/embed/tv/${id}/${season}/${episode}`,
+          earnvids: `https://vidcore.org/embed/tv/${id}/${season}/${episode}`,
+          streamhg: `https://watch.embed-api.stream/embed/tv/${id}/${season}/${episode}`,
+        }
+      : {
+          dood: `https://vidstreams.net/embed/tmdb${id}/`,
+          mixdrop: `https://watch.embed-api.stream/embed/movie/${id}`,
+          earnvids: `https://vsembed.su/embed/movie/${id}`,
+          streamhg: `https://vidcore.org/embed/movie/${id}`,
+        };
 
   return [
+    { name: "DoodStream", label: "DoodStream", url: fileHosts.dood },
+    { name: "Mixdrop", label: "Mixdrop", url: fileHosts.mixdrop },
+    { name: "EarnVids", label: "EarnVids", url: fileHosts.earnvids },
+    { name: "StreamHG", label: "StreamHG", url: fileHosts.streamhg },
     {
       name: "Shahid2Day",
       label: "Shahid2Day",
