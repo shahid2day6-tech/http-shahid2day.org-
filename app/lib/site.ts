@@ -2,7 +2,9 @@ export const SITE_NAME_AR = "شاهد تو داي";
 export const SITE_NAME_EN = "SHAHID2DAY";
 export const SITE_URL = (
   process.env.NEXT_PUBLIC_SITE_URL || "https://www.shahid2day.org"
-).replace(/\/+$/, "");
+)
+  .replace(/\/+$/, "")
+  .replace("://shahid2day.org", "://www.shahid2day.org");
 export const SITE_LOGO = "/logo.png";
 
 export function absoluteUrl(path: string): string {
