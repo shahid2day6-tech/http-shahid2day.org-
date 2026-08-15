@@ -14,10 +14,15 @@ const CATEGORIES: CategoryKey[] = [
 export async function GET(req: NextRequest) {
   const category = (req.nextUrl.searchParams.get("category") ?? "trending") as CategoryKey;
   const lang = req.nextUrl.searchParams.get("lang") ?? "ar";
-  const page = Number(req.nextUrl.searchParams.get("page") ?? "1");
+  const page = Math.max(1, Number(req.nextUrl.searchParams.get("page") ?? "1") || 1);
   if (!CATEGORIES.includes(category)) {
-    return NextResponse.json({ results: [] }, { status: 400 });
+    return NextResponse.json({ results: [], page: 1, totalPages: 1, totalResults: 0 }, { status: 400 });
   }
-  const results = await discover(category, lang, page);
-  return NextResponse.json({ results });
+  const data = await discover(category, lang, page);
+  return NextResponse.json({
+    results: data.items,
+    page: data.page,
+    totalPages: data.totalPages,
+    totalResults: data.totalResults,
+  });
 }

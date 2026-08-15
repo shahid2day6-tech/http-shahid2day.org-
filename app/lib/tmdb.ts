@@ -89,21 +89,53 @@ async function tmdb<T>(
   return (await res.json()) as T;
 }
 
-type ListResponse = { results?: Record<string, unknown>[] };
+type ListResponse = {
+  results?: Record<string, unknown>[];
+  page?: number;
+  total_pages?: number;
+  total_results?: number;
+};
+
+export type DiscoverResult = {
+  items: MediaItem[];
+  page: number;
+  totalPages: number;
+  totalResults: number;
+};
+
+export const BROWSE_PRELOAD_PAGES = 8;
+
+function pageCount(data: ListResponse | null): number {
+  return Math.min(Math.max(Number(data?.total_pages ?? 1), 1), 500);
+}
+
+function resultCount(data: ListResponse | null, fallback = 0): number {
+  return Number(data?.total_results ?? fallback);
+}
+
+function asResult(
+  items: MediaItem[],
+  page: number,
+  totalPages: number,
+  totalResults: number
+): DiscoverResult {
+  return { items, page, totalPages, totalResults };
+}
 
 export async function discover(
   category: CategoryKey,
   lang: string,
   page = 1
-): Promise<MediaItem[]> {
+): Promise<DiscoverResult> {
   const language = lang.startsWith("ar") ? "ar-SA" : "en-US";
   const common = { language, page, include_adult: "false" };
 
   if (category === "trending") {
     const data = await tmdb<ListResponse>("/trending/all/day", { language });
-    return (data?.results ?? [])
+    const items = (data?.results ?? [])
       .filter((item) => item.media_type === "movie" || item.media_type === "tv")
       .map((item) => mapItem(item));
+    return asResult(items, 1, pageCount(data), resultCount(data, items.length));
   }
 
   if (category === "movies") {
@@ -111,7 +143,8 @@ export async function discover(
       ...common,
       sort_by: "popularity.desc",
     });
-    return (data?.results ?? []).map((item) => mapItem(item, "movie"));
+    const items = (data?.results ?? []).map((item) => mapItem(item, "movie"));
+    return asResult(items, page, pageCount(data), resultCount(data, items.length));
   }
 
   if (category === "series") {
@@ -119,7 +152,8 @@ export async function discover(
       ...common,
       sort_by: "popularity.desc",
     });
-    return (data?.results ?? []).map((item) => mapItem(item, "tv"));
+    const items = (data?.results ?? []).map((item) => mapItem(item, "tv"));
+    return asResult(items, page, pageCount(data), resultCount(data, items.length));
   }
 
   if (category === "anime") {
@@ -138,9 +172,14 @@ export async function discover(
         sort_by: "popularity.desc",
       }),
     ]);
-    return mergeLists(
-      (tv?.results ?? []).map((item) => mapItem(item, "tv")),
-      (movies?.results ?? []).map((item) => mapItem(item, "movie"))
+    return asResult(
+      mergeLists(
+        (tv?.results ?? []).map((item) => mapItem(item, "tv")),
+        (movies?.results ?? []).map((item) => mapItem(item, "movie"))
+      ),
+      page,
+      Math.max(pageCount(tv), pageCount(movies)),
+      resultCount(tv) + resultCount(movies)
     );
   }
 
@@ -164,9 +203,36 @@ export async function discover(
       sort_by: "popularity.desc",
     }),
   ]);
-  return mergeLists(
-    (tv?.results ?? []).map((item) => mapItem(item, "tv")),
-    (movies?.results ?? []).map((item) => mapItem(item, "movie"))
+  return asResult(
+    mergeLists(
+      (tv?.results ?? []).map((item) => mapItem(item, "tv")),
+      (movies?.results ?? []).map((item) => mapItem(item, "movie"))
+    ),
+    page,
+    Math.max(pageCount(tv), pageCount(movies)),
+    resultCount(tv) + resultCount(movies)
+  );
+}
+
+export async function discoverMany(
+  category: CategoryKey,
+  lang: string,
+  startPage = 1,
+  endPage = BROWSE_PRELOAD_PAGES
+): Promise<DiscoverResult> {
+  const last = Math.max(startPage, endPage);
+  const pages = await Promise.all(
+    Array.from({ length: last - startPage + 1 }, (_, i) =>
+      discover(category, lang, startPage + i)
+    )
+  );
+  const items = uniqueItems(pages.flatMap((p) => p.items));
+  const first = pages[0];
+  return asResult(
+    items,
+    last,
+    first?.totalPages ?? 1,
+    first?.totalResults ?? items.length
   );
 }
 
@@ -174,29 +240,53 @@ async function discoverByLanguage(
   original: string,
   language: string,
   page: number
-): Promise<MediaItem[]> {
-  const common = { language, page, include_adult: "false", with_original_language: original, sort_by: "popularity.desc" };
+): Promise<DiscoverResult> {
+  const common = {
+    language,
+    page,
+    include_adult: "false",
+    with_original_language: original,
+    sort_by: "popularity.desc",
+  };
   const [tv, movies] = await Promise.all([
     tmdb<ListResponse>("/discover/tv", common),
     tmdb<ListResponse>("/discover/movie", common),
   ]);
-  return mergeLists(
-    (tv?.results ?? []).map((item) => mapItem(item, "tv")),
-    (movies?.results ?? []).map((item) => mapItem(item, "movie"))
+  return asResult(
+    mergeLists(
+      (tv?.results ?? []).map((item) => mapItem(item, "tv")),
+      (movies?.results ?? []).map((item) => mapItem(item, "movie"))
+    ),
+    page,
+    Math.max(pageCount(tv), pageCount(movies)),
+    resultCount(tv) + resultCount(movies)
   );
+}
+
+function uniqueItems(items: MediaItem[]): MediaItem[] {
+  const seen = new Set<string>();
+  return items.filter((item) => {
+    const k = `${item.type}-${item.id}`;
+    if (seen.has(k) || !item.poster) return false;
+    seen.add(k);
+    return true;
+  });
 }
 
 function mergeLists(a: MediaItem[], b: MediaItem[]): MediaItem[] {
   const seen = new Set<string>();
-  return [...a, ...b]
-    .filter((item) => {
+  const out: MediaItem[] = [];
+  const max = Math.max(a.length, b.length);
+  for (let i = 0; i < max; i++) {
+    for (const item of [a[i], b[i]]) {
+      if (!item?.poster) continue;
       const k = `${item.type}-${item.id}`;
-      if (seen.has(k)) return false;
+      if (seen.has(k)) continue;
       seen.add(k);
-      return Boolean(item.poster);
-    })
-    .sort((x, y) => Number(y.rating) - Number(x.rating))
-    .slice(0, 20);
+      out.push(item);
+    }
+  }
+  return out;
 }
 
 export async function searchMedia(query: string, lang: string): Promise<MediaItem[]> {
@@ -280,5 +370,14 @@ export async function homeCatalog(lang: string) {
     discover("turkish", lang),
     discover("asian", lang),
   ]);
-  return { trending, movies, series, anime, arabic, turkish, asian };
+  const row = (result: DiscoverResult) => result.items.slice(0, 20);
+  return {
+    trending: row(trending),
+    movies: row(movies),
+    series: row(series),
+    anime: row(anime),
+    arabic: row(arabic),
+    turkish: row(turkish),
+    asian: row(asian),
+  };
 }

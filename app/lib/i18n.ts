@@ -35,6 +35,10 @@ export const dict = {
     show: "مسلسل",
     browse: "تصفح",
     heroCta: "اكتشف الآن",
+    loadMore: "عرض المزيد",
+    loadingMore: "جاري تحميل المزيد...",
+    allLoaded: "تم عرض كل العناوين",
+    showingCount: "عرض {count} من {total} عنوان",
   },
   en: {
     brand: "Shahid2Day",
@@ -70,6 +74,10 @@ export const dict = {
     show: "Series",
     browse: "Browse",
     heroCta: "Explore now",
+    loadMore: "Load more",
+    loadingMore: "Loading more...",
+    allLoaded: "You've reached the end",
+    showingCount: "Showing {count} of {total} titles",
   },
 } as const;
 
