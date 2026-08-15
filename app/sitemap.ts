@@ -7,6 +7,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "",
     "/movies",
     "/series",
+    "/browse",
     ...MOVIE_GROUPS.map((item) => catalogHref("movie", item.group)),
     ...SERIES_GROUPS.map((item) => catalogHref("tv", item.group)),
     ...RAMADAN_GROUPS.map((item) => catalogHref("tv", item.group)),

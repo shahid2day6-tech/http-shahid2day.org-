@@ -1,6 +1,7 @@
 import type { CatalogGroup, CatalogKind } from "./catalog";
 import { BROWSE_PAGE_SIZE } from "./catalog";
 import { parseTitleSlug, slugifyTitle } from "./slug";
+import { FILTER_GENRES, parseSection, type CatalogFilters, type CatalogSort } from "./filters";
 
 const TMDB = "https://api.themoviedb.org/3";
 const IMG = "https://image.tmdb.org/t/p";
@@ -215,10 +216,56 @@ function newEpisodeWindow(): Record<string, string> {
   };
 }
 
+function applyCatalogFilters(
+  kind: CatalogKind,
+  params: Record<string, string | number>,
+  filters?: CatalogFilters
+) {
+  const sort: CatalogSort = filters?.sort ?? "latest";
+  if (sort === "rating") {
+    params.sort_by = "vote_average.desc";
+    params["vote_count.gte"] = 50;
+    delete params["primary_release_date.gte"];
+    delete params["primary_release_date.lte"];
+    delete params["first_air_date.gte"];
+    delete params["first_air_date.lte"];
+    delete params["air_date.gte"];
+    delete params["air_date.lte"];
+  } else if (sort === "popular" || sort === "trending") {
+    params.sort_by = "popularity.desc";
+    delete params["primary_release_date.gte"];
+    delete params["primary_release_date.lte"];
+    delete params["first_air_date.gte"];
+    delete params["first_air_date.lte"];
+  } else if (sort === "new-episodes" && kind === "tv") {
+    Object.assign(params, newEpisodeWindow());
+  }
+
+  if (filters?.year && /^\d{4}$/.test(filters.year)) {
+    delete params["primary_release_date.gte"];
+    delete params["primary_release_date.lte"];
+    delete params["first_air_date.gte"];
+    delete params["first_air_date.lte"];
+    if (kind === "movie") params.primary_release_year = filters.year;
+    else params.first_air_date_year = filters.year;
+  }
+
+  if (filters?.genre) {
+    const genre = FILTER_GENRES.find((item) => item.id === filters.genre);
+    const genreId = kind === "movie" ? genre?.movieId : genre?.tvId;
+    if (genreId && String(params.with_genres ?? "") !== "16") {
+      params.with_genres = String(genreId);
+    } else if (genreId && !params.with_genres) {
+      params.with_genres = String(genreId);
+    }
+  }
+}
+
 export async function discover(
   category: CategoryKey,
   lang: string,
-  page = 1
+  page = 1,
+  filters?: CatalogFilters
 ): Promise<DiscoverResult> {
   const language = lang.startsWith("ar") ? "ar-SA" : "en-US";
   const common = { language, page, include_adult: "false" };
@@ -232,19 +279,23 @@ export async function discover(
   }
 
   if (category === "movies") {
-    const data = await discoverList("/discover/movie", {
+    const params: Record<string, string | number> = {
       ...common,
       ...newestSort("movie"),
-    });
+    };
+    applyCatalogFilters("movie", params, filters);
+    const data = await discoverList("/discover/movie", params);
     const items = (data?.results ?? []).map((item) => mapItem(item, "movie"));
     return asResult(items, page, pageCount(data), resultCount(data, items.length));
   }
 
   if (category === "series") {
-    const data = await discoverList("/discover/tv", {
+    const params: Record<string, string | number> = {
       ...common,
       ...newestSort("tv"),
-    });
+    };
+    applyCatalogFilters("tv", params, filters);
+    const data = await discoverList("/discover/tv", params);
     const items = (data?.results ?? []).map((item) => mapItem(item, "tv"));
     return asResult(items, page, pageCount(data), resultCount(data, items.length));
   }
@@ -314,7 +365,8 @@ export async function discoverCatalog(
   kind: CatalogKind,
   group: CatalogGroup,
   lang: string,
-  page = 1
+  page = 1,
+  filters?: CatalogFilters
 ): Promise<DiscoverResult> {
   const language = lang.startsWith("ar") ? "ar-SA" : "en-US";
   const path = kind === "movie" ? "/discover/movie" : "/discover/tv";
@@ -351,6 +403,7 @@ export async function discoverCatalog(
     common.with_original_language = "en";
   }
 
+  applyCatalogFilters(kind, common, filters);
   const data = await discoverList(path, common);
   const items = (data?.results ?? []).map((item) => mapItem(item, fallback));
   return asResult(items, page, pageCount(data), resultCount(data, items.length));
@@ -406,7 +459,8 @@ export async function discoverBrowse(
     | { category: CategoryKey }
     | { kind: CatalogKind; group: CatalogGroup },
   lang: string,
-  browsePage = 1
+  browsePage = 1,
+  filters?: CatalogFilters
 ): Promise<DiscoverResult> {
   const page = Math.max(1, browsePage);
   const start = (page - 1) * BROWSE_PAGE_SIZE;
@@ -416,8 +470,8 @@ export async function discoverBrowse(
     Array.from({ length: tmdbEnd - tmdbStart + 1 }, (_, i) => {
       const tmdbPage = tmdbStart + i;
       return "kind" in source
-        ? discoverCatalog(source.kind, source.group, lang, tmdbPage)
-        : discover(source.category, lang, tmdbPage);
+        ? discoverCatalog(source.kind, source.group, lang, tmdbPage, filters)
+        : discover(source.category, lang, tmdbPage, filters);
     })
   );
   const combined = uniqueItems(chunks.flatMap((chunk) => chunk.items));
@@ -426,6 +480,40 @@ export async function discoverBrowse(
   const totalResults = chunks[0]?.totalResults ?? items.length;
   const totalPages = Math.max(1, Math.min(500, Math.ceil(totalResults / BROWSE_PAGE_SIZE)));
   return asResult(items, page, totalPages, totalResults);
+}
+
+export async function discoverFiltered(
+  lang: string,
+  page: number,
+  opts: { section?: string; sort?: CatalogSort; genre?: string; year?: string }
+): Promise<DiscoverResult> {
+  const sort: CatalogSort = opts.sort ?? "latest";
+  const filters: CatalogFilters = { sort, genre: opts.genre, year: opts.year };
+  const section = parseSection(opts.section);
+
+  if (sort === "trending" && !section) {
+    return discoverBrowse({ category: "trending" }, lang, page);
+  }
+  if (sort === "new-episodes") {
+    const group =
+      section?.group === "anime" || section?.group === "arabic" || section?.group === "foreign"
+        ? section.group
+        : "foreign";
+    return discoverNewEpisodes(group, lang, page);
+  }
+  if (sort === "new-movies") {
+    if (section?.kind === "movie") {
+      return discoverBrowse({ kind: "movie", group: section.group }, lang, page, filters);
+    }
+    return discoverBrowse({ category: "movies" }, lang, page, filters);
+  }
+  if (section) {
+    return discoverBrowse({ kind: section.kind, group: section.group }, lang, page, filters);
+  }
+  if (sort === "popular" || sort === "rating") {
+    return discoverBrowse({ category: "movies" }, lang, page, filters);
+  }
+  return discoverBrowse({ category: "movies" }, lang, page, filters);
 }
 
 export async function discoverMany(

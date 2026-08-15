@@ -4,6 +4,7 @@ import type { MediaItem } from "../lib/tmdb";
 import { useLang } from "../context/LanguageContext";
 import Hero from "./Hero";
 import MediaRow from "./MediaRow";
+import CatalogToolbar from "./CatalogToolbar";
 
 export default function HomeCatalog({
   trending,
@@ -40,6 +41,7 @@ export default function HomeCatalog({
     <>
       <Hero items={trending} />
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        <CatalogToolbar />
         <MediaRow title={t("trending")} items={trending} />
         <MediaRow title={t("newForeignEpisodes")} href="/series/foreign" items={foreignEpisodes} />
         <MediaRow title={t("newAnimeEpisodes")} href="/series/anime" items={animeEpisodes} />

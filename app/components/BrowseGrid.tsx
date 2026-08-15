@@ -3,8 +3,10 @@
 import { useCallback, useState } from "react";
 import type { CatalogGroup, CatalogKind } from "../lib/catalog";
 import type { CategoryKey, MediaItem } from "../lib/tmdb";
+import { sectionFrom, type CatalogSort } from "../lib/filters";
 import { useLang } from "../context/LanguageContext";
 import MediaCard from "./MediaCard";
+import CatalogToolbar from "./CatalogToolbar";
 
 function paginationItems(current: number, total: number): (number | "gap")[] {
   if (total <= 5) {
@@ -29,6 +31,9 @@ export default function BrowseGrid({
   initialPage = 1,
   totalPages = 1,
   totalResults,
+  showFilters = true,
+  query,
+  embedded = false,
 }: {
   title: string;
   category?: CategoryKey;
@@ -39,6 +44,9 @@ export default function BrowseGrid({
   initialPage?: number;
   totalPages?: number;
   totalResults?: number;
+  showFilters?: boolean;
+  query?: { sort?: CatalogSort; section?: string; genre?: string; year?: string };
+  embedded?: boolean;
 }) {
   const { t, lang } = useLang();
   const seed = initialItems ?? staticItems ?? [];
@@ -46,38 +54,56 @@ export default function BrowseGrid({
   const [page, setPage] = useState(initialPage);
   const [pages, setPages] = useState(totalPages);
   const [loading, setLoading] = useState(false);
-  const total = totalResults ?? items.length;
-  const canPage = Boolean(category || (kind && group));
+  const [total, setTotal] = useState(totalResults ?? items.length);
+  const section = query?.section ?? sectionFrom(kind, group);
+  const canPage = Boolean(category || (kind && group) || query);
 
   const goTo = useCallback(
     async (next: number) => {
       if (!canPage || loading || next < 1 || next > pages || next === page) return;
       setLoading(true);
       try {
-        const query =
-          kind && group
-            ? `kind=${kind}&group=${group}&page=${next}&lang=${lang}`
-            : `category=${category}&page=${next}&lang=${lang}`;
-        const res = await fetch(`/api/discover?${query}`);
+        const params = new URLSearchParams({ page: String(next), lang });
+        if (query) {
+          if (query.sort) params.set("sort", query.sort);
+          if (query.section) params.set("section", query.section);
+          if (query.genre) params.set("genre", query.genre);
+          if (query.year && query.year !== "all") params.set("year", query.year);
+        } else if (kind && group) {
+          params.set("kind", kind);
+          params.set("group", group);
+        } else if (category) {
+          params.set("category", category);
+        }
+        const res = await fetch(`/api/discover?${params.toString()}`);
         const data = (await res.json()) as {
           results?: MediaItem[];
           totalPages?: number;
+          totalResults?: number;
         };
         setItems(data.results ?? []);
         setPage(next);
         if (data.totalPages) setPages(data.totalPages);
+        if (typeof data.totalResults === "number") setTotal(data.totalResults);
         window.scrollTo({ top: 0, behavior: "smooth" });
       } finally {
         setLoading(false);
       }
     },
-    [canPage, category, group, kind, lang, loading, page, pages]
+    [canPage, category, group, kind, lang, loading, page, pages, query]
   );
 
   const numbers = paginationItems(page, pages);
-
-  return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+  const body = (
+    <>
+      {showFilters && (
+        <CatalogToolbar
+          sort={query?.sort ?? "latest"}
+          section={section}
+          genre={query?.genre ?? ""}
+          year={query?.year ?? "all"}
+        />
+      )}
       <div className="mb-6">
         <h1 className="text-3xl font-black">{title}</h1>
         <p className="mt-1 text-sm text-[#a3a3a3]">
@@ -135,6 +161,13 @@ export default function BrowseGrid({
           </button>
         </div>
       )}
+    </>
+  );
+
+  if (embedded) return <div className={loading ? "opacity-60" : ""}>{body}</div>;
+  return (
+    <div className={`mx-auto max-w-7xl px-4 py-8 sm:px-6 ${loading ? "opacity-60" : ""}`}>
+      {body}
     </div>
   );
 }

@@ -30,7 +30,7 @@ function SearchResults() {
     return <p className="mx-auto max-w-7xl px-4 py-16 text-[#a3a3a3]">{t("loading")}</p>;
   }
 
-  return <BrowseGrid title={`${t("search")}: ${q}`} items={items} />;
+  return <BrowseGrid title={`${t("search")}: ${q}`} items={items} showFilters={false} />;
 }
 
 export default function SearchPage() {
