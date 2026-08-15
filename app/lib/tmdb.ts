@@ -361,24 +361,28 @@ export async function discover(
   }
 
   if (category === "anime") {
+    const tvParams: Record<string, string | number> = {
+      ...common,
+      with_genres: "16",
+      with_origin_country: "JP",
+      ...newestSort("tv"),
+    };
+    const movieParams: Record<string, string | number> = {
+      ...common,
+      with_genres: "16",
+      with_original_language: "ja",
+      ...newestSort("movie"),
+    };
+    applyCatalogFilters("tv", tvParams, filters);
+    applyCatalogFilters("movie", movieParams, filters);
     const [tv, movies] = await Promise.all([
-      discoverList("/discover/tv", {
-        ...common,
-        with_genres: "16",
-        with_origin_country: "JP",
-        ...newestSort("tv"),
-      }),
-      discoverList("/discover/movie", {
-        ...common,
-        with_genres: "16",
-        with_original_language: "ja",
-        ...newestSort("movie"),
-      }),
+      discoverList("/discover/tv", tvParams),
+      discoverList("/discover/movie", movieParams),
     ]);
     return asResult(
       mergeLists(
-        (tv?.results ?? []).map((item) => mapItem(item, "tv")),
-        (movies?.results ?? []).map((item) => mapItem(item, "movie"))
+        constrainCatalogItems((tv?.results ?? []).map((item) => mapItem(item, "tv")), filters),
+        constrainCatalogItems((movies?.results ?? []).map((item) => mapItem(item, "movie")), filters)
       ),
       page,
       Math.max(pageCount(tv), pageCount(movies)),
@@ -573,6 +577,13 @@ export async function discoverFiltered(
     year && (sort === "new-movies" || sort === "new-episodes") ? "latest" : sort;
   const filters: CatalogFilters = { sort: ranking, genre, year };
 
+  if (sort === "trending-anime") {
+    return discoverBrowse({ category: "anime" }, lang, page, {
+      sort: "popular",
+      genre,
+      year,
+    });
+  }
   if (ranking === "new-episodes" && !year) {
     if (section?.kind === "tv") {
       return discoverBrowse({ kind: "tv", group: section.group }, lang, page, filters);

@@ -7,7 +7,8 @@ export type CatalogSort =
   | "rating"
   | "popular"
   | "new-movies"
-  | "new-episodes";
+  | "new-episodes"
+  | "trending-anime";
 
 export type CatalogFilters = {
   sort?: CatalogSort;
@@ -26,6 +27,7 @@ export const SORT_MODES: {
   { id: "popular", labelKey: "sortPopular", icon: "🥇", tone: "bg-[#6b4aa0]" },
   { id: "new-movies", labelKey: "sortNewMovies", icon: "🎥", tone: "bg-[#c9a227]" },
   { id: "new-episodes", labelKey: "sortNewEpisodes", icon: "🎬", tone: "bg-[#d4b84a]" },
+  { id: "trending-anime", labelKey: "sortTrendingAnime", icon: "🍥", tone: "bg-[#c23b7a]" },
 ];
 
 export const FILTER_SECTIONS: { id: string; labelKey: DictKey }[] = [

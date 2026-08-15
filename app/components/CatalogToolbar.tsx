@@ -102,6 +102,7 @@ export default function CatalogToolbar({
     const nextYear = next.year ?? year;
     if (next.sort === "new-movies" && nextSection.startsWith("tv-")) nextSection = "all";
     if (next.sort === "new-episodes" && nextSection.startsWith("movie-")) nextSection = "all";
+    if (next.sort === "trending-anime") nextSection = "all";
     if (nextYear && nextYear !== "all" && (nextSort === "new-movies" || nextSort === "new-episodes")) {
       nextSort = "latest";
     }
