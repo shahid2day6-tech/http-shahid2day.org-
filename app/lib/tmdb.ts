@@ -1,3 +1,5 @@
+import type { CatalogGroup, CatalogKind } from "./catalog";
+
 const TMDB = "https://api.themoviedb.org/3";
 const IMG = "https://image.tmdb.org/t/p";
 
@@ -212,6 +214,67 @@ export async function discover(
     Math.max(pageCount(tv), pageCount(movies)),
     resultCount(tv) + resultCount(movies)
   );
+}
+
+export async function discoverCatalog(
+  kind: CatalogKind,
+  group: CatalogGroup,
+  lang: string,
+  page = 1
+): Promise<DiscoverResult> {
+  const language = lang.startsWith("ar") ? "ar-SA" : "en-US";
+  const path = kind === "movie" ? "/discover/movie" : "/discover/tv";
+  const fallback: MediaType = kind === "movie" ? "movie" : "tv";
+  const common: Record<string, string | number> = {
+    language,
+    page,
+    include_adult: "false",
+    sort_by: "popularity.desc",
+  };
+
+  if (group === "foreign") {
+    common.with_origin_country = "US|GB|CA|AU|FR|DE|IT|ES";
+  } else if (group === "asian") {
+    common.with_origin_country = "JP|KR|CN|TH|TW|HK";
+  } else if (group === "anime") {
+    common.with_genres = "16";
+    if (kind === "tv") {
+      common.with_origin_country = "JP";
+      common.with_keywords = "210024";
+    } else {
+      common.with_original_language = "ja";
+    }
+  } else if (group === "turkish") {
+    common.with_original_language = "tr";
+  } else if (group === "arabic") {
+    common.with_original_language = "ar";
+  } else if (group === "indian") {
+    common.with_origin_country = "IN";
+  } else {
+    common.with_original_language = "en";
+  }
+
+  const data = await tmdb<ListResponse>(path, common);
+  const items = (data?.results ?? []).map((item) => mapItem(item, fallback));
+  return asResult(items, page, pageCount(data), resultCount(data, items.length));
+}
+
+export async function discoverCatalogMany(
+  kind: CatalogKind,
+  group: CatalogGroup,
+  lang: string,
+  startPage = 1,
+  endPage = BROWSE_PRELOAD_PAGES
+): Promise<DiscoverResult> {
+  const last = Math.max(startPage, endPage);
+  const pages = await Promise.all(
+    Array.from({ length: last - startPage + 1 }, (_, i) =>
+      discoverCatalog(kind, group, lang, startPage + i)
+    )
+  );
+  const items = uniqueItems(pages.flatMap((p) => p.items));
+  const first = pages[0];
+  return asResult(items, last, first?.totalPages ?? 1, first?.totalResults ?? items.length);
 }
 
 export async function discoverMany(

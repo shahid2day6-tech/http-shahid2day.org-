@@ -17,13 +17,13 @@ export default function Footer() {
         </div>
         <div>
           <p className="mb-3 text-sm font-black">{t("browse")}</p>
-          <div className="grid grid-cols-2 gap-2 text-sm text-[#cfcfcf]">
+          <div className="grid grid-cols-1 gap-2 text-sm text-[#cfcfcf]">
             <Link href="/movies">{t("movies")}</Link>
             <Link href="/series">{t("series")}</Link>
-            <Link href="/anime">{t("anime")}</Link>
-            <Link href="/arabic">{t("arabic")}</Link>
-            <Link href="/turkish">{t("turkish")}</Link>
-            <Link href="/asian">{t("asian")}</Link>
+            <Link href="/movies/arabic">{t("arabicMovies")}</Link>
+            <Link href="/series/arabic">{t("arabicSeries")}</Link>
+            <Link href="/movies/turkish">{t("turkishMovies")}</Link>
+            <Link href="/series/turkish">{t("turkishSeries")}</Link>
           </div>
         </div>
         <div className="text-sm text-[#a3a3a3]">

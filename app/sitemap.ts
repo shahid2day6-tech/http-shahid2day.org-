@@ -1,8 +1,15 @@
 import type { MetadataRoute } from "next";
+import { MOVIE_GROUPS, SERIES_GROUPS, catalogHref } from "./lib/catalog";
 import { SITE_URL } from "./lib/site";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const routes = ["", "/movies", "/series", "/anime", "/arabic", "/turkish", "/asian"];
+  const routes = [
+    "",
+    "/movies",
+    "/series",
+    ...MOVIE_GROUPS.map((item) => catalogHref("movie", item.group)),
+    ...SERIES_GROUPS.map((item) => catalogHref("tv", item.group)),
+  ];
   return routes.map((route) => ({
     url: `${SITE_URL}${route}`,
     lastModified: new Date(),

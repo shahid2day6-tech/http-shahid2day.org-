@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import type { CatalogGroup, CatalogKind } from "../lib/catalog";
 import type { CategoryKey, MediaItem } from "../lib/tmdb";
 import { useLang } from "../context/LanguageContext";
 import MediaCard from "./MediaCard";
@@ -8,6 +9,8 @@ import MediaCard from "./MediaCard";
 export default function BrowseGrid({
   title,
   category,
+  kind,
+  group,
   items: staticItems,
   initialItems,
   initialPage = 1,
@@ -16,6 +19,8 @@ export default function BrowseGrid({
 }: {
   title: string;
   category?: CategoryKey;
+  kind?: CatalogKind;
+  group?: CatalogGroup;
   items?: MediaItem[];
   initialItems?: MediaItem[];
   initialPage?: number;
@@ -31,22 +36,24 @@ export default function BrowseGrid({
   const sentinelRef = useRef<HTMLDivElement>(null);
   const loadingRef = useRef(false);
   const total = totalResults ?? items.length;
+  const canPage = Boolean(category || (kind && group));
 
-  const hasMore = Boolean(category) && page < pages;
+  const hasMore = canPage && page < pages;
 
   useEffect(() => {
-    if (!category) setItems(staticItems ?? []);
-  }, [category, staticItems]);
+    if (!canPage) setItems(staticItems ?? []);
+  }, [canPage, staticItems]);
 
   const loadMore = useCallback(async () => {
-    if (!category || loadingRef.current || page >= pages) return;
+    if (!canPage || loadingRef.current || page >= pages) return;
     loadingRef.current = true;
     setLoading(true);
     try {
       const next = page + 1;
-      const res = await fetch(
-        `/api/discover?category=${category}&page=${next}&lang=${lang}`
-      );
+      const query = kind && group
+        ? `kind=${kind}&group=${group}&page=${next}&lang=${lang}`
+        : `category=${category}&page=${next}&lang=${lang}`;
+      const res = await fetch(`/api/discover?${query}`);
       const data = (await res.json()) as {
         results?: MediaItem[];
         totalPages?: number;
@@ -65,7 +72,7 @@ export default function BrowseGrid({
       loadingRef.current = false;
       setLoading(false);
     }
-  }, [category, lang, page, pages]);
+  }, [canPage, category, group, kind, lang, page, pages]);
 
   useEffect(() => {
     const el = sentinelRef.current;
@@ -114,7 +121,7 @@ export default function BrowseGrid({
           <button type="button" onClick={() => void loadMore()} className="btn-red px-6 py-2 text-sm">
             {t("loadMore")}
           </button>
-        ) : items.length > 0 && category ? (
+        ) : items.length > 0 && canPage ? (
           <p className="text-sm font-bold text-[#a3a3a3]">{t("allLoaded")}</p>
         ) : null}
       </div>
