@@ -5,19 +5,21 @@ export type WatchServer = {
   url: string;
 };
 
-function withLangParams(baseUrl: string, subLang: string): string {
+function withArabic(baseUrl: string): string {
   const separator = baseUrl.includes("?") ? "&" : "?";
-  return `${baseUrl}${separator}sub=${subLang}&sub_lang=${subLang}&ds_lang=${subLang}&lang=${subLang}&audio_lang=${subLang}`;
+  return `${baseUrl}${separator}sub=ar&sub_lang=ar&ds_lang=ar&lang=ar&audio_lang=ar&subtitle=ar`;
 }
 
 export function buildWatchServers(
   type: "movie" | "tv",
   id: string,
   season = 1,
-  episode = 1,
-  subLang = "ar"
+  episode = 1
 ): WatchServer[] {
-  const lang = subLang === "en" ? "en" : "ar";
+  const vidlink =
+    type === "tv"
+      ? `https://vidlink.pro/tv/${id}/${season}/${episode}?primaryColor=e50914&secondaryColor=111111&autoplay=true`
+      : `https://vidlink.pro/movie/${id}?primaryColor=e50914&secondaryColor=111111&autoplay=true`;
   const vidsrcMe =
     type === "tv"
       ? `https://vidsrc.me/embed/tv/${id}/${season}/${episode}`
@@ -25,9 +27,15 @@ export function buildWatchServers(
 
   return [
     {
-      name: "Shahid2Day",
-      label: "Shahid2Day",
-      url: withLangParams(vidsrcMe, lang),
+      name: "VidLink",
+      label: "VidLink",
+      recommended: true,
+      url: withArabic(vidlink),
+    },
+    {
+      name: "VidLink1",
+      label: "VidLink1",
+      url: withArabic(vidsrcMe),
     },
     {
       name: "MultiEmbed",
@@ -56,23 +64,7 @@ export function buildWatchServers(
     {
       name: "Vidعربي",
       label: "Vidعربي",
-      recommended: true,
-      url: withLangParams(
-        type === "tv"
-          ? `https://vidlink.pro/tv/${id}/${season}/${episode}?primaryColor=e50914&secondaryColor=111111&autoplay=true`
-          : `https://vidlink.pro/movie/${id}?primaryColor=e50914&secondaryColor=111111&autoplay=true`,
-        "ar"
-      ),
-    },
-    {
-      name: "VidLink",
-      label: "VidLink",
-      url: withLangParams(
-        type === "tv"
-          ? `https://vidlink.pro/tv/${id}/${season}/${episode}?primaryColor=e50914&secondaryColor=111111&autoplay=true`
-          : `https://vidlink.pro/movie/${id}?primaryColor=e50914&secondaryColor=111111&autoplay=true`,
-        lang
-      ),
+      url: withArabic(vidlink),
     },
     {
       name: "VidCore",
@@ -95,8 +87,8 @@ export function buildWatchServers(
       label: "VidCC",
       url:
         type === "tv"
-          ? `https://vidsrc.cc/v2/embed/tv/${id}/${season}/${episode}?autoPlay=true`
-          : `https://vidsrc.cc/v2/embed/movie/${id}?autoPlay=true`,
+          ? `https://vidsrc.cc/v2/embed/tv/${id}/${season}/${episode}?autoPlay=true&ds_lang=ar`
+          : `https://vidsrc.cc/v2/embed/movie/${id}?autoPlay=true&ds_lang=ar`,
     },
     {
       name: "EmbedAPI",

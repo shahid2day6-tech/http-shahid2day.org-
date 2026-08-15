@@ -16,7 +16,6 @@ type Props = {
 
 export default function WatchPlayer({ id, type, season, episode }: Props) {
   const { t, lang } = useLang();
-  const subLang = lang === "en" ? "en" : "ar";
   const [title, setTitle] = useState<TitleDetails | null>(null);
   const [started, setStarted] = useState(true);
   const [active, setActive] = useState(0);
@@ -37,8 +36,8 @@ export default function WatchPlayer({ id, type, season, episode }: Props) {
   }, [id, type, lang]);
 
   const servers = useMemo(
-    () => buildWatchServers(type, id, selectedSeason, selectedEpisode, subLang),
-    [type, id, selectedSeason, selectedEpisode, subLang]
+    () => buildWatchServers(type, id, selectedSeason, selectedEpisode),
+    [type, id, selectedSeason, selectedEpisode]
   );
   const current = servers[Math.min(active, Math.max(servers.length - 1, 0))];
   const backHref = title ? titleHref(title) : "/";
