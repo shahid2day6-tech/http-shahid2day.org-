@@ -15,6 +15,7 @@ export type MediaItem = {
   year: string;
   type: MediaType;
   overview: string;
+  originalLanguage: string;
 };
 
 export type CategoryKey =
@@ -72,6 +73,7 @@ function mapItem(
     year: String(item.release_date ?? item.first_air_date ?? "").slice(0, 4),
     type: mediaType === "tv" ? "tv" : "movie",
     overview: String(item.overview ?? ""),
+    originalLanguage: String(item.original_language ?? ""),
   };
 }
 
@@ -402,7 +404,8 @@ export async function searchMedia(query: string, lang: string): Promise<MediaIte
   });
   return (data?.results ?? [])
     .filter((item) => item.media_type === "movie" || item.media_type === "tv")
-    .map((item) => mapItem(item));
+    .map((item) => mapItem(item))
+    .sort((a, b) => Number(Boolean(b.poster)) - Number(Boolean(a.poster)));
 }
 
 function pickText(...values: (string | null | undefined)[]): string {

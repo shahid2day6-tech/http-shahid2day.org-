@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useLang } from "../context/LanguageContext";
 import Logo from "./Logo";
+import SearchBox from "./SearchBox";
 import {
   MOVIE_GROUPS,
   RAMADAN_GROUPS,
@@ -74,15 +75,6 @@ function CatalogMenu({
 export default function Navbar() {
   const { t, toggle } = useLang();
   const pathname = usePathname();
-  const router = useRouter();
-  const [query, setQuery] = useState("");
-
-  function onSearch(e: React.FormEvent) {
-    e.preventDefault();
-    const q = query.trim();
-    if (q.length < 2) return;
-    router.push(`/search?q=${encodeURIComponent(q)}`);
-  }
 
   return (
     <header className="sticky top-0 z-50">
@@ -122,22 +114,7 @@ export default function Navbar() {
             <Logo size="xl" />
           </Link>
 
-          <form onSubmit={onSearch} className="ms-auto w-full min-w-0 sm:max-w-xl">
-            <div className="flex items-center rounded-full bg-[#1a1a1a] p-1.5">
-              <input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder={t("searchHint")}
-                className="min-w-0 flex-1 bg-transparent px-4 py-2 text-sm text-white outline-none placeholder:text-[#6b6b6b]"
-              />
-              <button
-                type="submit"
-                className="shrink-0 rounded-full bg-[#d8d8d8] px-4 py-1.5 text-sm font-black text-[#e50914]"
-              >
-                {t("searchBtn")}
-              </button>
-            </div>
-          </form>
+          <SearchBox />
         </div>
       </div>
     </header>

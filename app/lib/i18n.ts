@@ -67,6 +67,7 @@ export const dict = {
     showingCount: "عرض {count} من {total} عنوان",
     searchBtn: "بحث",
     searchHint: "الكلمات الدلالية للبحث",
+    subtitled: "مترجم",
   },
   en: {
     brand: "SHAHID2DAY",
@@ -134,6 +135,7 @@ export const dict = {
     showingCount: "Showing {count} of {total} titles",
     searchBtn: "Search",
     searchHint: "Search keywords",
+    subtitled: "Subtitled",
   },
 } as const;
 
