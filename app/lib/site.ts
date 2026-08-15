@@ -1,7 +1,7 @@
 export const SITE_NAME_AR = "شاهد تو داي";
 export const SITE_NAME_EN = "SHAHID2DAY";
 export const SITE_URL = (
-  process.env.NEXT_PUBLIC_SITE_URL || "https://shahid2day.org"
+  process.env.NEXT_PUBLIC_SITE_URL || "https://www.shahid2day.org"
 ).replace(/\/+$/, "");
 export const SITE_LOGO = "/logo.png";
 
