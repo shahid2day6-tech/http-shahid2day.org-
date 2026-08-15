@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import type { ReactNode } from "react";
 import type { TitleDetails } from "../lib/tmdb";
 import { useLang } from "../context/LanguageContext";
 import MediaRow from "./MediaRow";
@@ -17,6 +18,32 @@ function FactBox({ label, value }: { label: string; value: string }) {
         {value}
       </span>
     </div>
+  );
+}
+
+function ActionBox({
+  href,
+  label,
+  tone,
+  children,
+}: {
+  href: string;
+  label: string;
+  tone: "red" | "green";
+  children: ReactNode;
+}) {
+  const colors =
+    tone === "red"
+      ? "bg-[#9d0b12] shadow-[0_8px_24px_rgba(157,11,18,0.45)]"
+      : "bg-[#2f6b45] shadow-[0_8px_24px_rgba(47,107,69,0.45)]";
+  return (
+    <a
+      href={href}
+      className={`flex w-full max-w-[220px] flex-col items-center justify-center rounded-2xl px-6 py-7 ${colors}`}
+    >
+      {children}
+      <span className="mt-3 text-lg font-black text-white">{label}</span>
+    </a>
   );
 }
 
@@ -64,10 +91,38 @@ export default function TitleView({ title }: { title: TitleDetails }) {
               <FactBox label={t("genres")} value={title.genres.join(" / ")} />
             </div>
           </div>
+          <div className="flex w-full shrink-0 flex-col gap-3 sm:w-[220px]">
+            <ActionBox href="#watch-on" label={t("watchNow")} tone="red">
+              <span className="flex h-14 w-14 items-center justify-center rounded-full bg-white/90">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="#9d0b12" aria-hidden>
+                  <path d="M8 5.14v13.72L19 12 8 5.14z" />
+                </svg>
+              </span>
+            </ActionBox>
+            <ActionBox href="#watch-on" label={t("downloadNow")} tone="green">
+              <span className="flex h-14 w-14 items-center justify-center rounded-full bg-white/90">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden>
+                  <path
+                    d="M6.5 16.5A4.5 4.5 0 0 1 7 7.6 5.5 5.5 0 0 1 17.7 9 3.8 3.8 0 0 1 18 16.5"
+                    stroke="#2f6b45"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                  />
+                  <path
+                    d="M12 11v7m0 0-3-3m3 3 3-3"
+                    stroke="#2f6b45"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </span>
+            </ActionBox>
+          </div>
         </div>
       </section>
 
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+      <div id="watch-on" className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
         {title.overview && (
           <section className="mb-10 max-w-3xl rounded-2xl bg-[#141414] p-5 sm:p-6">
             <h2 className="mb-3 text-xl font-black">{t("overview")}</h2>
