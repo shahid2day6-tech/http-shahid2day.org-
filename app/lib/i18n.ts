@@ -39,6 +39,8 @@ export const dict = {
     loadingMore: "جاري تحميل المزيد...",
     allLoaded: "تم عرض كل العناوين",
     showingCount: "عرض {count} من {total} عنوان",
+    searchBtn: "بحث",
+    searchHint: "الكلمات الدلالية للبحث",
   },
   en: {
     brand: "SHAHID2DAY",
@@ -78,6 +80,8 @@ export const dict = {
     loadingMore: "Loading more...",
     allLoaded: "You've reached the end",
     showingCount: "Showing {count} of {total} titles",
+    searchBtn: "Search",
+    searchHint: "Search keywords",
   },
 } as const;
 

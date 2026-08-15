@@ -3,14 +3,16 @@ export default function BrandWordmark({
   size = "md",
 }: {
   className?: string;
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg" | "xl";
 }) {
   const sizeClass =
-    size === "lg"
-      ? "text-4xl sm:text-5xl"
-      : size === "sm"
-        ? "text-xl"
-        : "text-[28px] sm:text-[32px]";
+    size === "xl"
+      ? "text-5xl sm:text-6xl md:text-7xl"
+      : size === "lg"
+        ? "text-4xl sm:text-5xl"
+        : size === "sm"
+          ? "text-xl"
+          : "text-[28px] sm:text-[32px]";
 
   return (
     <span

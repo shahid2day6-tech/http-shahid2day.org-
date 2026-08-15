@@ -1,9 +1,15 @@
 import BrandWordmark from "./BrandWordmark";
 
-export default function Logo({ className = "" }: { className?: string }) {
+export default function Logo({
+  className = "",
+  size = "md",
+}: {
+  className?: string;
+  size?: "sm" | "md" | "lg" | "xl";
+}) {
   return (
     <span className={`inline-flex items-center ${className}`}>
-      <BrandWordmark size="md" />
+      <BrandWordmark size={size} />
     </span>
   );
 }

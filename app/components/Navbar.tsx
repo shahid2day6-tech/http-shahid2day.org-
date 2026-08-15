@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useLang } from "../context/LanguageContext";
@@ -20,13 +20,7 @@ export default function Navbar() {
   const { t, toggle } = useLang();
   const pathname = usePathname();
   const router = useRouter();
-  const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const searchRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    setOpen(false);
-  }, [pathname]);
 
   function onSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -36,79 +30,59 @@ export default function Navbar() {
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b border-[#262626] bg-black/80 backdrop-blur-xl">
-      <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 sm:px-6">
-        <Link href="/" className="shrink-0">
-          <Logo />
-        </Link>
-
-        <nav className="hidden items-center gap-1 lg:flex">
-          {links.map((link) => {
-            const active = pathname === link.href;
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`rounded-full px-3 py-1.5 text-sm font-bold ${
-                  active ? "bg-[#e50914] text-white" : "text-[#d4d4d4] hover:text-white"
-                }`}
-              >
-                {t(link.key)}
-              </Link>
-            );
-          })}
-        </nav>
-
-        <form onSubmit={onSearch} className="ms-auto hidden min-w-0 flex-1 max-w-sm md:block">
-          <input
-            ref={searchRef}
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder={t("search")}
-            className="w-full rounded-full border border-[#2a2a2a] bg-[#141414] px-4 py-2 text-sm outline-none ring-[#e50914] placeholder:text-[#777] focus:ring-2"
-          />
-        </form>
-
-        <button type="button" onClick={toggle} className="btn-light hidden px-3 py-1.5 text-xs sm:inline-flex">
-          {t("language")}
-        </button>
-
-        <button
-          type="button"
-          className="ms-auto rounded-lg border border-[#2a2a2a] px-3 py-2 text-sm font-bold lg:hidden"
-          onClick={() => setOpen((v) => !v)}
-          aria-label="menu"
-        >
-          ☰
-        </button>
-      </div>
-
-      {open && (
-        <div className="border-t border-[#262626] bg-black px-4 py-4 lg:hidden">
-          <form onSubmit={onSearch} className="mb-3">
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder={t("search")}
-              className="w-full rounded-full border border-[#2a2a2a] bg-[#141414] px-4 py-2 text-sm outline-none"
-            />
-          </form>
-          <div className="grid grid-cols-2 gap-2">
-            {links.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="rounded-xl bg-[#141414] px-3 py-2 text-sm font-bold"
-              >
-                {t(link.key)}
-              </Link>
-            ))}
-          </div>
-          <button type="button" onClick={toggle} className="btn-light mt-3 w-full py-2 text-sm">
+    <header className="sticky top-0 z-50">
+      <div className="bg-[#9d0b12]">
+        <div className="mx-auto flex max-w-7xl items-center gap-3 px-3 py-2 sm:px-6">
+          <nav className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto">
+            {links.map((link) => {
+              const active = pathname === link.href;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`shrink-0 px-2.5 py-1 text-[13px] font-bold sm:px-3 sm:text-sm ${
+                    active ? "text-white" : "text-white/80 hover:text-white"
+                  }`}
+                >
+                  {t(link.key)}
+                </Link>
+              );
+            })}
+          </nav>
+          <button
+            type="button"
+            onClick={toggle}
+            className="shrink-0 rounded-full bg-black/35 px-3 py-1 text-xs font-bold text-white"
+          >
             {t("language")}
           </button>
         </div>
-      )}
+      </div>
+
+      <div className="border-b border-[#1a1a1a] bg-[#0a0a0a]">
+        <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:gap-6 sm:px-6 sm:py-5">
+          <Link href="/" className="shrink-0 self-start sm:self-center">
+            <Logo size="xl" />
+          </Link>
+
+          <form onSubmit={onSearch} className="ms-auto w-full min-w-0 sm:max-w-xl">
+            <div className="flex items-center rounded-full bg-[#1a1a1a] p-1.5">
+              <input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder={t("searchHint")}
+                className="min-w-0 flex-1 bg-transparent px-4 py-2 text-sm text-white outline-none placeholder:text-[#6b6b6b]"
+              />
+              <button
+                type="submit"
+                className="shrink-0 rounded-full bg-[#d8d8d8] px-4 py-1.5 text-sm font-black text-[#e50914]"
+              >
+                {t("searchBtn")}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
     </header>
   );
 }
