@@ -250,7 +250,7 @@ function applyCatalogFilters(
     params.sort_by =
       sort === "rating"
         ? "vote_average.desc"
-        : sort === "popular" || sort === "trending"
+        : sort === "popular"
           ? "popularity.desc"
           : kind === "movie"
             ? "primary_release_date.desc"
@@ -282,7 +282,7 @@ function applyCatalogFilters(
     delete params["first_air_date.lte"];
     delete params["air_date.gte"];
     delete params["air_date.lte"];
-  } else if (sort === "popular" || sort === "trending") {
+  } else if (sort === "popular") {
     params.sort_by = "popularity.desc";
     delete params["primary_release_date.gte"];
     delete params["primary_release_date.lte"];
@@ -569,14 +569,10 @@ export async function discoverFiltered(
   const year = opts.year && /^\d{4}$/.test(opts.year) ? opts.year : undefined;
   const genre = opts.genre || undefined;
   const section = parseSection(opts.section);
-  const hasBoxFilters = Boolean(section || genre || year);
   const ranking: CatalogSort =
     year && (sort === "new-movies" || sort === "new-episodes") ? "latest" : sort;
   const filters: CatalogFilters = { sort: ranking, genre, year };
 
-  if (sort === "trending" && !hasBoxFilters) {
-    return discoverBrowse({ category: "trending" }, lang, page, filters);
-  }
   if (ranking === "new-episodes" && !year) {
     if (section?.kind === "tv") {
       return discoverBrowse({ kind: "tv", group: section.group }, lang, page, filters);

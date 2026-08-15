@@ -6,7 +6,6 @@ export type CatalogSort =
   | "latest"
   | "rating"
   | "popular"
-  | "trending"
   | "new-movies"
   | "new-episodes";
 
@@ -25,7 +24,6 @@ export const SORT_MODES: {
   { id: "latest", labelKey: "sortLatest", icon: "◎", tone: "bg-[#1f8a8a]" },
   { id: "rating", labelKey: "sortRating", icon: "★", tone: "bg-[#c9a227]" },
   { id: "popular", labelKey: "sortPopular", icon: "🥇", tone: "bg-[#6b4aa0]" },
-  { id: "trending", labelKey: "sortPinned", icon: "%", tone: "bg-[#b42318]" },
   { id: "new-movies", labelKey: "sortNewMovies", icon: "🎥", tone: "bg-[#c9a227]" },
   { id: "new-episodes", labelKey: "sortNewEpisodes", icon: "🎬", tone: "bg-[#d4b84a]" },
 ];
