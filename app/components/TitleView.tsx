@@ -9,9 +9,13 @@ import BrandWordmark from "./BrandWordmark";
 function FactBox({ label, value }: { label: string; value: string }) {
   if (!value) return null;
   return (
-    <div className="rounded-xl bg-[#141414]/90 px-4 py-2.5 text-sm sm:text-base">
-      <span className="font-bold text-[#e50914]">{label}: </span>
-      <span dir="auto">{value}</span>
+    <div className="flex w-fit max-w-full items-center gap-2">
+      <span className="inline-block w-fit rounded-md bg-[#e50914] px-3 py-1.5 text-sm font-bold text-white">
+        {label}
+      </span>
+      <span className="text-sm font-bold text-white sm:text-base" dir="auto">
+        {value}
+      </span>
     </div>
   );
 }
@@ -46,7 +50,7 @@ export default function TitleView({ title }: { title: TitleDetails }) {
             <h1 className="text-3xl font-black sm:text-5xl" dir="auto">
               {title.title}
             </h1>
-            <div className="mt-4 flex flex-col gap-2">
+            <div className="mt-4 flex flex-col items-start gap-2">
               <FactBox
                 label={t("classification")}
                 value={title.type === "tv" ? t("show") : t("movie")}
