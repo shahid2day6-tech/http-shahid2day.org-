@@ -1,7 +1,10 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import type { MediaItem } from "../lib/tmdb";
 import { titleHref } from "../lib/slug";
+import { useLang } from "../context/LanguageContext";
 
 export default function MediaCard({
   item,
@@ -13,6 +16,7 @@ export default function MediaCard({
   showLabel: string;
 }) {
   const href = titleHref(item);
+  const { t } = useLang();
 
   return (
     <Link href={href} className="poster-card group block w-full">
@@ -43,7 +47,10 @@ export default function MediaCard({
         <p className="line-clamp-2 text-sm font-extrabold leading-snug" dir="auto">
           {item.title}
         </p>
-        <p className="mt-1 text-xs text-[#a3a3a3]">{item.year}</p>
+        <p className="mt-1 text-xs text-[#a3a3a3]">
+          {item.year}
+          {item.originalLanguage && item.originalLanguage !== "ar" ? ` · ${t("subtitled")}` : ""}
+        </p>
       </div>
     </Link>
   );

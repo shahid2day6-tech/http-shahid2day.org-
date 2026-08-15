@@ -10,8 +10,10 @@ export default function HomeCatalog({
   movies,
   series,
   ramadan,
-  anime,
-  arabic,
+  animeMovies,
+  animeSeries,
+  arabicMovies,
+  arabicSeries,
   turkish,
   asian,
 }: {
@@ -19,8 +21,10 @@ export default function HomeCatalog({
   movies: MediaItem[];
   series: MediaItem[];
   ramadan: MediaItem[];
-  anime: MediaItem[];
-  arabic: MediaItem[];
+  animeMovies: MediaItem[];
+  animeSeries: MediaItem[];
+  arabicMovies: MediaItem[];
+  arabicSeries: MediaItem[];
   turkish: MediaItem[];
   asian: MediaItem[];
 }) {
@@ -33,9 +37,11 @@ export default function HomeCatalog({
         <MediaRow title={t("trending")} items={trending} />
         <MediaRow title={t("latestMovies")} href="/movies" items={movies} />
         <MediaRow title={t("latestSeries")} href="/series" items={series} />
+        <MediaRow title={t("arabicMovies")} href="/movies/arabic" items={arabicMovies} />
+        <MediaRow title={t("arabicSeries")} href="/series/arabic" items={arabicSeries} />
+        <MediaRow title={t("animeMovies")} href="/movies/anime" items={animeMovies} />
+        <MediaRow title={t("animeSeries")} href="/series/anime" items={animeSeries} />
         <MediaRow title={t("ramadanSeries")} href="/series/ramadan" items={ramadan} />
-        <MediaRow title={t("anime")} href="/anime" items={anime} />
-        <MediaRow title={t("arabic")} href="/arabic" items={arabic} />
         <MediaRow title={t("turkish")} href="/turkish" items={turkish} />
         <MediaRow title={t("asian")} href="/asian" items={asian} />
       </div>

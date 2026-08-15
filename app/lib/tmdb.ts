@@ -72,7 +72,8 @@ function mapItem(
   return {
     id: Number(item.id),
     title,
-    poster: posterUrl((item.poster_path as string | null) ?? null),
+    poster: posterUrl((item.poster_path as string | null) ?? null)
+      ?? backdropUrl((item.backdrop_path as string | null) ?? null, "w780"),
     backdrop: backdropUrl((item.backdrop_path as string | null) ?? null),
     rating:
       typeof item.vote_average === "number" && item.vote_average > 0
@@ -109,6 +110,39 @@ async function tmdb<T>(
   });
   if (!res.ok) return null;
   return (await res.json()) as T;
+}
+
+function mergeListResponses(
+  primary: ListResponse | null,
+  extra: ListResponse | null
+): ListResponse | null {
+  if (!primary) return extra;
+  if (!extra?.results?.length) return primary;
+  const extras = new Map(extra.results.map((row) => [Number(row.id), row]));
+  const results = (primary.results ?? []).map((row) => {
+    const en = extras.get(Number(row.id));
+    if (!en) return row;
+    return {
+      ...row,
+      poster_path: row.poster_path || en.poster_path,
+      backdrop_path: row.backdrop_path || en.backdrop_path,
+      overview: pickText(row.overview as string, en.overview as string),
+      original_title: row.original_title || en.original_title,
+      original_name: row.original_name || en.original_name,
+    };
+  });
+  return { ...primary, results };
+}
+
+async function discoverList(
+  path: string,
+  params: Record<string, string | number>
+): Promise<ListResponse | null> {
+  const lang = String(params.language ?? "");
+  const primary = await tmdb<ListResponse>(path, params);
+  if (!lang.startsWith("ar")) return primary;
+  const english = await tmdb<ListResponse>(path, { ...params, language: "en-US" });
+  return mergeListResponses(primary, english);
 }
 
 type ListResponse = {
@@ -153,7 +187,7 @@ export async function discover(
   const common = { language, page, include_adult: "false" };
 
   if (category === "trending") {
-    const data = await tmdb<ListResponse>("/trending/all/day", { language });
+    const data = await discoverList("/trending/all/day", { language });
     const items = (data?.results ?? [])
       .filter((item) => item.media_type === "movie" || item.media_type === "tv")
       .map((item) => mapItem(item));
@@ -161,7 +195,7 @@ export async function discover(
   }
 
   if (category === "movies") {
-    const data = await tmdb<ListResponse>("/discover/movie", {
+    const data = await discoverList("/discover/movie", {
       ...common,
       sort_by: "popularity.desc",
     });
@@ -170,7 +204,7 @@ export async function discover(
   }
 
   if (category === "series") {
-    const data = await tmdb<ListResponse>("/discover/tv", {
+    const data = await discoverList("/discover/tv", {
       ...common,
       sort_by: "popularity.desc",
     });
@@ -180,14 +214,13 @@ export async function discover(
 
   if (category === "anime") {
     const [tv, movies] = await Promise.all([
-      tmdb<ListResponse>("/discover/tv", {
+      discoverList("/discover/tv", {
         ...common,
         with_genres: "16",
         with_origin_country: "JP",
-        with_keywords: "210024",
         sort_by: "popularity.desc",
       }),
-      tmdb<ListResponse>("/discover/movie", {
+      discoverList("/discover/movie", {
         ...common,
         with_genres: "16",
         with_original_language: "ja",
@@ -214,14 +247,14 @@ export async function discover(
   }
 
   const [tv, movies] = await Promise.all([
-    tmdb<ListResponse>("/discover/tv", {
+    discoverList("/discover/tv", {
       ...common,
       with_origin_country: "JP|KR|CN|TH|IN|TW|HK",
       without_genres: "16",
       without_keywords: "210024",
       sort_by: "popularity.desc",
     }),
-    tmdb<ListResponse>("/discover/movie", {
+    discoverList("/discover/movie", {
       ...common,
       with_origin_country: "JP|KR|CN|TH|IN|TW|HK",
       without_genres: "16",
@@ -266,7 +299,6 @@ export async function discoverCatalog(
     common.with_genres = "16";
     if (kind === "tv") {
       common.with_origin_country = "JP";
-      common.with_keywords = "210024";
     } else {
       common.with_original_language = "ja";
     }
@@ -282,7 +314,7 @@ export async function discoverCatalog(
     common.with_original_language = "en";
   }
 
-  const data = await tmdb<ListResponse>(path, common);
+  const data = await discoverList(path, common);
   const items = (data?.results ?? []).map((item) => mapItem(item, fallback));
   return asResult(items, page, pageCount(data), resultCount(data, items.length));
 }
@@ -369,8 +401,8 @@ async function discoverByLanguage(
     sort_by: "popularity.desc",
   };
   const [tv, movies] = await Promise.all([
-    tmdb<ListResponse>("/discover/tv", common),
-    tmdb<ListResponse>("/discover/movie", common),
+    discoverList("/discover/tv", common),
+    discoverList("/discover/movie", common),
   ]);
   return asResult(
     mergeLists(
@@ -549,7 +581,7 @@ async function discoverRamadan(
 
   const [named, tagged, seasonal] = await Promise.all([
     tmdb<ListResponse>("/search/tv", search),
-    tmdb<ListResponse>("/discover/tv", {
+    discoverList("/discover/tv", {
       language,
       page,
       include_adult: "false",
@@ -558,7 +590,7 @@ async function discoverRamadan(
       with_keywords: "297545",
       ...window,
     }),
-    tmdb<ListResponse>("/discover/tv", {
+    discoverList("/discover/tv", {
       language,
       page,
       include_adult: "false",
@@ -701,24 +733,39 @@ export async function getTitle(
 }
 
 export async function homeCatalog(lang: string) {
-  const [trending, movies, series, ramadan, anime, arabic, turkish, asian] = await Promise.all([
+  const [
+    trending,
+    movies,
+    series,
+    ramadan,
+    animeMovies,
+    animeSeries,
+    arabicMovies,
+    arabicSeries,
+    turkish,
+    asian,
+  ] = await Promise.all([
     discover("trending", lang),
-    discover("movies", lang),
-    discover("series", lang),
+    discoverMany("movies", lang, 1, 2),
+    discoverMany("series", lang, 1, 2),
     discoverCatalog("tv", "ramadan", lang),
-    discover("anime", lang),
-    discover("arabic", lang),
+    discoverCatalogMany("movie", "anime", lang, 1, 2),
+    discoverCatalogMany("tv", "anime", lang, 1, 2),
+    discoverCatalogMany("movie", "arabic", lang, 1, 2),
+    discoverCatalogMany("tv", "arabic", lang, 1, 2),
     discover("turkish", lang),
     discover("asian", lang),
   ]);
-  const row = (result: DiscoverResult) => result.items.slice(0, 20);
+  const row = (result: DiscoverResult) => uniqueItems(result.items).slice(0, 24);
   return {
     trending: row(trending),
     movies: row(movies),
     series: row(series),
     ramadan: row(ramadan),
-    anime: row(anime),
-    arabic: row(arabic),
+    animeMovies: row(animeMovies),
+    animeSeries: row(animeSeries),
+    arabicMovies: row(arabicMovies),
+    arabicSeries: row(arabicSeries),
     turkish: row(turkish),
     asian: row(asian),
   };
