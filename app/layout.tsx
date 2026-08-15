@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { Bebas_Neue, Tajawal } from "next/font/google";
 import { LanguageProvider } from "./context/LanguageContext";
-import Navbar from "./components/Navbar";
-import Footer from "./components/Footer";
+import SiteShell from "./components/SiteShell";
 import { SITE_LOGO, SITE_NAME_AR, SITE_NAME_EN, SITE_URL } from "./lib/site";
 import "./globals.css";
 
@@ -121,9 +120,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
         <LanguageProvider>
-          <Navbar />
-          <main>{children}</main>
-          <Footer />
+          <SiteShell>{children}</SiteShell>
         </LanguageProvider>
       </body>
     </html>

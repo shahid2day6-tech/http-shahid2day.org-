@@ -102,7 +102,7 @@ export default function TitleView({ title }: { title: TitleDetails }) {
           </div>
         </div>
         <div className="relative z-10 mx-4 mb-6 flex w-[220px] flex-col gap-3 sm:absolute sm:bottom-16 sm:left-4 sm:mx-0 sm:mb-0">
-          <ActionBox href="#watch-on" label={t("watchNow")} tone="red">
+          <ActionBox href="/watch" label={t("watchNow")} tone="red">
             <span className="flex h-14 w-14 items-center justify-center rounded-full bg-white/90">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="#9d0b12" aria-hidden>
                 <path d="M8 5.14v13.72L19 12 8 5.14z" />
