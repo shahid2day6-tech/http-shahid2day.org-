@@ -1,0 +1,17 @@
+name: Catalog refresh
+
+on:
+  schedule:
+    - cron: "0 18 * * *"
+  workflow_dispatch:
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Refresh TMDB catalog
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          curl -fsS -H "Authorization: Bearer ${CRON_SECRET}" \
+            "https://www.shahid2day.org/api/cron/catalog-refresh"
