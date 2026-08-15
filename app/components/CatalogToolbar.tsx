@@ -56,6 +56,7 @@ function CheckRow({
   return (
     <Link
       href={href}
+      prefetch={false}
       className="mb-1 flex w-full items-center gap-3 rounded-lg bg-[#151a2b] px-3 py-2.5 text-sm font-bold text-white last:mb-0 hover:bg-[#1c2338]"
     >
       <span
@@ -95,12 +96,15 @@ export default function CatalogToolbar({
 
   function hrefFor(next: { sort?: CatalogSort; section?: string; genre?: string; year?: string }) {
     const params = new URLSearchParams();
-    const nextSort = next.sort ?? sort;
+    let nextSort = next.sort ?? sort;
     let nextSection = next.section ?? section;
     const nextGenre = Object.prototype.hasOwnProperty.call(next, "genre") ? next.genre ?? "" : genre;
     const nextYear = next.year ?? year;
     if (next.sort === "new-movies" && nextSection.startsWith("tv-")) nextSection = "all";
     if (next.sort === "new-episodes" && nextSection.startsWith("movie-")) nextSection = "all";
+    if (nextYear && nextYear !== "all" && (nextSort === "new-movies" || nextSort === "new-episodes")) {
+      nextSort = "latest";
+    }
     params.set("sort", nextSort);
     if (nextSection && nextSection !== "all") params.set("section", nextSection);
     if (nextGenre) params.set("genre", nextGenre);
@@ -126,6 +130,7 @@ export default function CatalogToolbar({
             <Link
               key={mode.id}
               href={hrefFor({ sort: mode.id })}
+              prefetch={false}
               className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-bold text-white ${
                 active ? "bg-[#9d0b12]" : "bg-[#151a2b] hover:bg-[#1c2338]"
               }`}

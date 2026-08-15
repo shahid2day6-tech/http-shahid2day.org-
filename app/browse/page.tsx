@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
-import BrowseGrid from "../components/BrowseGrid";
-import CatalogToolbar from "../components/CatalogToolbar";
-import { isCatalogSort, SORT_MODES } from "../lib/filters";
-import { dict } from "../lib/i18n";
+import { Suspense } from "react";
+import FilteredBrowse from "../components/FilteredBrowse";
+import { browseHeading, isCatalogSort } from "../lib/filters";
+import { dict, type DictKey } from "../lib/i18n";
 import { discoverFiltered } from "../lib/tmdb";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
+export const fetchCache = "force-no-store";
 
 type Props = {
   searchParams: Promise<{
@@ -20,8 +22,9 @@ type Props = {
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
   const params = await searchParams;
   const sort = isCatalogSort(params.sort) ? params.sort : "latest";
-  const mode = SORT_MODES.find((item) => item.id === sort);
-  return { title: mode ? dict.ar[mode.labelKey] : "تصفح" };
+  return {
+    title: browseHeading((key: DictKey) => dict.ar[key], sort, params.section, params.genre, params.year),
+  };
 }
 
 export default async function BrowsePage({ searchParams }: Props) {
@@ -37,22 +40,12 @@ export default async function BrowsePage({ searchParams }: Props) {
     genre: genre || undefined,
     year: year === "all" ? undefined : year,
   });
-  const heading = dict.ar[SORT_MODES.find((item) => item.id === sort)?.labelKey ?? "sortLatest"];
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
-      <CatalogToolbar sort={sort} section={section} genre={genre} year={year} />
-      <BrowseGrid
-        key={`${sort}-${section}-${genre}-${year}-${page}`}
-        title={heading}
-        embedded
-        showFilters={false}
-        query={{ sort, section, genre, year }}
-        initialItems={data.items}
-        initialPage={data.page}
-        totalPages={data.totalPages}
-        totalResults={data.totalResults}
-      />
+      <Suspense fallback={null}>
+        <FilteredBrowse initial={data} sort={sort} section={section} genre={genre} year={year} />
+      </Suspense>
     </div>
   );
 }

@@ -2,6 +2,7 @@ import type { DictKey } from "./i18n";
 
 export type CatalogKind = "movie" | "tv";
 export type CatalogGroup =
+  | "franchises"
   | "foreign"
   | "asian"
   | "anime"
@@ -17,6 +18,7 @@ export type CatalogGroup =
   | "ramadan2026";
 
 export const MOVIE_GROUPS: { group: CatalogGroup; label: DictKey }[] = [
+  { group: "franchises", label: "movieFranchises" },
   { group: "foreign", label: "foreignMovies" },
   { group: "asian", label: "asianMovies" },
   { group: "anime", label: "animeMovies" },

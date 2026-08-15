@@ -29,7 +29,7 @@ export default function MediaRow({
       </div>
       <div className="row-scroll">
         {items.map((item) => (
-          <div key={`${item.type}-${item.id}`} className="w-[148px] shrink-0 scroll-snap-start sm:w-[168px]">
+          <div key={item.href ?? `${item.type}-${item.id}`} className="w-[148px] shrink-0 scroll-snap-start sm:w-[168px]">
             <MediaCard item={item} movieLabel={t("movie")} showLabel={t("show")} />
           </div>
         ))}

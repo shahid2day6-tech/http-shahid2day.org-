@@ -88,3 +88,23 @@ export function sectionFrom(kind?: CatalogKind, group?: CatalogGroup): string {
 export function isCatalogSort(value: string | null | undefined): value is CatalogSort {
   return SORT_MODES.some((item) => item.id === value);
 }
+
+export function browseHeading(
+  t: (key: DictKey) => string,
+  sort: CatalogSort,
+  section?: string,
+  genre?: string,
+  year?: string
+): string {
+  const parts = [t(SORT_MODES.find((item) => item.id === sort)?.labelKey ?? "sortLatest")];
+  if (section && section !== "all") {
+    const item = FILTER_SECTIONS.find((entry) => entry.id === section);
+    if (item) parts.push(t(item.labelKey));
+  }
+  if (genre) {
+    const item = FILTER_GENRES.find((entry) => entry.id === genre);
+    if (item) parts.push(t(item.labelKey));
+  }
+  if (year && year !== "all") parts.push(year);
+  return parts.join(" · ");
+}

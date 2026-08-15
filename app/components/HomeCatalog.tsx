@@ -20,6 +20,7 @@ export default function HomeCatalog({
   arabicSeries,
   turkish,
   asian,
+  franchises,
 }: {
   trending: MediaItem[];
   movies: MediaItem[];
@@ -34,6 +35,7 @@ export default function HomeCatalog({
   arabicSeries: MediaItem[];
   turkish: MediaItem[];
   asian: MediaItem[];
+  franchises: MediaItem[];
 }) {
   const { t } = useLang();
 
@@ -47,6 +49,7 @@ export default function HomeCatalog({
         <MediaRow title={t("newAnimeEpisodes")} href="/series/anime" items={animeEpisodes} />
         <MediaRow title={t("newArabicEpisodes")} href="/series/arabic" items={arabicEpisodes} />
         <MediaRow title={t("latestMovies")} href="/movies" items={movies} />
+        <MediaRow title={t("movieFranchises")} href="/movies/franchises" items={franchises} />
         <MediaRow title={t("latestSeries")} href="/series" items={series} />
         <MediaRow title={t("arabicMovies")} href="/movies/arabic" items={arabicMovies} />
         <MediaRow title={t("arabicSeries")} href="/series/arabic" items={arabicSeries} />

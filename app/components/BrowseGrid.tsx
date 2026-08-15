@@ -125,7 +125,7 @@ export default function BrowseGrid({
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
           {items.map((item) => (
             <MediaCard
-              key={`${item.type}-${item.id}`}
+              key={item.href ?? `${item.type}-${item.id}`}
               item={item}
               movieLabel={t("movie")}
               showLabel={t("show")}

@@ -18,6 +18,9 @@ export type MediaItem = {
   type: MediaType;
   overview: string;
   originalLanguage: string;
+  genreIds?: number[];
+  href?: string;
+  isFranchise?: boolean;
 };
 
 export type CategoryKey =
@@ -95,6 +98,9 @@ function mapItem(
     type: mediaType === "tv" ? "tv" : "movie",
     overview: String(item.overview ?? ""),
     originalLanguage,
+    genreIds: Array.isArray(item.genre_ids)
+      ? (item.genre_ids as unknown[]).map(Number).filter((id) => Number.isFinite(id))
+      : [],
   };
 }
 
@@ -108,7 +114,7 @@ export function listingTitle(item: Pick<MediaItem, "title" | "type" | "year" | "
 async function tmdb<T>(
   path: string,
   params: Record<string, string | number> = {},
-  revalidate = 3600
+  revalidate: number | false = 3600
 ): Promise<T | null> {
   const apiKey = key();
   if (!apiKey) return null;
@@ -117,9 +123,10 @@ async function tmdb<T>(
   for (const [k, v] of Object.entries(params)) {
     url.searchParams.set(k, String(v));
   }
-  const res = await fetch(url.toString(), {
-    next: { revalidate },
-  });
+  const res = await fetch(
+    url.toString(),
+    revalidate === false ? { cache: "no-store" } : { next: { revalidate } }
+  );
   if (!res.ok) return null;
   return (await res.json()) as T;
 }
@@ -151,9 +158,9 @@ async function discoverList(
   params: Record<string, string | number>
 ): Promise<ListResponse | null> {
   const lang = String(params.language ?? "");
-  const primary = await tmdb<ListResponse>(path, params);
+  const primary = await tmdb<ListResponse>(path, params, false);
   if (!lang.startsWith("ar")) return primary;
-  const english = await tmdb<ListResponse>(path, { ...params, language: "en-US" });
+  const english = await tmdb<ListResponse>(path, { ...params, language: "en-US" }, false);
   return mergeListResponses(primary, english);
 }
 
@@ -216,13 +223,55 @@ function newEpisodeWindow(): Record<string, string> {
   };
 }
 
+function constrainCatalogItems(items: MediaItem[], filters?: CatalogFilters): MediaItem[] {
+  let out = items;
+  if (filters?.year && /^\d{4}$/.test(filters.year)) {
+    out = out.filter((item) => item.year === filters.year);
+  }
+  if (filters?.genre) {
+    const genre = FILTER_GENRES.find((item) => item.id === filters.genre);
+    const ids = [genre?.movieId, genre?.tvId].filter((id): id is number => Boolean(id));
+    if (ids.length) {
+      out = out.filter((item) => item.genreIds?.some((id) => ids.includes(id)));
+    }
+  }
+  return out;
+}
+
 function applyCatalogFilters(
   kind: CatalogKind,
   params: Record<string, string | number>,
   filters?: CatalogFilters
 ) {
   const sort: CatalogSort = filters?.sort ?? "latest";
-  if (sort === "latest") {
+  const year = filters?.year && /^\d{4}$/.test(filters.year) ? filters.year : "";
+
+  if (year) {
+    params.sort_by =
+      sort === "rating"
+        ? "vote_average.desc"
+        : sort === "popular" || sort === "trending"
+          ? "popularity.desc"
+          : kind === "movie"
+            ? "primary_release_date.desc"
+            : "first_air_date.desc";
+    if (sort === "rating") params["vote_count.gte"] = 50;
+    delete params["air_date.gte"];
+    delete params["air_date.lte"];
+    if (kind === "movie") {
+      params.primary_release_year = year;
+      params["primary_release_date.gte"] = `${year}-01-01`;
+      params["primary_release_date.lte"] = `${year}-12-31`;
+      delete params["first_air_date.gte"];
+      delete params["first_air_date.lte"];
+    } else {
+      params.first_air_date_year = year;
+      params["first_air_date.gte"] = `${year}-01-01`;
+      params["first_air_date.lte"] = `${year}-12-31`;
+      delete params["primary_release_date.gte"];
+      delete params["primary_release_date.lte"];
+    }
+  } else if (sort === "latest") {
     Object.assign(params, newestSort(kind));
   } else if (sort === "rating") {
     params.sort_by = "vote_average.desc";
@@ -253,22 +302,15 @@ function applyCatalogFilters(
     Object.assign(params, newEpisodeWindow());
   }
 
-  if (filters?.year && /^\d{4}$/.test(filters.year)) {
-    delete params["primary_release_date.gte"];
-    delete params["primary_release_date.lte"];
-    delete params["first_air_date.gte"];
-    delete params["first_air_date.lte"];
-    if (kind === "movie") params.primary_release_year = filters.year;
-    else params.first_air_date_year = filters.year;
-  }
-
   if (filters?.genre) {
     const genre = FILTER_GENRES.find((item) => item.id === filters.genre);
     const genreId = kind === "movie" ? genre?.movieId : genre?.tvId;
-    if (genreId && String(params.with_genres ?? "") !== "16") {
-      params.with_genres = String(genreId);
-    } else if (genreId && !params.with_genres) {
-      params.with_genres = String(genreId);
+    if (genreId) {
+      const existing = String(params.with_genres ?? "");
+      if (!existing) params.with_genres = String(genreId);
+      else if (!existing.split(",").includes(String(genreId))) {
+        params.with_genres = `${existing},${genreId}`;
+      }
     }
   }
 }
@@ -297,7 +339,10 @@ export async function discover(
     };
     applyCatalogFilters("movie", params, filters);
     const data = await discoverList("/discover/movie", params);
-    const items = (data?.results ?? []).map((item) => mapItem(item, "movie"));
+    const items = constrainCatalogItems(
+      (data?.results ?? []).map((item) => mapItem(item, "movie")),
+      filters
+    );
     return asResult(items, page, pageCount(data), resultCount(data, items.length));
   }
 
@@ -308,7 +353,10 @@ export async function discover(
     };
     applyCatalogFilters("tv", params, filters);
     const data = await discoverList("/discover/tv", params);
-    const items = (data?.results ?? []).map((item) => mapItem(item, "tv"));
+    const items = constrainCatalogItems(
+      (data?.results ?? []).map((item) => mapItem(item, "tv")),
+      filters
+    );
     return asResult(items, page, pageCount(data), resultCount(data, items.length));
   }
 
@@ -380,6 +428,9 @@ export async function discoverCatalog(
   page = 1,
   filters?: CatalogFilters
 ): Promise<DiscoverResult> {
+  if (kind === "movie" && group === "franchises") {
+    return discoverFranchises(lang, page);
+  }
   const language = lang.startsWith("ar") ? "ar-SA" : "en-US";
   const path = kind === "movie" ? "/discover/movie" : "/discover/tv";
   const fallback: MediaType = kind === "movie" ? "movie" : "tv";
@@ -410,14 +461,23 @@ export async function discoverCatalog(
   } else if (group === "indian") {
     common.with_origin_country = "IN";
   } else if (group.startsWith("ramadan")) {
-    return discoverRamadan(group, lang, page);
+    const data = await discoverRamadan(group, lang, page);
+    return asResult(
+      constrainCatalogItems(data.items, filters),
+      data.page,
+      data.totalPages,
+      data.totalResults
+    );
   } else {
     common.with_original_language = "en";
   }
 
   applyCatalogFilters(kind, common, filters);
   const data = await discoverList(path, common);
-  const items = (data?.results ?? []).map((item) => mapItem(item, fallback));
+  const items = constrainCatalogItems(
+    (data?.results ?? []).map((item) => mapItem(item, fallback)),
+    filters
+  );
   return asResult(items, page, pageCount(data), resultCount(data, items.length));
 }
 
@@ -474,6 +534,9 @@ export async function discoverBrowse(
   browsePage = 1,
   filters?: CatalogFilters
 ): Promise<DiscoverResult> {
+  if ("kind" in source && source.kind === "movie" && source.group === "franchises") {
+    return discoverFranchises(lang, browsePage);
+  }
   const page = Math.max(1, browsePage);
   const start = (page - 1) * BROWSE_PAGE_SIZE;
   const tmdbStart = Math.floor(start / TMDB_PAGE_SIZE) + 1;
@@ -486,7 +549,10 @@ export async function discoverBrowse(
         : discover(source.category, lang, tmdbPage, filters);
     })
   );
-  const combined = uniqueItems(chunks.flatMap((chunk) => chunk.items));
+  const combined = constrainCatalogItems(
+    uniqueItems(chunks.flatMap((chunk) => chunk.items)),
+    filters
+  );
   const skip = start % TMDB_PAGE_SIZE;
   const items = combined.slice(skip, skip + BROWSE_PAGE_SIZE);
   const totalResults = chunks[0]?.totalResults ?? items.length;
@@ -500,19 +566,24 @@ export async function discoverFiltered(
   opts: { section?: string; sort?: CatalogSort; genre?: string; year?: string }
 ): Promise<DiscoverResult> {
   const sort: CatalogSort = opts.sort ?? "latest";
-  const filters: CatalogFilters = { sort, genre: opts.genre, year: opts.year };
+  const year = opts.year && /^\d{4}$/.test(opts.year) ? opts.year : undefined;
+  const genre = opts.genre || undefined;
   const section = parseSection(opts.section);
+  const hasBoxFilters = Boolean(section || genre || year);
+  const ranking: CatalogSort =
+    year && (sort === "new-movies" || sort === "new-episodes") ? "latest" : sort;
+  const filters: CatalogFilters = { sort: ranking, genre, year };
 
-  if (sort === "trending") {
+  if (sort === "trending" && !hasBoxFilters) {
     return discoverBrowse({ category: "trending" }, lang, page, filters);
   }
-  if (sort === "new-episodes") {
+  if (ranking === "new-episodes" && !year) {
     if (section?.kind === "tv") {
       return discoverBrowse({ kind: "tv", group: section.group }, lang, page, filters);
     }
     return discoverBrowse({ category: "series" }, lang, page, filters);
   }
-  if (sort === "new-movies") {
+  if (ranking === "new-movies" && !year) {
     if (section?.kind === "movie") {
       return discoverBrowse({ kind: "movie", group: section.group }, lang, page, filters);
     }
@@ -520,6 +591,9 @@ export async function discoverFiltered(
   }
   if (section) {
     return discoverBrowse({ kind: section.kind, group: section.group }, lang, page, filters);
+  }
+  if (ranking === "new-episodes") {
+    return discoverBrowse({ category: "series" }, lang, page, filters);
   }
   return discoverBrowse({ category: "movies" }, lang, page, filters);
 }
@@ -575,7 +649,7 @@ async function discoverByLanguage(
 function uniqueItems(items: MediaItem[]): MediaItem[] {
   const seen = new Set<string>();
   return items.filter((item) => {
-    const k = `${item.type}-${item.id}`;
+    const k = item.href ?? `${item.type}-${item.id}`;
     if (seen.has(k) || !item.poster) return false;
     seen.add(k);
     return true;
@@ -596,6 +670,154 @@ function mergeLists(a: MediaItem[], b: MediaItem[]): MediaItem[] {
     }
   }
   return out;
+}
+
+const FRANCHISE_QUERIES = [
+  "marvel",
+  "star wars",
+  "harry potter",
+  "fast furious",
+  "mission impossible",
+  "john wick",
+  "james bond",
+  "jurassic",
+  "spider-man",
+  "batman",
+  "avengers",
+  "x-men",
+  "terminator",
+  "alien",
+  "matrix",
+  "toy story",
+  "pirates of the caribbean",
+  "hunger games",
+  "transformers",
+  "conjuring",
+  "halloween",
+  "saw",
+  "dune",
+  "indiana jones",
+  "despicable me",
+  "shrek",
+  "frozen",
+  "godfather",
+  "superman",
+  "deadpool",
+  "venom",
+  "iron man",
+  "thor",
+  "captain america",
+  "guardians of the galaxy",
+  "black panther",
+  "planet of the apes",
+  "rocky",
+  "rambo",
+  "die hard",
+  "bourne",
+  "equalizer",
+  "ip man",
+  "kung fu panda",
+  "how to train your dragon",
+  "ice age",
+  "cars",
+  "incredibles",
+  "jumanji",
+  "ghostbusters",
+  "scream",
+  "insidious",
+  "resident evil",
+  "twilight",
+  "hobbit",
+  "lord of the rings",
+  "star trek",
+  "men in black",
+  "sonic",
+  "super mario",
+  "baahubali",
+  "dhoom",
+  "recep ivedik",
+  "ولاد رزق",
+  "اللمبي",
+];
+
+function franchiseTitle(name: string): string {
+  return name
+    .replace(/\s*collection$/i, "")
+    .replace(/\s*سلسلة\s*/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function mapCollectionHit(row: Record<string, unknown>): MediaItem | null {
+  const id = Number(row.id);
+  const poster = posterUrl((row.poster_path as string | null) ?? null);
+  if (!id || !poster) return null;
+  return {
+    id,
+    title: franchiseTitle(String(row.name ?? "")),
+    poster,
+    backdrop: backdropUrl((row.backdrop_path as string | null) ?? null),
+    rating: "0",
+    year: "",
+    type: "movie",
+    overview: String(row.overview ?? ""),
+    originalLanguage: "ar",
+    href: `/movies/franchises/${id}`,
+    isFranchise: true,
+  };
+}
+
+async function listFranchises(lang: string): Promise<MediaItem[]> {
+  const language = lang.startsWith("ar") ? "ar-SA" : "en-US";
+  const pages = await Promise.all(
+    FRANCHISE_QUERIES.map((query) =>
+      tmdb<ListResponse>("/search/collection", {
+        query,
+        language,
+        include_adult: "false",
+        page: 1,
+      })
+    )
+  );
+  return uniqueItems(
+    pages.flatMap((page) => (page?.results ?? []).map((row) => mapCollectionHit(row)).filter((item): item is MediaItem => Boolean(item)))
+  );
+}
+
+export async function discoverFranchises(lang: string, browsePage = 1): Promise<DiscoverResult> {
+  const all = await listFranchises(lang);
+  const page = Math.max(1, browsePage);
+  const start = (page - 1) * BROWSE_PAGE_SIZE;
+  const items = all.slice(start, start + BROWSE_PAGE_SIZE);
+  const totalPages = Math.max(1, Math.ceil(all.length / BROWSE_PAGE_SIZE));
+  return asResult(items, page, totalPages, all.length);
+}
+
+export async function getFranchise(
+  id: number,
+  lang: string
+): Promise<{ id: number; title: string; overview: string; poster: string | null; items: MediaItem[] } | null> {
+  const language = lang.startsWith("ar") ? "ar-SA" : "en-US";
+  const [primary, english] = await Promise.all([
+    tmdb<Record<string, unknown>>(`/collection/${id}`, { language }),
+    language.startsWith("ar")
+      ? tmdb<Record<string, unknown>>(`/collection/${id}`, { language: "en-US" })
+      : Promise.resolve(null),
+  ]);
+  const data = primary ?? english;
+  if (!data) return null;
+  const parts = uniqueItems(
+    ((data.parts as Record<string, unknown>[] | undefined) ?? [])
+      .map((row) => mapItem(row, "movie"))
+      .sort((a, b) => a.year.localeCompare(b.year))
+  );
+  return {
+    id: Number(data.id),
+    title: franchiseTitle(String(data.name ?? english?.name ?? "")),
+    overview: String(data.overview || english?.overview || ""),
+    poster: posterUrl((data.poster_path as string | null) ?? (english?.poster_path as string | null) ?? null),
+    items: parts,
+  };
 }
 
 export async function getTitleBySlug(
@@ -954,6 +1176,7 @@ export async function homeCatalog(lang: string) {
     arabicSeries,
     turkish,
     asian,
+    franchises,
   ] = await Promise.all([
     discover("trending", lang),
     discoverMany("movies", lang, 1, 2),
@@ -968,6 +1191,7 @@ export async function homeCatalog(lang: string) {
     discoverCatalogMany("tv", "arabic", lang, 1, 2),
     discover("turkish", lang),
     discover("asian", lang),
+    discoverFranchises(lang, 1),
   ]);
   const row = (result: DiscoverResult) => uniqueItems(result.items).slice(0, 24);
   return {
@@ -984,5 +1208,6 @@ export async function homeCatalog(lang: string) {
     arabicSeries: row(arabicSeries),
     turkish: row(turkish),
     asian: row(asian),
+    franchises: row(franchises),
   };
 }

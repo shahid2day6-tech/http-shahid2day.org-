@@ -15,8 +15,9 @@ export default function MediaCard({
   movieLabel: string;
   showLabel: string;
 }) {
-  const href = titleHref(item);
   const { t } = useLang();
+  const href = item.href ?? titleHref(item);
+  const badge = item.isFranchise ? t("franchise") : item.type === "tv" ? showLabel : movieLabel;
 
   return (
     <Link href={href} className="poster-card group block w-full">
@@ -35,7 +36,7 @@ export default function MediaCard({
           </div>
         )}
         <span className="absolute start-2 top-2 rounded-md bg-[#e50914] px-1.5 py-0.5 text-[10px] font-black text-white">
-          {item.type === "tv" ? showLabel : movieLabel}
+          {badge}
         </span>
         {Number(item.rating) > 0 && (
           <span className="absolute end-2 bottom-2 rounded-md bg-black/70 px-1.5 py-0.5 text-[11px] font-bold text-[#e6e2d8]">
@@ -49,7 +50,9 @@ export default function MediaCard({
         </p>
         <p className="mt-1 text-xs text-[#a3a3a3]">
           {item.year}
-          {item.originalLanguage && item.originalLanguage !== "ar" ? ` · ${t("subtitled")}` : ""}
+          {!item.isFranchise && item.originalLanguage && item.originalLanguage !== "ar"
+            ? ` · ${t("subtitled")}`
+            : ""}
         </p>
       </div>
     </Link>
