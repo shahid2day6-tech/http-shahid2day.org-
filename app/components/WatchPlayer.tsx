@@ -3,8 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useLang } from "../context/LanguageContext";
+import { listingTitle, type TitleDetails } from "../lib/tmdb";
 import { titleHref } from "../lib/slug";
-import type { TitleDetails } from "../lib/tmdb";
 import { buildWatchServers } from "../lib/watchServers";
 
 type Props = {
@@ -19,6 +19,7 @@ export default function WatchPlayer({ id, type, season, episode }: Props) {
   const subLang = lang === "en" ? "en" : "ar";
   const [title, setTitle] = useState<TitleDetails | null>(null);
   const [active, setActive] = useState(0);
+  const [started, setStarted] = useState(false);
   const [selectedSeason, setSelectedSeason] = useState(season);
   const [selectedEpisode, setSelectedEpisode] = useState(episode);
 
@@ -42,6 +43,21 @@ export default function WatchPlayer({ id, type, season, episode }: Props) {
   const current = servers[Math.min(active, servers.length - 1)];
   const backHref = title ? titleHref(title) : "/";
   const seasons = title?.seasonEpisodes ?? [];
+  const episodes =
+    seasons.find((item) => item.seasonNumber === selectedSeason)?.episodes ?? [];
+  const heading = title ? listingTitle(title) : t("watchNow");
+  const nextEpisode = episodes.find((item) => item.episodeNumber === selectedEpisode + 1);
+
+  function playOn(index: number) {
+    setActive(index);
+    setStarted(true);
+  }
+
+  function goEpisode(next: number) {
+    setSelectedEpisode(next);
+    setActive(0);
+    setStarted(true);
+  }
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -50,12 +66,15 @@ export default function WatchPlayer({ id, type, season, episode }: Props) {
           ← {t("details")}
         </Link>
         <p className="truncate text-sm font-black sm:text-base" dir="auto">
-          {title?.title || t("watchNow")}
+          {heading}
         </p>
+        <span className="shrink-0 rounded-md bg-[#e50914] px-2 py-1 text-[11px] font-black">
+          {t("subtitled")}
+        </span>
       </div>
 
       {type === "tv" && seasons.length > 0 && (
-        <div className="mx-auto flex max-w-6xl flex-wrap gap-2 px-4 pb-3">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-2 px-4 pb-3">
           <select
             value={selectedSeason}
             onChange={(e) => {
@@ -63,6 +82,7 @@ export default function WatchPlayer({ id, type, season, episode }: Props) {
               setSelectedSeason(next);
               setSelectedEpisode(1);
               setActive(0);
+              setStarted(true);
             }}
             className="rounded-lg border border-[#262626] bg-[#141414] px-3 py-2 text-sm font-bold"
           >
@@ -74,20 +94,24 @@ export default function WatchPlayer({ id, type, season, episode }: Props) {
           </select>
           <select
             value={selectedEpisode}
-            onChange={(e) => {
-              setSelectedEpisode(Number(e.target.value));
-              setActive(0);
-            }}
+            onChange={(e) => goEpisode(Number(e.target.value))}
             className="rounded-lg border border-[#262626] bg-[#141414] px-3 py-2 text-sm font-bold"
           >
-            {(seasons.find((item) => item.seasonNumber === selectedSeason)?.episodes ?? []).map(
-              (item) => (
-                <option key={item.episodeNumber} value={item.episodeNumber}>
-                  {t("episode")} {item.episodeNumber}
-                </option>
-              )
-            )}
+            {episodes.map((item) => (
+              <option key={item.episodeNumber} value={item.episodeNumber}>
+                {t("episode")} {item.episodeNumber}
+              </option>
+            ))}
           </select>
+          {nextEpisode ? (
+            <button
+              type="button"
+              onClick={() => goEpisode(nextEpisode.episodeNumber)}
+              className="rounded-lg bg-[#e50914] px-3 py-2 text-sm font-black"
+            >
+              {t("nextEpisode")}
+            </button>
+          ) : null}
         </div>
       )}
 
@@ -95,12 +119,12 @@ export default function WatchPlayer({ id, type, season, episode }: Props) {
         <p className="mb-2 text-sm font-black text-[#a3a3a3]">{t("servers")}</p>
         <div className="flex gap-2 overflow-x-auto pb-1">
           {servers.map((server, index) => {
-            const selected = index === active;
+            const selected = index === active && started;
             return (
               <button
                 key={server.name}
                 type="button"
-                onClick={() => setActive(index)}
+                onClick={() => playOn(index)}
                 className={`relative shrink-0 rounded-lg px-4 py-2 text-sm font-black ${
                   selected ? "bg-[#e50914] text-white" : "bg-[#1a1a1a] text-[#d4d4d4]"
                 }`}
@@ -118,18 +142,48 @@ export default function WatchPlayer({ id, type, season, episode }: Props) {
       </div>
 
       <div className="mx-auto max-w-6xl px-4 pb-10">
-        <div className="aspect-video overflow-hidden rounded-xl bg-[#0e0e0e]">
-          {current ? (
+        <div className="relative aspect-video overflow-hidden rounded-xl bg-[#0e0e0e]">
+          {title?.backdrop ? (
+            <div
+              className="absolute inset-0 bg-cover bg-center"
+              style={{ backgroundImage: `url(${title.backdrop})` }}
+            />
+          ) : null}
+          <div className="absolute inset-0 bg-black/55" />
+          {started && current ? (
             <iframe
               key={current.url}
               src={current.url}
               title={current.label}
-              className="h-full w-full border-0"
+              className="relative z-10 h-full w-full border-0"
               allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
               allowFullScreen
-              referrerPolicy="no-referrer"
+              referrerPolicy="origin"
             />
-          ) : null}
+          ) : (
+            <button
+              type="button"
+              onClick={() => playOn(0)}
+              className="relative z-10 flex h-full w-full flex-col items-center justify-center gap-4"
+            >
+              {title?.poster ? (
+                <img
+                  src={title.poster}
+                  alt={heading}
+                  className="h-40 w-28 rounded-lg object-cover shadow-2xl sm:h-52 sm:w-36"
+                />
+              ) : null}
+              <span className="flex h-16 w-16 items-center justify-center rounded-full bg-[#e50914] shadow-[0_8px_30px_rgba(229,9,20,0.55)]">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="white" aria-hidden>
+                  <path d="M8 5.14v13.72L19 12 8 5.14z" />
+                </svg>
+              </span>
+              <span className="text-lg font-black sm:text-2xl">{t("playTranslated")}</span>
+              <span className="max-w-md px-4 text-center text-sm text-[#d4d4d4]" dir="auto">
+                {heading}
+              </span>
+            </button>
+          )}
         </div>
       </div>
     </div>

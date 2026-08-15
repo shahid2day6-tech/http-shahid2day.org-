@@ -108,6 +108,8 @@ export const dict = {
     searchBtn: "بحث",
     searchHint: "الكلمات الدلالية للبحث",
     subtitled: "مترجم",
+    playTranslated: "مشاهدة مترجم",
+    nextEpisode: "الحلقة التالية",
   },
   en: {
     brand: "SHAHID2DAY",
@@ -216,6 +218,8 @@ export const dict = {
     searchBtn: "Search",
     searchHint: "Search keywords",
     subtitled: "Subtitled",
+    playTranslated: "Watch with subtitles",
+    nextEpisode: "Next episode",
   },
 } as const;
 
