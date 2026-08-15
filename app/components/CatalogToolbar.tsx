@@ -1,7 +1,7 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import { useLang } from "../context/LanguageContext";
 import {
   FILTER_GENRES,
@@ -47,16 +47,15 @@ function FilterMenu({
 function CheckRow({
   label,
   checked,
-  onSelect,
+  href,
 }: {
   label: string;
   checked: boolean;
-  onSelect: () => void;
+  href: string;
 }) {
   return (
-    <button
-      type="button"
-      onClick={onSelect}
+    <Link
+      href={href}
       className="mb-1 flex w-full items-center gap-3 rounded-lg bg-[#151a2b] px-3 py-2.5 text-sm font-bold text-white last:mb-0 hover:bg-[#1c2338]"
     >
       <span
@@ -67,7 +66,7 @@ function CheckRow({
         {checked ? <span className="text-[10px] leading-none">✓</span> : null}
       </span>
       <span className="flex-1 text-start">{label}</span>
-    </button>
+    </Link>
   );
 }
 
@@ -83,7 +82,6 @@ export default function CatalogToolbar({
   year?: string;
 }) {
   const { t } = useLang();
-  const router = useRouter();
   const rootRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState<"section" | "genre" | "year" | null>(null);
 
@@ -95,19 +93,19 @@ export default function CatalogToolbar({
     return () => document.removeEventListener("mousedown", onPointer);
   }, []);
 
-  function go(next: { sort?: CatalogSort; section?: string; genre?: string; year?: string }) {
+  function hrefFor(next: { sort?: CatalogSort; section?: string; genre?: string; year?: string }) {
     const params = new URLSearchParams();
     const nextSort = next.sort ?? sort;
-    const nextSection = next.section ?? section;
-    const nextGenre = next.genre ?? genre;
+    let nextSection = next.section ?? section;
+    const nextGenre = Object.prototype.hasOwnProperty.call(next, "genre") ? next.genre ?? "" : genre;
     const nextYear = next.year ?? year;
-    if (nextSort && nextSort !== "latest") params.set("sort", nextSort);
+    if (next.sort === "new-movies" && nextSection.startsWith("tv-")) nextSection = "all";
+    if (next.sort === "new-episodes" && nextSection.startsWith("movie-")) nextSection = "all";
+    params.set("sort", nextSort);
     if (nextSection && nextSection !== "all") params.set("section", nextSection);
     if (nextGenre) params.set("genre", nextGenre);
     if (nextYear && nextYear !== "all") params.set("year", nextYear);
-    const query = params.toString();
-    router.push(query ? `/browse?${query}` : "/browse");
-    setOpen(null);
+    return `/browse?${params.toString()}`;
   }
 
   const sectionLabel =
@@ -125,10 +123,9 @@ export default function CatalogToolbar({
         {SORT_MODES.map((mode) => {
           const active = sort === mode.id;
           return (
-            <button
+            <Link
               key={mode.id}
-              type="button"
-              onClick={() => go({ sort: mode.id })}
+              href={hrefFor({ sort: mode.id })}
               className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-bold text-white ${
                 active ? "bg-[#9d0b12]" : "bg-[#151a2b] hover:bg-[#1c2338]"
               }`}
@@ -137,7 +134,7 @@ export default function CatalogToolbar({
                 {mode.icon}
               </span>
               {t(mode.labelKey)}
-            </button>
+            </Link>
           );
         })}
       </div>
@@ -155,7 +152,7 @@ export default function CatalogToolbar({
               key={item.id}
               label={t(item.labelKey)}
               checked={section === item.id}
-              onSelect={() => go({ section: item.id })}
+              href={hrefFor({ section: item.id })}
             />
           ))}
         </FilterMenu>
@@ -168,14 +165,14 @@ export default function CatalogToolbar({
           <CheckRow
             label={t("filterAll")}
             checked={!genre}
-            onSelect={() => go({ genre: "" })}
+            href={hrefFor({ genre: "" })}
           />
           {FILTER_GENRES.map((item) => (
             <CheckRow
               key={item.id}
               label={t(item.labelKey)}
               checked={genre === item.id}
-              onSelect={() => go({ genre: item.id })}
+              href={hrefFor({ genre: item.id })}
             />
           ))}
         </FilterMenu>
@@ -190,7 +187,7 @@ export default function CatalogToolbar({
               key={item}
               label={item === "all" ? t("filterAll") : item}
               checked={(year || "all") === item}
-              onSelect={() => go({ year: item })}
+              href={hrefFor({ year: item })}
             />
           ))}
         </FilterMenu>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { CatalogGroup, CatalogKind } from "../lib/catalog";
 import type { CategoryKey, MediaItem } from "../lib/tmdb";
 import { sectionFrom, type CatalogSort } from "../lib/filters";
@@ -58,6 +58,13 @@ export default function BrowseGrid({
   const section = query?.section ?? sectionFrom(kind, group);
   const canPage = Boolean(category || (kind && group) || query);
 
+  useEffect(() => {
+    setItems(initialItems ?? staticItems ?? []);
+    setPage(initialPage);
+    setPages(totalPages);
+    setTotal(totalResults ?? (initialItems ?? staticItems ?? []).length);
+  }, [initialItems, initialPage, staticItems, totalPages, totalResults]);
+
   const goTo = useCallback(
     async (next: number) => {
       if (!canPage || loading || next < 1 || next > pages || next === page) return;
@@ -75,7 +82,7 @@ export default function BrowseGrid({
         } else if (category) {
           params.set("category", category);
         }
-        const res = await fetch(`/api/discover?${params.toString()}`);
+        const res = await fetch(`/api/discover?${params.toString()}`, { cache: "no-store" });
         const data = (await res.json()) as {
           results?: MediaItem[];
           totalPages?: number;

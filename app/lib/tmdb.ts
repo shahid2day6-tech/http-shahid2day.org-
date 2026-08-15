@@ -222,7 +222,9 @@ function applyCatalogFilters(
   filters?: CatalogFilters
 ) {
   const sort: CatalogSort = filters?.sort ?? "latest";
-  if (sort === "rating") {
+  if (sort === "latest") {
+    Object.assign(params, newestSort(kind));
+  } else if (sort === "rating") {
     params.sort_by = "vote_average.desc";
     params["vote_count.gte"] = 50;
     delete params["primary_release_date.gte"];
@@ -237,6 +239,16 @@ function applyCatalogFilters(
     delete params["primary_release_date.lte"];
     delete params["first_air_date.gte"];
     delete params["first_air_date.lte"];
+  } else if (sort === "new-movies" && kind === "movie") {
+    const end = new Date();
+    const start = new Date(end);
+    start.setDate(start.getDate() - 150);
+    params.sort_by = "primary_release_date.desc";
+    params["primary_release_date.gte"] = start.toISOString().slice(0, 10);
+    params["primary_release_date.lte"] = end.toISOString().slice(0, 10);
+    delete params["first_air_date.gte"];
+    delete params["first_air_date.lte"];
+    delete params.primary_release_year;
   } else if (sort === "new-episodes" && kind === "tv") {
     Object.assign(params, newEpisodeWindow());
   }
@@ -491,15 +503,14 @@ export async function discoverFiltered(
   const filters: CatalogFilters = { sort, genre: opts.genre, year: opts.year };
   const section = parseSection(opts.section);
 
-  if (sort === "trending" && !section) {
-    return discoverBrowse({ category: "trending" }, lang, page);
+  if (sort === "trending") {
+    return discoverBrowse({ category: "trending" }, lang, page, filters);
   }
   if (sort === "new-episodes") {
-    const group =
-      section?.group === "anime" || section?.group === "arabic" || section?.group === "foreign"
-        ? section.group
-        : "foreign";
-    return discoverNewEpisodes(group, lang, page);
+    if (section?.kind === "tv") {
+      return discoverBrowse({ kind: "tv", group: section.group }, lang, page, filters);
+    }
+    return discoverBrowse({ category: "series" }, lang, page, filters);
   }
   if (sort === "new-movies") {
     if (section?.kind === "movie") {
@@ -509,9 +520,6 @@ export async function discoverFiltered(
   }
   if (section) {
     return discoverBrowse({ kind: section.kind, group: section.group }, lang, page, filters);
-  }
-  if (sort === "popular" || sort === "rating") {
-    return discoverBrowse({ category: "movies" }, lang, page, filters);
   }
   return discoverBrowse({ category: "movies" }, lang, page, filters);
 }

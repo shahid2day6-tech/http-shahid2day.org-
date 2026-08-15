@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+
+export const dynamic = "force-dynamic";
 import { isMovieGroup, isTvCatalogGroup, type CatalogGroup, type CatalogKind } from "../../lib/catalog";
 import { isCatalogSort } from "../../lib/filters";
 import { discoverBrowse, discoverFiltered, type CategoryKey } from "../../lib/tmdb";
