@@ -36,7 +36,36 @@ export default function TitleView({ title }: { title: TitleDetails }) {
             <h1 className="text-3xl font-black sm:text-5xl" dir="auto">
               {title.title}
             </h1>
-            <div className="mt-4 space-y-2 text-sm sm:text-base">
+            <div className="mt-4 space-y-2 rounded-2xl bg-[#141414]/90 p-4 text-sm sm:p-5 sm:text-base">
+              <p>
+                <span className="font-bold text-[#e50914]">{t("classification")}: </span>
+                {title.type === "tv" ? t("show") : t("movie")}
+              </p>
+              {title.year ? (
+                <p>
+                  <span className="font-bold text-[#e50914]">{t("year")}: </span>
+                  {title.year}
+                </p>
+              ) : null}
+              {title.rating !== "0" ? (
+                <p>
+                  <span className="font-bold text-[#e50914]">{t("rating")}: </span>
+                  ★ {title.rating}
+                </p>
+              ) : null}
+              {title.runtime ? (
+                <p>
+                  <span className="font-bold text-[#e50914]">{t("duration")}: </span>
+                  {title.runtime}
+                </p>
+              ) : null}
+              {title.genres.length > 0 ? (
+                <p>
+                  <span className="font-bold text-[#e50914]">{t("genres")}: </span>
+                  {title.genres.join(" / ")}
+                </p>
+              ) : null}
+            </div>
               <p>
                 <span className="font-bold text-[#e50914]">{t("classification")}: </span>
                 {title.type === "tv" ? t("show") : t("movie")}
