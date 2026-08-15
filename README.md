@@ -1,0 +1,17 @@
+# شاهد لليوم | Shahid2Day
+
+موقع لاكتشاف الأفلام والمسلسلات والأنمي العربية والتركية والآسيوية.
+
+- النطاق: https://shahid2day.org
+- التصميم: أسود + أحمر + أزرار أبيض غامق
+- البيانات: [TMDB](https://www.themoviedb.org/)
+- الإعلانات الرسمية: YouTube
+
+## التشغيل محلياً
+
+```bash
+cp .env.example .env.local
+# أضف TMDB_API_KEY
+npm install
+npm run dev
+```

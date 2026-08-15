@@ -1,0 +1,41 @@
+"use client";
+
+import Link from "next/link";
+import { useLang } from "../context/LanguageContext";
+import Logo from "./Logo";
+
+export default function Footer() {
+  const { t } = useLang();
+  const year = new Date().getFullYear();
+
+  return (
+    <footer className="mt-16 border-t border-[#262626] bg-[#0a0a0a]">
+      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 md:grid-cols-3">
+        <div>
+          <Logo />
+          <p className="mt-4 max-w-sm text-sm leading-7 text-[#a3a3a3]">{t("footerAbout")}</p>
+        </div>
+        <div>
+          <p className="mb-3 text-sm font-black">{t("browse")}</p>
+          <div className="grid grid-cols-2 gap-2 text-sm text-[#cfcfcf]">
+            <Link href="/movies">{t("movies")}</Link>
+            <Link href="/series">{t("series")}</Link>
+            <Link href="/anime">{t("anime")}</Link>
+            <Link href="/arabic">{t("arabic")}</Link>
+            <Link href="/turkish">{t("turkish")}</Link>
+            <Link href="/asian">{t("asian")}</Link>
+          </div>
+        </div>
+        <div className="text-sm text-[#a3a3a3]">
+          <p>shahid2day.org</p>
+          <p className="mt-2">
+            {t("rights")} © {year} {t("brand")}
+          </p>
+          <p className="mt-3 text-xs">
+            This product uses the TMDB API but is not endorsed or certified by TMDB.
+          </p>
+        </div>
+      </div>
+    </footer>
+  );
+}

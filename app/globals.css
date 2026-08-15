@@ -1,0 +1,112 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #050505;
+  --bg-elevated: #0e0e0e;
+  --bg-card: #141414;
+  --red: #e50914;
+  --red-dark: #b20710;
+  --red-soft: rgba(229, 9, 20, 0.16);
+  --btn: #e6e2d8;
+  --btn-hover: #f3efe6;
+  --btn-text: #111111;
+  --text: #f5f5f5;
+  --muted: #a3a3a3;
+  --border: #262626;
+  --glow: rgba(229, 9, 20, 0.32);
+}
+
+@theme inline {
+  --color-background: var(--bg);
+  --color-foreground: var(--text);
+  --font-sans: var(--font-tajawal);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #3f3f3f transparent;
+}
+
+html,
+body {
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100%;
+}
+
+body {
+  font-family: var(--font-tajawal), Tahoma, sans-serif;
+}
+
+a {
+  color: inherit;
+}
+
+.btn-light {
+  background: var(--btn);
+  color: var(--btn-text);
+  font-weight: 800;
+  border-radius: 999px;
+  transition: 0.2s ease;
+}
+
+.btn-light:hover {
+  background: var(--btn-hover);
+  transform: translateY(-1px);
+}
+
+.btn-red {
+  background: var(--red);
+  color: #fff;
+  font-weight: 800;
+  border-radius: 999px;
+  box-shadow: 0 0 24px var(--glow);
+  transition: 0.2s ease;
+}
+
+.btn-red:hover {
+  background: var(--red-dark);
+}
+
+.poster-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  transition: 0.25s ease;
+}
+
+.poster-card:hover {
+  border-color: var(--red);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(229, 9, 20, 0.18);
+}
+
+.hero-mask {
+  background:
+    linear-gradient(180deg, rgba(5, 5, 5, 0.15) 0%, rgba(5, 5, 5, 0.72) 58%, #050505 100%),
+    linear-gradient(90deg, rgba(5, 5, 5, 0.82) 0%, rgba(5, 5, 5, 0.2) 55%, transparent 100%);
+}
+
+[dir="ltr"] .hero-mask {
+  background:
+    linear-gradient(180deg, rgba(5, 5, 5, 0.15) 0%, rgba(5, 5, 5, 0.72) 58%, #050505 100%),
+    linear-gradient(270deg, rgba(5, 5, 5, 0.82) 0%, rgba(5, 5, 5, 0.2) 55%, transparent 100%);
+}
+
+.row-scroll {
+  display: flex;
+  gap: 0.85rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+  scroll-snap-type: x mandatory;
+}
+
+.row-scroll::-webkit-scrollbar {
+  height: 6px;
+}
+
+.row-scroll::-webkit-scrollbar-thumb {
+  background: #3f3f3f;
+  border-radius: 99px;
+}
