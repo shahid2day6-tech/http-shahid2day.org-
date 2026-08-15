@@ -18,7 +18,7 @@ export default function WatchPlayer({ id, type, season, episode }: Props) {
   const { t, lang } = useLang();
   const subLang = lang === "en" ? "en" : "ar";
   const [title, setTitle] = useState<TitleDetails | null>(null);
-  const [started, setStarted] = useState(false);
+  const [started, setStarted] = useState(true);
   const [active, setActive] = useState(0);
   const [selectedSeason, setSelectedSeason] = useState(season);
   const [selectedEpisode, setSelectedEpisode] = useState(episode);

@@ -17,6 +17,11 @@ export function buildWatchServers(
   episode = 1,
   subLang = "ar"
 ): WatchServer[] {
+  const lang = subLang === "en" ? "en" : "ar";
+  const vidsrc =
+    type === "tv"
+      ? `https://vidsrc.xyz/embed/tv/${id}/${season}-${episode}`
+      : `https://vidsrc.xyz/embed/movie/${id}`;
   const vidlink =
     type === "tv"
       ? `https://vidlink.pro/tv/${id}/${season}/${episode}?primaryColor=e50914&secondaryColor=111111&autoplay=true`
@@ -24,23 +29,20 @@ export function buildWatchServers(
 
   return [
     {
-      name: "Shahid2Day",
-      label: "Shahid2Day",
-      url:
-        type === "tv"
-          ? `https://vidsrc.me/embed/tv/${id}/${season}/${episode}`
-          : `https://vidsrc.me/embed/movie/${id}`,
+      name: "مترجم",
+      label: "مترجم",
+      recommended: true,
+      url: withLangParams(vidsrc, lang),
     },
     {
       name: "Vidعربي",
       label: "Vidعربي",
-      recommended: true,
-      url: withLangParams(vidlink, "ar"),
+      url: withLangParams(vidlink, lang),
     },
     {
       name: "VidLink",
       label: "VidLink",
-      url: withLangParams(vidlink, subLang),
+      url: withLangParams(vidlink, lang),
     },
     {
       name: "MultiEmbed",
@@ -55,8 +57,8 @@ export function buildWatchServers(
       label: "Videasy",
       url:
         type === "tv"
-          ? `https://player.videasy.to/tv/${id}/${season}/${episode}`
-          : `https://player.videasy.to/movie/${id}`,
+          ? `https://player.videasy.net/tv/${id}/${season}/${episode}?color=e50914`
+          : `https://player.videasy.net/movie/${id}?color=e50914`,
     },
     {
       name: "Vidsharing",
