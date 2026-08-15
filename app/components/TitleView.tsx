@@ -33,61 +33,50 @@ export default function TitleView({ title }: { title: TitleDetails }) {
             </div>
           )}
           <div className="max-w-2xl">
-            <p className="mb-2 text-sm font-bold text-[#e50914]">
-              {title.type === "tv" ? t("show") : t("movie")}
-            </p>
             <h1 className="text-3xl font-black sm:text-5xl" dir="auto">
               {title.title}
             </h1>
-            <div className="mt-3 flex flex-wrap gap-2 text-sm text-[#d4d4d4]">
-              {title.year && <span>{title.year}</span>}
-              {title.rating !== "0" && <span>★ {title.rating}</span>}
-              {title.runtime && <span>{title.runtime}</span>}
-              {title.seasons ? (
-                <span>
-                  {title.seasons} {t("seasons")}
-                </span>
+            <div className="mt-4 space-y-2 text-sm sm:text-base">
+              <p>
+                <span className="font-bold text-[#e50914]">{t("classification")}: </span>
+                {title.type === "tv" ? t("show") : t("movie")}
+              </p>
+              {title.year ? (
+                <p>
+                  <span className="font-bold text-[#e50914]">{t("year")}: </span>
+                  {title.year}
+                </p>
               ) : null}
-              {title.genres.map((genre) => (
-                <span key={genre} className="rounded-full bg-white/10 px-2 py-0.5">
-                  {genre}
-                </span>
-              ))}
+              {title.rating !== "0" ? (
+                <p>
+                  <span className="font-bold text-[#e50914]">{t("rating")}: </span>
+                  ★ {title.rating}
+                </p>
+              ) : null}
+              {title.runtime ? (
+                <p>
+                  <span className="font-bold text-[#e50914]">{t("duration")}: </span>
+                  {title.runtime}
+                </p>
+              ) : null}
+              {title.genres.length > 0 ? (
+                <p>
+                  <span className="font-bold text-[#e50914]">{t("genres")}: </span>
+                  {title.genres.join(" / ")}
+                </p>
+              ) : null}
             </div>
-            {title.trailer && (
-              <a
-                href={`https://www.youtube.com/watch?v=${title.trailer}`}
-                target="_blank"
-                rel="noreferrer"
-                className="btn-light mt-5 inline-flex px-5 py-2.5 text-sm"
-              >
-                {t("watchTrailer")}
-              </a>
-            )}
           </div>
         </div>
       </section>
 
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
         {title.overview && (
-          <section className="mb-10">
+          <section className="mb-10 max-w-3xl rounded-2xl bg-[#141414] p-5 sm:p-6">
             <h2 className="mb-3 text-xl font-black">{t("overview")}</h2>
-            <p className="max-w-3xl leading-8 text-[#d4d4d4]">{title.overview}</p>
-          </section>
-        )}
-
-        {title.trailer && (
-          <section className="mb-10">
-            <h2 className="mb-3 text-xl font-black">{t("watchTrailer")}</h2>
-            <div className="aspect-video overflow-hidden rounded-2xl border border-[#262626] bg-black">
-              <iframe
-                src={`https://www.youtube.com/embed/${title.trailer}`}
-                title={title.title}
-                className="h-full w-full"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
-            </div>
+            <p className="leading-8 text-[#d4d4d4]" dir="auto">
+              {title.overview}
+            </p>
           </section>
         )}
 
