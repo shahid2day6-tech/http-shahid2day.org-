@@ -20,6 +20,7 @@
   --color-background: var(--bg);
   --color-foreground: var(--text);
   --font-sans: var(--font-tajawal);
+  --font-brand: var(--font-bebas);
 }
 
 * {
@@ -109,4 +110,27 @@ a {
 .row-scroll::-webkit-scrollbar-thumb {
   background: #3f3f3f;
   border-radius: 99px;
+}
+
+.brand-wordmark {
+  font-family: var(--font-bebas), Impact, "Arial Black", sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  line-height: 0.9;
+  color: #ffffff;
+  text-transform: uppercase;
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.35),
+    0 2px 0 rgba(0, 0, 0, 0.18),
+    0 4px 0 rgba(0, 0, 0, 0.12),
+    0 10px 18px rgba(0, 0, 0, 0.45);
+}
+
+.brand-wordmark .digit {
+  color: #e50914;
+  text-shadow:
+    0 1px 0 #ff6b73,
+    0 2px 0 #7a0a10,
+    0 4px 0 rgba(0, 0, 0, 0.2),
+    0 10px 18px rgba(229, 9, 20, 0.45);
 }

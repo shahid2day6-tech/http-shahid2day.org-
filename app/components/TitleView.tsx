@@ -4,6 +4,7 @@ import Image from "next/image";
 import type { TitleDetails } from "../lib/tmdb";
 import { useLang } from "../context/LanguageContext";
 import MediaRow from "./MediaRow";
+import BrandWordmark from "./BrandWordmark";
 
 export default function TitleView({ title }: { title: TitleDetails }) {
   const { t } = useLang();
@@ -22,6 +23,9 @@ export default function TitleView({ title }: { title: TitleDetails }) {
           />
         )}
         <div className="hero-mask absolute inset-0" />
+        <div className="absolute top-5 start-4 z-10 sm:start-6">
+          <BrandWordmark size="lg" />
+        </div>
         <div className="relative mx-auto flex max-w-7xl flex-col gap-6 px-4 py-16 sm:flex-row sm:items-end sm:px-6">
           {title.poster && (
             <div className="relative h-[280px] w-[186px] shrink-0 overflow-hidden rounded-2xl border border-[#262626] shadow-2xl">
