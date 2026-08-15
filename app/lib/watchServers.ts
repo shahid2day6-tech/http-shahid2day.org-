@@ -21,10 +21,6 @@ export function buildWatchServers(
     type === "tv"
       ? `https://vidlink.pro/tv/${id}/${season}/${episode}?primaryColor=e50914&secondaryColor=111111&autoplay=true`
       : `https://vidlink.pro/movie/${id}?primaryColor=e50914&secondaryColor=111111&autoplay=true`;
-  const twoEmbed =
-    type === "tv"
-      ? `https://www.2embed.cc/embedtv/${id}?s=${season}&e=${episode}`
-      : `https://www.2embed.cc/embed/${id}`;
   const vidsharing =
     type === "tv"
       ? `https://1embed.cc/embed/tv/${id}/${season}/${episode}`
@@ -38,19 +34,6 @@ export function buildWatchServers(
         type === "tv"
           ? `https://vidsrc.me/embed/tv/${id}/${season}/${episode}`
           : `https://vidsrc.me/embed/movie/${id}`,
-    },
-    {
-      name: "2Embed",
-      label: "2Embed",
-      url: twoEmbed,
-    },
-    {
-      name: "VidSrc",
-      label: "VidSrc",
-      url:
-        type === "tv"
-          ? `https://vidsrc.to/embed/tv/${id}/${season}/${episode}`
-          : `https://vidsrc.to/embed/movie/${id}`,
     },
     {
       name: "Vidعربي",
@@ -70,14 +53,6 @@ export function buildWatchServers(
         type === "tv"
           ? `https://multiembed.mov/?video_id=${id}&tmdb=1&s=${season}&e=${episode}`
           : `https://multiembed.mov/?video_id=${id}&tmdb=1`,
-    },
-    {
-      name: "AutoEmbed",
-      label: "AutoEmbed",
-      url:
-        type === "tv"
-          ? `https://player.autoembed.cc/embed/tv/${id}/${season}/${episode}`
-          : `https://player.autoembed.cc/embed/movie/${id}`,
     },
     {
       name: "Videasy",
