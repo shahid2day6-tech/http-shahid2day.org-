@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import BrowseGrid from "../components/BrowseGrid";
-import { BROWSE_PRELOAD_PAGES, discoverMany } from "../lib/tmdb";
+import { discoverBrowse } from "../lib/tmdb";
 
 export const metadata: Metadata = { title: "آسيوية" };
 export const revalidate = 3600;
 
 export default async function AsianPage() {
-  const data = await discoverMany("asian", "ar", 1, BROWSE_PRELOAD_PAGES);
+  const data = await discoverBrowse({ category: "asian" }, "ar", 1);
   return (
     <BrowseGrid
       title="آسيوية"

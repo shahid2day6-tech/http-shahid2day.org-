@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isMovieGroup, isSeriesGroup, type CatalogGroup, type CatalogKind } from "../../lib/catalog";
-import { discover, discoverCatalog, type CategoryKey } from "../../lib/tmdb";
+import { discoverBrowse, type CategoryKey } from "../../lib/tmdb";
 
 const CATEGORIES: CategoryKey[] = [
   "trending",
@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
   const group = req.nextUrl.searchParams.get("group") as CatalogGroup | null;
 
   if (kind === "movie" && group && isMovieGroup(group)) {
-    const data = await discoverCatalog("movie", group, lang, page);
+    const data = await discoverBrowse({ kind: "movie", group }, lang, page);
     return NextResponse.json({
       results: data.items,
       page: data.page,
@@ -28,7 +28,7 @@ export async function GET(req: NextRequest) {
     });
   }
   if (kind === "tv" && group && isSeriesGroup(group)) {
-    const data = await discoverCatalog("tv", group, lang, page);
+    const data = await discoverBrowse({ kind: "tv", group }, lang, page);
     return NextResponse.json({
       results: data.items,
       page: data.page,
@@ -41,7 +41,7 @@ export async function GET(req: NextRequest) {
   if (!CATEGORIES.includes(category)) {
     return NextResponse.json({ results: [], page: 1, totalPages: 1, totalResults: 0 }, { status: 400 });
   }
-  const data = await discover(category, lang, page);
+  const data = await discoverBrowse({ category }, lang, page);
   return NextResponse.json({
     results: data.items,
     page: data.page,

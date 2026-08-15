@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import BrowseGrid from "../components/BrowseGrid";
-import { BROWSE_PRELOAD_PAGES, discoverMany } from "../lib/tmdb";
+import { discoverBrowse } from "../lib/tmdb";
 
 export const metadata: Metadata = { title: "أفلام" };
 export const revalidate = 3600;
 
 export default async function MoviesPage() {
-  const data = await discoverMany("movies", "ar", 1, BROWSE_PRELOAD_PAGES);
+  const data = await discoverBrowse({ category: "movies" }, "ar", 1);
   return (
     <BrowseGrid
       title="أفلام"

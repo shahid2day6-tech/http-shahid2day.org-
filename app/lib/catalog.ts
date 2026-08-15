@@ -29,6 +29,10 @@ export const SERIES_GROUPS: { group: CatalogGroup; label: DictKey }[] = [
   { group: "indian", label: "indianSeries" },
 ];
 
+export const BROWSE_ROWS = 5;
+export const BROWSE_COLS = 9;
+export const BROWSE_PAGE_SIZE = BROWSE_ROWS * BROWSE_COLS;
+
 export function catalogHref(kind: CatalogKind, group: CatalogGroup): string {
   return kind === "movie" ? `/movies/${group}` : `/series/${group}`;
 }

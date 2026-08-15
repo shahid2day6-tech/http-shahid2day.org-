@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import BrowseGrid from "../../components/BrowseGrid";
 import { SERIES_GROUPS, isSeriesGroup } from "../../lib/catalog";
-import { BROWSE_PRELOAD_PAGES, discoverCatalogMany } from "../../lib/tmdb";
+import { discoverBrowse } from "../../lib/tmdb";
 import { dict } from "../../lib/i18n";
 
 export const revalidate = 3600;
@@ -23,7 +23,7 @@ export default async function SeriesGroupPage({ params }: Props) {
   const { group } = await params;
   if (!isSeriesGroup(group)) notFound();
   const item = SERIES_GROUPS.find((entry) => entry.group === group)!;
-  const data = await discoverCatalogMany("tv", group, "ar", 1, BROWSE_PRELOAD_PAGES);
+  const data = await discoverBrowse({ kind: "tv", group }, "ar", 1);
   return (
     <BrowseGrid
       title={dict.ar[item.label]}

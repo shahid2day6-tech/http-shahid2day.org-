@@ -1,4 +1,5 @@
 import type { CatalogGroup, CatalogKind } from "./catalog";
+import { BROWSE_PAGE_SIZE } from "./catalog";
 
 const TMDB = "https://api.themoviedb.org/3";
 const IMG = "https://image.tmdb.org/t/p";
@@ -275,6 +276,35 @@ export async function discoverCatalogMany(
   const items = uniqueItems(pages.flatMap((p) => p.items));
   const first = pages[0];
   return asResult(items, last, first?.totalPages ?? 1, first?.totalResults ?? items.length);
+}
+
+const TMDB_PAGE_SIZE = 20;
+
+export async function discoverBrowse(
+  source:
+    | { category: CategoryKey }
+    | { kind: CatalogKind; group: CatalogGroup },
+  lang: string,
+  browsePage = 1
+): Promise<DiscoverResult> {
+  const page = Math.max(1, browsePage);
+  const start = (page - 1) * BROWSE_PAGE_SIZE;
+  const tmdbStart = Math.floor(start / TMDB_PAGE_SIZE) + 1;
+  const tmdbEnd = Math.ceil((start + BROWSE_PAGE_SIZE) / TMDB_PAGE_SIZE);
+  const chunks = await Promise.all(
+    Array.from({ length: tmdbEnd - tmdbStart + 1 }, (_, i) => {
+      const tmdbPage = tmdbStart + i;
+      return "kind" in source
+        ? discoverCatalog(source.kind, source.group, lang, tmdbPage)
+        : discover(source.category, lang, tmdbPage);
+    })
+  );
+  const combined = uniqueItems(chunks.flatMap((chunk) => chunk.items));
+  const offset = start - (tmdbStart - 1) * TMDB_PAGE_SIZE;
+  const items = combined.slice(Math.max(0, offset), Math.max(0, offset) + BROWSE_PAGE_SIZE);
+  const totalResults = chunks[0]?.totalResults ?? items.length;
+  const totalPages = Math.max(1, Math.min(500, Math.ceil(totalResults / BROWSE_PAGE_SIZE)));
+  return asResult(items, page, totalPages, totalResults);
 }
 
 export async function discoverMany(

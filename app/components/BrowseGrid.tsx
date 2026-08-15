@@ -1,10 +1,23 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useState } from "react";
 import type { CatalogGroup, CatalogKind } from "../lib/catalog";
 import type { CategoryKey, MediaItem } from "../lib/tmdb";
 import { useLang } from "../context/LanguageContext";
 import MediaCard from "./MediaCard";
+
+function paginationItems(current: number, total: number): (number | "gap")[] {
+  if (total <= 5) {
+    return Array.from({ length: total }, (_, i) => i + 1);
+  }
+  if (current <= 3) {
+    return [1, 2, 3, "gap", total];
+  }
+  if (current >= total - 2) {
+    return [1, "gap", total - 2, total - 1, total];
+  }
+  return [current, current + 1, current + 2, "gap", total];
+}
 
 export default function BrowseGrid({
   title,
@@ -33,76 +46,50 @@ export default function BrowseGrid({
   const [page, setPage] = useState(initialPage);
   const [pages, setPages] = useState(totalPages);
   const [loading, setLoading] = useState(false);
-  const sentinelRef = useRef<HTMLDivElement>(null);
-  const loadingRef = useRef(false);
   const total = totalResults ?? items.length;
   const canPage = Boolean(category || (kind && group));
 
-  const hasMore = canPage && page < pages;
+  const goTo = useCallback(
+    async (next: number) => {
+      if (!canPage || loading || next < 1 || next > pages || next === page) return;
+      setLoading(true);
+      try {
+        const query =
+          kind && group
+            ? `kind=${kind}&group=${group}&page=${next}&lang=${lang}`
+            : `category=${category}&page=${next}&lang=${lang}`;
+        const res = await fetch(`/api/discover?${query}`);
+        const data = (await res.json()) as {
+          results?: MediaItem[];
+          totalPages?: number;
+        };
+        setItems(data.results ?? []);
+        setPage(next);
+        if (data.totalPages) setPages(data.totalPages);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } finally {
+        setLoading(false);
+      }
+    },
+    [canPage, category, group, kind, lang, loading, page, pages]
+  );
 
-  useEffect(() => {
-    if (!canPage) setItems(staticItems ?? []);
-  }, [canPage, staticItems]);
-
-  const loadMore = useCallback(async () => {
-    if (!canPage || loadingRef.current || page >= pages) return;
-    loadingRef.current = true;
-    setLoading(true);
-    try {
-      const next = page + 1;
-      const query = kind && group
-        ? `kind=${kind}&group=${group}&page=${next}&lang=${lang}`
-        : `category=${category}&page=${next}&lang=${lang}`;
-      const res = await fetch(`/api/discover?${query}`);
-      const data = (await res.json()) as {
-        results?: MediaItem[];
-        totalPages?: number;
-      };
-      const incoming = data.results ?? [];
-      setItems((prev) => {
-        const seen = new Set(prev.map((item) => `${item.type}-${item.id}`));
-        return [
-          ...prev,
-          ...incoming.filter((item) => !seen.has(`${item.type}-${item.id}`)),
-        ];
-      });
-      setPage(next);
-      if (data.totalPages) setPages(data.totalPages);
-    } finally {
-      loadingRef.current = false;
-      setLoading(false);
-    }
-  }, [canPage, category, group, kind, lang, page, pages]);
-
-  useEffect(() => {
-    const el = sentinelRef.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0]?.isIntersecting) void loadMore();
-      },
-      { rootMargin: "900px" }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [loadMore]);
+  const numbers = paginationItems(page, pages);
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-      <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-3xl font-black">{title}</h1>
-          <p className="mt-1 text-sm text-[#a3a3a3]">
-            {t("showingCount")
-              .replace("{count}", String(items.length))
-              .replace("{total}", String(total.toLocaleString(lang === "ar" ? "ar-SA" : "en-US")))}
-          </p>
-        </div>
+    <div className="mx-auto max-w-[1600px] px-4 py-8 sm:px-6">
+      <div className="mb-6">
+        <h1 className="text-3xl font-black">{title}</h1>
+        <p className="mt-1 text-sm text-[#a3a3a3]">
+          {t("showingCount")
+            .replace("{count}", String(items.length))
+            .replace("{total}", String(total.toLocaleString(lang === "ar" ? "ar-SA" : "en-US")))}
+        </p>
       </div>
       {items.length === 0 ? (
         <p className="text-[#a3a3a3]">{t("noResults")}</p>
       ) : (
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+        <div className="grid grid-cols-3 gap-3 sm:grid-cols-5 md:grid-cols-7 xl:grid-cols-9">
           {items.map((item) => (
             <MediaCard
               key={`${item.type}-${item.id}`}
@@ -113,18 +100,41 @@ export default function BrowseGrid({
           ))}
         </div>
       )}
-      <div ref={sentinelRef} className="h-8" />
-      <div className="mt-4 flex justify-center pb-8">
-        {loading ? (
-          <p className="text-sm font-bold text-[#a3a3a3]">{t("loadingMore")}</p>
-        ) : hasMore ? (
-          <button type="button" onClick={() => void loadMore()} className="btn-red px-6 py-2 text-sm">
-            {t("loadMore")}
+      {canPage && pages > 1 && (
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-2 pb-8">
+          {numbers.map((item, index) =>
+            item === "gap" ? (
+              <span
+                key={`gap-${index}`}
+                className="flex h-10 min-w-10 items-center justify-center rounded-md bg-[#2a2a2a] px-3 text-sm font-black text-white"
+              >
+                ...
+              </span>
+            ) : (
+              <button
+                key={item}
+                type="button"
+                onClick={() => void goTo(item)}
+                disabled={loading}
+                className={`flex h-10 min-w-10 items-center justify-center rounded-md px-3 text-sm font-black text-white ${
+                  item === page ? "bg-[#e06c5c]" : "bg-[#2a2a2a] hover:bg-[#3a3a3a]"
+                }`}
+              >
+                {item}
+              </button>
+            )
+          )}
+          <button
+            type="button"
+            onClick={() => void goTo(Math.min(pages, page + 1))}
+            disabled={loading || page >= pages}
+            className="flex h-10 min-w-10 items-center justify-center rounded-md bg-[#2a2a2a] px-3 text-sm font-black text-white hover:bg-[#3a3a3a] disabled:opacity-40"
+            aria-label="next"
+          >
+            «
           </button>
-        ) : items.length > 0 && canPage ? (
-          <p className="text-sm font-bold text-[#a3a3a3]">{t("allLoaded")}</p>
-        ) : null}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
