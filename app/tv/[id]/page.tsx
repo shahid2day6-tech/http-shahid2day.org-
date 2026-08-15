@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import TitleView from "../../components/TitleView";
-import { getTitle } from "../../lib/tmdb";
+import { getTitle, listingTitle } from "../../lib/tmdb";
 
 export const revalidate = 3600;
 
@@ -12,7 +12,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const title = await getTitle("tv", Number(id), "ar");
   if (!title) return { title: "مسلسل" };
   return {
-    title: title.title,
+    title: listingTitle(title),
     description: title.overview || title.title,
   };
 }

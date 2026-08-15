@@ -61,9 +61,16 @@ function mapItem(
   const mediaType =
     fallback ??
     (item.media_type === "tv" || item.name ? "tv" : "movie");
+  const originalLanguage = String(item.original_language ?? "");
+  const localized = String(item.title ?? item.name ?? "");
+  const original = String(item.original_title ?? item.original_name ?? "");
+  const title =
+    originalLanguage && originalLanguage !== "ar" && original
+      ? original
+      : localized || original;
   return {
     id: Number(item.id),
-    title: String(item.title ?? item.name ?? ""),
+    title,
     poster: posterUrl((item.poster_path as string | null) ?? null),
     backdrop: backdropUrl((item.backdrop_path as string | null) ?? null),
     rating:
@@ -73,8 +80,15 @@ function mapItem(
     year: String(item.release_date ?? item.first_air_date ?? "").slice(0, 4),
     type: mediaType === "tv" ? "tv" : "movie",
     overview: String(item.overview ?? ""),
-    originalLanguage: String(item.original_language ?? ""),
+    originalLanguage,
   };
+}
+
+export function listingTitle(item: Pick<MediaItem, "title" | "type" | "year" | "originalLanguage">): string {
+  const kind = item.type === "tv" ? "مسلسل" : "فيلم";
+  const status =
+    item.originalLanguage && item.originalLanguage !== "ar" ? "مترجم اون لاين" : "اون لاين";
+  return [kind, item.title, item.year, status].filter(Boolean).join(" ");
 }
 
 async function tmdb<T>(
@@ -550,13 +564,18 @@ export async function getTitle(
 
   const arText = translationText(primary, "ar");
   const enText = translationText(primary, "en");
-  const titleName = pickText(
-    language.startsWith("ar")
-      ? pickText(primary.title as string, primary.name as string, arText.name)
-      : pickText(primary.title as string, primary.name as string),
+  const originalLanguage = String(primary.original_language ?? "");
+  const arabicName = pickText(primary.title as string, primary.name as string, arText.name);
+  const englishName = pickText(
     fallback ? pickText(fallback.title as string, fallback.name as string) : "",
-    enText.name
+    enText.name,
+    primary.original_title as string,
+    primary.original_name as string
   );
+  const displayName =
+    originalLanguage === "ar"
+      ? pickText(arabicName, englishName)
+      : pickText(englishName, arabicName);
   const overview = pickText(
     primary.overview as string,
     arText.overview,
@@ -566,8 +585,10 @@ export async function getTitle(
   const item = mapItem(
     {
       ...primary,
-      title: titleName,
-      name: titleName,
+      title: displayName,
+      name: displayName,
+      original_title: displayName,
+      original_name: displayName,
       overview,
       poster_path: primary.poster_path || fallback?.poster_path,
       backdrop_path: primary.backdrop_path || fallback?.backdrop_path,

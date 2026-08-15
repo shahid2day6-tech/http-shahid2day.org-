@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import type { ReactNode } from "react";
-import type { TitleDetails } from "../lib/tmdb";
+import { listingTitle, type TitleDetails } from "../lib/tmdb";
 import { useLang } from "../context/LanguageContext";
 import MediaRow from "./MediaRow";
 import BrandWordmark from "./BrandWordmark";
@@ -74,8 +74,8 @@ export default function TitleView({ title }: { title: TitleDetails }) {
             </div>
           )}
           <div className="max-w-2xl">
-            <h1 className="text-3xl font-black sm:text-5xl" dir="auto">
-              {title.title}
+            <h1 className="text-3xl font-black sm:text-5xl" dir="rtl">
+              {listingTitle(title)}
             </h1>
             <div className="mt-4 flex flex-col items-start gap-2">
               <FactBox
