@@ -1,12 +1,6 @@
 import type { MetadataRoute } from "next";
-import {
-  MOVIE_GROUPS,
-  RAMADAN_GROUPS,
-  SERIES_GROUPS,
-  catalogHref,
-} from "./lib/catalog";
-import { SORT_MODES } from "./lib/filters";
 import { SITE_URL } from "./lib/site";
+import { staticSitemapPaths } from "./lib/sitemap-routes";
 import { titleHref } from "./lib/slug";
 import {
   discoverFranchises,
@@ -47,21 +41,7 @@ export default async function sitemap({ id }: { id: number | string }): Promise<
   const index = Number(id);
 
   if (index === 0) {
-    const routes = [
-      "",
-      "/movies",
-      "/series",
-      "/browse",
-      "/anime",
-      "/arabic",
-      "/turkish",
-      "/asian",
-      ...MOVIE_GROUPS.map((item) => catalogHref("movie", item.group)),
-      ...SERIES_GROUPS.map((item) => catalogHref("tv", item.group)),
-      ...RAMADAN_GROUPS.map((item) => catalogHref("tv", item.group)),
-      ...SORT_MODES.map((mode) => `/browse?sort=${mode.id}`),
-    ];
-    return routes.map((route) => loc(route, "daily", route === "" ? 1 : 0.8));
+    return staticSitemapPaths().map((route) => loc(route, "daily", route === "" ? 1 : 0.8));
   }
 
   if (index === 1) {
