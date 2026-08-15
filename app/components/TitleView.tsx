@@ -87,7 +87,16 @@ export default function TitleView({ title }: { title: TitleDetails }) {
                 label={t("rating")}
                 value={title.rating !== "0" ? `★ ${title.rating}` : ""}
               />
+              <FactBox
+                label={t("seasons")}
+                value={title.seasons ? String(title.seasons) : ""}
+              />
+              <FactBox
+                label={t("episodes")}
+                value={title.episodes ? String(title.episodes) : ""}
+              />
               <FactBox label={t("duration")} value={title.runtime} />
+              <FactBox label={t("network")} value={title.network ?? ""} />
               <FactBox label={t("genres")} value={title.genres.join(" / ")} />
             </div>
           </div>
@@ -166,7 +175,11 @@ export default function TitleView({ title }: { title: TitleDetails }) {
                   <div className="relative mb-2 aspect-[2/3] overflow-hidden rounded-xl bg-[#141414]">
                     {person.photo ? (
                       <Image src={person.photo} alt={person.name} fill className="object-cover" />
-                    ) : null}
+                    ) : (
+                      <div className="flex h-full items-center justify-center text-2xl font-black text-white/70">
+                        {person.name.trim().charAt(0) || "؟"}
+                      </div>
+                    )}
                   </div>
                   <p className="text-sm font-bold" dir="auto">
                     {person.name}

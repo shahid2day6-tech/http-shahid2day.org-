@@ -34,6 +34,8 @@ export type TitleDetails = MediaItem & {
   similar: MediaItem[];
   providers: { name: string; logo: string | null }[];
   seasons?: number;
+  episodes?: number;
+  network?: string;
   homepage?: string | null;
 };
 
@@ -252,16 +254,7 @@ export async function discoverCatalog(
   } else if (group === "indian") {
     common.with_origin_country = "IN";
   } else if (group.startsWith("ramadan")) {
-    common.with_original_language = "ar";
-    common.with_origin_country = "EG|SA|AE|SY|LB|JO|IQ|KW|QA|BH|OM|TN|MA|DZ";
-    const year = group === "ramadan" ? 0 : Number(group.replace("ramadan", ""));
-    if (year) {
-      common["first_air_date.gte"] = `${year}-02-01`;
-      common["first_air_date.lte"] = `${year}-05-31`;
-    } else {
-      common["first_air_date.gte"] = "2022-02-01";
-      common["first_air_date.lte"] = "2026-05-31";
-    }
+    return discoverRamadan(group, lang, page);
   } else {
     common.with_original_language = "en";
   }
@@ -406,61 +399,230 @@ export async function searchMedia(query: string, lang: string): Promise<MediaIte
     .map((item) => mapItem(item));
 }
 
+function pickText(...values: (string | null | undefined)[]): string {
+  return values.find((value) => value && value.trim()) ?? "";
+}
+
+function translationText(
+  data: Record<string, unknown> | null,
+  iso: string
+): { name: string; overview: string } {
+  const rows =
+    (
+      data?.translations as {
+        translations?: { iso_639_1?: string; data?: { name?: string; title?: string; overview?: string } }[];
+      }
+    )?.translations ?? [];
+  const row = rows.find((item) => item.iso_639_1 === iso)?.data;
+  return {
+    name: pickText(row?.name, row?.title),
+    overview: pickText(row?.overview),
+  };
+}
+
+function trailerKey(data: Record<string, unknown> | null): string | null {
+  const videos =
+    (data?.videos as { results?: { type: string; site: string; key: string }[] })?.results ?? [];
+  return (
+    videos.find((video) => video.site === "YouTube" && video.type === "Trailer")?.key ??
+    videos.find((video) => video.site === "YouTube")?.key ??
+    null
+  );
+}
+
+function mapCast(people: Record<string, unknown>[]): TitleDetails["cast"] {
+  return people
+    .map((person, index) => {
+      const roles = person.roles as { character?: string }[] | undefined;
+      return {
+        name: pickText(person.name as string, person.original_name as string),
+        character: pickText(person.character as string, roles?.[0]?.character),
+        photo: posterUrl((person.profile_path as string | null) ?? null, "w185"),
+        order: Number(person.order ?? index),
+      };
+    })
+    .filter((person) => person.name)
+    .sort((a, b) => Number(Boolean(b.photo)) - Number(Boolean(a.photo)) || a.order - b.order)
+    .slice(0, 16)
+    .map(({ name, character, photo }) => ({ name, character, photo }));
+}
+
+function providerList(data: Record<string, unknown> | null): TitleDetails["providers"] {
+  const providerRoot = data?.["watch/providers"] as {
+    results?: Record<string, { flatrate?: { provider_name: string; logo_path: string | null }[] }>;
+  };
+  const region =
+    providerRoot?.results?.SA ??
+    providerRoot?.results?.AE ??
+    providerRoot?.results?.EG ??
+    providerRoot?.results?.US;
+  return (region?.flatrate ?? []).slice(0, 6).map((provider) => ({
+    name: provider.provider_name,
+    logo: posterUrl(provider.logo_path, "w92"),
+  }));
+}
+
+async function discoverRamadan(
+  group: CatalogGroup,
+  lang: string,
+  page: number
+): Promise<DiscoverResult> {
+  const language = lang.startsWith("ar") ? "ar-SA" : "en-US";
+  const year = group === "ramadan" ? 0 : Number(group.replace("ramadan", ""));
+  const window = year
+    ? { "first_air_date.gte": `${year}-02-01`, "first_air_date.lte": `${year}-05-31` }
+    : { "first_air_date.gte": "2022-02-01", "first_air_date.lte": "2026-05-31" };
+  const search: Record<string, string | number> = {
+    query: year ? `رمضان ${year}` : "رمضان",
+    language,
+    page,
+    include_adult: "false",
+  };
+  if (year) search.first_air_date_year = year;
+
+  const [named, tagged, seasonal] = await Promise.all([
+    tmdb<ListResponse>("/search/tv", search),
+    tmdb<ListResponse>("/discover/tv", {
+      language,
+      page,
+      include_adult: "false",
+      sort_by: "popularity.desc",
+      with_original_language: "ar",
+      with_keywords: "297545",
+      ...window,
+    }),
+    tmdb<ListResponse>("/discover/tv", {
+      language,
+      page,
+      include_adult: "false",
+      sort_by: "popularity.desc",
+      with_original_language: "ar",
+      with_origin_country: "EG|SA|AE|SY|LB|JO|IQ|KW|QA|BH|OM|TN|MA|DZ",
+      ...window,
+    }),
+  ]);
+
+  const items = uniqueItems(
+    [...(named?.results ?? []), ...(tagged?.results ?? []), ...(seasonal?.results ?? [])]
+      .filter((item) => item.original_language === "ar" || !item.original_language)
+      .map((item) => mapItem(item, "tv"))
+  );
+  return asResult(
+    items,
+    page,
+    Math.max(pageCount(named), pageCount(tagged), pageCount(seasonal)),
+    Math.max(resultCount(named), resultCount(tagged), resultCount(seasonal), items.length)
+  );
+}
+
 export async function getTitle(
   type: MediaType,
   id: number,
   lang: string
 ): Promise<TitleDetails | null> {
   const language = lang.startsWith("ar") ? "ar-SA" : "en-US";
-  const data = await tmdb<Record<string, unknown>>(`/${type}/${id}`, {
-    language,
-    append_to_response: "videos,credits,similar,watch/providers",
-  });
-  if (!data) return null;
+  const extras =
+    type === "tv"
+      ? "videos,credits,aggregate_credits,similar,watch/providers,translations"
+      : "videos,credits,similar,watch/providers,translations";
+  const [primary, fallback] = await Promise.all([
+    tmdb<Record<string, unknown>>(`/${type}/${id}`, {
+      language,
+      append_to_response: extras,
+    }),
+    language === "ar-SA"
+      ? tmdb<Record<string, unknown>>(`/${type}/${id}`, {
+          language: "en-US",
+          append_to_response: extras,
+        })
+      : Promise.resolve(null),
+  ]);
+  if (!primary) return null;
 
-  const videos = (data.videos as { results?: { type: string; site: string; key: string }[] })
-    ?.results ?? [];
-  const trailer =
-    videos.find((v) => v.site === "YouTube" && v.type === "Trailer")?.key ??
-    videos.find((v) => v.site === "YouTube")?.key ??
-    null;
+  const arText = translationText(primary, "ar");
+  const enText = translationText(primary, "en");
+  const titleName = pickText(
+    language.startsWith("ar")
+      ? pickText(primary.title as string, primary.name as string, arText.name)
+      : pickText(primary.title as string, primary.name as string),
+    fallback ? pickText(fallback.title as string, fallback.name as string) : "",
+    enText.name
+  );
+  const overview = pickText(
+    primary.overview as string,
+    arText.overview,
+    fallback?.overview as string,
+    enText.overview
+  );
+  const item = mapItem(
+    {
+      ...primary,
+      title: titleName,
+      name: titleName,
+      overview,
+      poster_path: primary.poster_path || fallback?.poster_path,
+      backdrop_path: primary.backdrop_path || fallback?.backdrop_path,
+    },
+    type
+  );
 
-  const cast = ((data.credits as { cast?: Record<string, unknown>[] })?.cast ?? [])
-    .slice(0, 8)
-    .map((person) => ({
-      name: String(person.name ?? ""),
-      character: String(person.character ?? ""),
-      photo: posterUrl((person.profile_path as string | null) ?? null, "w185"),
-    }));
+  const genres = ((primary.genres as { name: string }[]) ?? [])
+    .map((genre) => genre.name)
+    .filter(Boolean);
+  if (!genres.length) {
+    genres.push(
+      ...((fallback?.genres as { name: string }[]) ?? []).map((genre) => genre.name).filter(Boolean)
+    );
+  }
 
-  const similar = ((data.similar as ListResponse)?.results ?? [])
-    .slice(0, 12)
-    .map((item) => mapItem(item, type));
-
-  const providerRoot = data["watch/providers"] as {
-    results?: Record<string, { flatrate?: { provider_name: string; logo_path: string | null }[] }>;
-  };
-  const region = providerRoot?.results?.SA ?? providerRoot?.results?.AE ?? providerRoot?.results?.US;
-  const providers = (region?.flatrate ?? []).slice(0, 6).map((p) => ({
-    name: p.provider_name,
-    logo: posterUrl(p.logo_path, "w92"),
-  }));
-
+  const lastEpisode = primary.last_episode_to_air as { runtime?: number } | undefined;
   const runtimeMinutes =
     type === "movie"
-      ? Number(data.runtime ?? 0)
-      : Number((data.episode_run_time as number[] | undefined)?.[0] ?? 0);
+      ? Number(primary.runtime ?? fallback?.runtime ?? 0)
+      : Number(
+          (primary.episode_run_time as number[] | undefined)?.[0] ??
+            lastEpisode?.runtime ??
+            (fallback?.episode_run_time as number[] | undefined)?.[0] ??
+            0
+        );
+
+  const aggregate = (
+    primary.aggregate_credits as { cast?: Record<string, unknown>[] } | undefined
+  )?.cast;
+  const credits = (primary.credits as { cast?: Record<string, unknown>[] } | undefined)?.cast;
+  const fallbackCast =
+    (fallback?.aggregate_credits as { cast?: Record<string, unknown>[] } | undefined)?.cast ??
+    (fallback?.credits as { cast?: Record<string, unknown>[] } | undefined)?.cast;
+  const cast = mapCast(aggregate?.length ? aggregate : credits?.length ? credits : fallbackCast ?? []);
+
+  const similar = uniqueItems(
+    [
+      ...((primary.similar as ListResponse)?.results ?? []),
+      ...((fallback?.similar as ListResponse)?.results ?? []),
+    ].map((row) => mapItem(row, type))
+  ).slice(0, 12);
+
+  const providers = providerList(primary);
+  if (!providers.length) providers.push(...providerList(fallback));
+
+  const networks = ((primary.networks as { name?: string }[]) ?? [])
+    .map((network) => network.name)
+    .filter(Boolean)
+    .slice(0, 2)
+    .join(" / ");
 
   return {
-    ...mapItem(data, type),
-    genres: ((data.genres as { name: string }[]) ?? []).map((g) => g.name),
+    ...item,
+    genres,
     runtime: runtimeMinutes ? `${runtimeMinutes} د` : "",
-    trailer,
+    trailer: trailerKey(primary) ?? trailerKey(fallback),
     cast,
     similar,
     providers,
-    seasons: type === "tv" ? Number(data.number_of_seasons ?? 0) : undefined,
-    homepage: (data.homepage as string | null) ?? null,
+    seasons: type === "tv" ? Number(primary.number_of_seasons ?? 0) || undefined : undefined,
+    episodes: type === "tv" ? Number(primary.number_of_episodes ?? 0) || undefined : undefined,
+    network: networks || undefined,
+    homepage: (primary.homepage as string | null) ?? (fallback?.homepage as string | null) ?? null,
   };
 }
 

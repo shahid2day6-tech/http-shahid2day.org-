@@ -41,6 +41,7 @@ export const dict = {
     classification: "التصنيف",
     genres: "الأنواع",
     duration: "المدة",
+    network: "القناة",
     watchNow: "المشاهدة الآن",
     downloadNow: "التحميل الآن",
     cast: "طاقم العمل",
@@ -49,6 +50,7 @@ export const dict = {
     rating: "التقييم",
     year: "السنة",
     seasons: "مواسم",
+    episodes: "الحلقات",
     noResults: "لا توجد نتائج",
     loading: "جاري التحميل...",
     footerAbout:
@@ -106,6 +108,7 @@ export const dict = {
     classification: "Classification",
     genres: "Genres",
     duration: "Duration",
+    network: "Network",
     watchNow: "Watch now",
     downloadNow: "Download now",
     cast: "Cast",
@@ -114,6 +117,7 @@ export const dict = {
     rating: "Rating",
     year: "Year",
     seasons: "Seasons",
+    episodes: "Episodes",
     noResults: "No results",
     loading: "Loading...",
     footerAbout:
