@@ -67,7 +67,7 @@ export default function TitleView({ title }: { title: TitleDetails }) {
         <div className="absolute top-5 start-4 z-10 sm:start-6">
           <BrandWordmark size="lg" />
         </div>
-        <div className="relative mx-auto flex max-w-7xl flex-col gap-6 px-4 py-16 sm:flex-row sm:items-end sm:px-6">
+        <div className="relative mx-auto flex max-w-7xl flex-col gap-6 px-4 py-16 sm:flex-row sm:items-end sm:px-6 sm:pl-[252px]">
           {title.poster && (
             <div className="relative h-[280px] w-[186px] shrink-0 overflow-hidden rounded-2xl border border-[#262626] shadow-2xl">
               <Image src={title.poster} alt={title.title} fill className="object-cover" />
@@ -91,34 +91,34 @@ export default function TitleView({ title }: { title: TitleDetails }) {
               <FactBox label={t("genres")} value={title.genres.join(" / ")} />
             </div>
           </div>
-          <div className="flex w-full shrink-0 flex-col gap-3 sm:w-[220px]">
-            <ActionBox href="#watch-on" label={t("watchNow")} tone="red">
-              <span className="flex h-14 w-14 items-center justify-center rounded-full bg-white/90">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="#9d0b12" aria-hidden>
-                  <path d="M8 5.14v13.72L19 12 8 5.14z" />
-                </svg>
-              </span>
-            </ActionBox>
-            <ActionBox href="#watch-on" label={t("downloadNow")} tone="green">
-              <span className="flex h-14 w-14 items-center justify-center rounded-full bg-white/90">
-                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden>
-                  <path
-                    d="M6.5 16.5A4.5 4.5 0 0 1 7 7.6 5.5 5.5 0 0 1 17.7 9 3.8 3.8 0 0 1 18 16.5"
-                    stroke="#2f6b45"
-                    strokeWidth="1.8"
-                    strokeLinecap="round"
-                  />
-                  <path
-                    d="M12 11v7m0 0-3-3m3 3 3-3"
-                    stroke="#2f6b45"
-                    strokeWidth="1.8"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </span>
-            </ActionBox>
-          </div>
+        </div>
+        <div className="relative z-10 mx-4 mb-6 flex w-[220px] flex-col gap-3 sm:absolute sm:bottom-16 sm:left-4 sm:mx-0 sm:mb-0">
+          <ActionBox href="#watch-on" label={t("watchNow")} tone="red">
+            <span className="flex h-14 w-14 items-center justify-center rounded-full bg-white/90">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="#9d0b12" aria-hidden>
+                <path d="M8 5.14v13.72L19 12 8 5.14z" />
+              </svg>
+            </span>
+          </ActionBox>
+          <ActionBox href="#watch-on" label={t("downloadNow")} tone="green">
+            <span className="flex h-14 w-14 items-center justify-center rounded-full bg-white/90">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden>
+                <path
+                  d="M6.5 16.5A4.5 4.5 0 0 1 7 7.6 5.5 5.5 0 0 1 17.7 9 3.8 3.8 0 0 1 18 16.5"
+                  stroke="#2f6b45"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                />
+                <path
+                  d="M12 11v7m0 0-3-3m3 3 3-3"
+                  stroke="#2f6b45"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </span>
+          </ActionBox>
         </div>
       </section>
 
