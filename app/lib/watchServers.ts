@@ -106,13 +106,5 @@ export function buildWatchServers(
           ? `https://watch.embed-api.stream/embed/tv/${id}/${season}/${episode}`
           : `https://watch.embed-api.stream/embed/movie/${id}`,
     },
-    {
-      name: "MoviesAPI",
-      label: "MoviesAPI",
-      url:
-        type === "tv"
-          ? `https://moviesapi.to/tv/${id}-${season}-${episode}`
-          : `https://moviesapi.to/movie/${id}`,
-    },
   ];
 }
