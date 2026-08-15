@@ -9,6 +9,9 @@ export default function HomeCatalog({
   trending,
   movies,
   series,
+  foreignEpisodes,
+  animeEpisodes,
+  arabicEpisodes,
   ramadan,
   animeMovies,
   animeSeries,
@@ -20,6 +23,9 @@ export default function HomeCatalog({
   trending: MediaItem[];
   movies: MediaItem[];
   series: MediaItem[];
+  foreignEpisodes: MediaItem[];
+  animeEpisodes: MediaItem[];
+  arabicEpisodes: MediaItem[];
   ramadan: MediaItem[];
   animeMovies: MediaItem[];
   animeSeries: MediaItem[];
@@ -35,6 +41,9 @@ export default function HomeCatalog({
       <Hero items={trending} />
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <MediaRow title={t("trending")} items={trending} />
+        <MediaRow title={t("newForeignEpisodes")} href="/series/foreign" items={foreignEpisodes} />
+        <MediaRow title={t("newAnimeEpisodes")} href="/series/anime" items={animeEpisodes} />
+        <MediaRow title={t("newArabicEpisodes")} href="/series/arabic" items={arabicEpisodes} />
         <MediaRow title={t("latestMovies")} href="/movies" items={movies} />
         <MediaRow title={t("latestSeries")} href="/series" items={series} />
         <MediaRow title={t("arabicMovies")} href="/movies/arabic" items={arabicMovies} />

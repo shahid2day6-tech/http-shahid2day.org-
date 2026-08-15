@@ -39,6 +39,17 @@ export type TitleDetails = MediaItem & {
   episodes?: number;
   network?: string;
   homepage?: string | null;
+  seasonEpisodes?: {
+    seasonNumber: number;
+    name: string;
+    episodes: {
+      episodeNumber: number;
+      name: string;
+      overview: string;
+      airDate: string;
+      still: string | null;
+    }[];
+  }[];
 };
 
 function key(): string {
@@ -178,6 +189,32 @@ function asResult(
   return { items, page, totalPages, totalResults };
 }
 
+function newestSort(kind: CatalogKind): Record<string, string> {
+  if (kind === "movie") {
+    return {
+      sort_by: "primary_release_date.desc",
+      "primary_release_date.gte": "1950-01-01",
+      "primary_release_date.lte": "2026-12-31",
+    };
+  }
+  return {
+    sort_by: "first_air_date.desc",
+    "first_air_date.gte": "1950-01-01",
+    "first_air_date.lte": "2026-12-31",
+  };
+}
+
+function newEpisodeWindow(): Record<string, string> {
+  const end = new Date();
+  const start = new Date(end);
+  start.setDate(start.getDate() - 75);
+  return {
+    sort_by: "first_air_date.desc",
+    "air_date.gte": start.toISOString().slice(0, 10),
+    "air_date.lte": end.toISOString().slice(0, 10),
+  };
+}
+
 export async function discover(
   category: CategoryKey,
   lang: string,
@@ -197,7 +234,7 @@ export async function discover(
   if (category === "movies") {
     const data = await discoverList("/discover/movie", {
       ...common,
-      sort_by: "popularity.desc",
+      ...newestSort("movie"),
     });
     const items = (data?.results ?? []).map((item) => mapItem(item, "movie"));
     return asResult(items, page, pageCount(data), resultCount(data, items.length));
@@ -206,7 +243,7 @@ export async function discover(
   if (category === "series") {
     const data = await discoverList("/discover/tv", {
       ...common,
-      sort_by: "popularity.desc",
+      ...newestSort("tv"),
     });
     const items = (data?.results ?? []).map((item) => mapItem(item, "tv"));
     return asResult(items, page, pageCount(data), resultCount(data, items.length));
@@ -218,13 +255,13 @@ export async function discover(
         ...common,
         with_genres: "16",
         with_origin_country: "JP",
-        sort_by: "popularity.desc",
+        ...newestSort("tv"),
       }),
       discoverList("/discover/movie", {
         ...common,
         with_genres: "16",
         with_original_language: "ja",
-        sort_by: "popularity.desc",
+        ...newestSort("movie"),
       }),
     ]);
     return asResult(
@@ -252,14 +289,14 @@ export async function discover(
       with_origin_country: "JP|KR|CN|TH|IN|TW|HK",
       without_genres: "16",
       without_keywords: "210024",
-      sort_by: "popularity.desc",
+      ...newestSort("tv"),
     }),
     discoverList("/discover/movie", {
       ...common,
       with_origin_country: "JP|KR|CN|TH|IN|TW|HK",
       without_genres: "16",
       without_keywords: "210024",
-      sort_by: "popularity.desc",
+      ...newestSort("movie"),
     }),
   ]);
   return asResult(
@@ -286,7 +323,7 @@ export async function discoverCatalog(
     language,
     page,
     include_adult: "false",
-    sort_by: "popularity.desc",
+    ...newestSort(kind),
   };
 
   if (group === "foreign") {
@@ -316,6 +353,31 @@ export async function discoverCatalog(
 
   const data = await discoverList(path, common);
   const items = (data?.results ?? []).map((item) => mapItem(item, fallback));
+  return asResult(items, page, pageCount(data), resultCount(data, items.length));
+}
+
+export async function discoverNewEpisodes(
+  group: "foreign" | "anime" | "arabic",
+  lang: string,
+  page = 1
+): Promise<DiscoverResult> {
+  const language = lang.startsWith("ar") ? "ar-SA" : "en-US";
+  const common: Record<string, string | number> = {
+    language,
+    page,
+    include_adult: "false",
+    ...newEpisodeWindow(),
+  };
+  if (group === "foreign") {
+    common.with_origin_country = "US|GB|CA|AU|FR|DE|IT|ES";
+  } else if (group === "anime") {
+    common.with_genres = "16";
+    common.with_origin_country = "JP";
+  } else {
+    common.with_original_language = "ar";
+  }
+  const data = await discoverList("/discover/tv", common);
+  const items = (data?.results ?? []).map((item) => mapItem(item, "tv"));
   return asResult(items, page, pageCount(data), resultCount(data, items.length));
 }
 
@@ -393,16 +455,15 @@ async function discoverByLanguage(
   language: string,
   page: number
 ): Promise<DiscoverResult> {
-  const common = {
+  const base = {
     language,
     page,
     include_adult: "false",
     with_original_language: original,
-    sort_by: "popularity.desc",
   };
   const [tv, movies] = await Promise.all([
-    discoverList("/discover/tv", common),
-    discoverList("/discover/movie", common),
+    discoverList("/discover/tv", { ...base, ...newestSort("tv") }),
+    discoverList("/discover/movie", { ...base, ...newestSort("movie") }),
   ]);
   return asResult(
     mergeLists(
@@ -559,6 +620,55 @@ function providerList(data: Record<string, unknown> | null): TitleDetails["provi
     name: provider.provider_name,
     logo: posterUrl(provider.logo_path, "w92"),
   }));
+}
+
+async function loadRecentSeasons(
+  tvId: number,
+  primary: Record<string, unknown>,
+  lang: string
+): Promise<NonNullable<TitleDetails["seasonEpisodes"]>> {
+  const language = lang.startsWith("ar") ? "ar-SA" : "en-US";
+  const seasons = (
+    (primary.seasons as { season_number?: number; name?: string }[] | undefined) ?? []
+  )
+    .filter((season) => Number(season.season_number) > 0)
+    .slice(-3);
+
+  const packs = await Promise.all(
+    seasons.map(async (season) => {
+      const num = Number(season.season_number);
+      const [ar, en] = await Promise.all([
+        tmdb<{ name?: string; episodes?: Record<string, unknown>[] }>(`/tv/${tvId}/season/${num}`, {
+          language,
+        }),
+        language.startsWith("ar")
+          ? tmdb<{ episodes?: Record<string, unknown>[] }>(`/tv/${tvId}/season/${num}`, {
+              language: "en-US",
+            })
+          : Promise.resolve(null),
+      ]);
+      const episodes = (ar?.episodes ?? []).map((episode, index) => {
+        const enEp = en?.episodes?.[index];
+        const number = Number(episode.episode_number ?? index + 1);
+        return {
+          episodeNumber: number,
+          name: pickText(episode.name as string, enEp?.name as string) || `الحلقة ${number}`,
+          overview: pickText(episode.overview as string, enEp?.overview as string),
+          airDate: String(episode.air_date ?? "").slice(0, 10),
+          still: posterUrl(
+            ((episode.still_path as string | null) ?? (enEp?.still_path as string | null) ?? null),
+            "w300"
+          ),
+        };
+      });
+      return {
+        seasonNumber: num,
+        name: pickText(ar?.name, season.name) || `الموسم ${num}`,
+        episodes,
+      };
+    })
+  );
+  return packs.filter((season) => season.episodes.length);
 }
 
 async function discoverRamadan(
@@ -729,6 +839,7 @@ export async function getTitle(
     episodes: type === "tv" ? Number(primary.number_of_episodes ?? 0) || undefined : undefined,
     network: networks || undefined,
     homepage: (primary.homepage as string | null) ?? (fallback?.homepage as string | null) ?? null,
+    seasonEpisodes: type === "tv" ? await loadRecentSeasons(id, primary, lang) : [],
   };
 }
 
@@ -737,6 +848,9 @@ export async function homeCatalog(lang: string) {
     trending,
     movies,
     series,
+    foreignEpisodes,
+    animeEpisodes,
+    arabicEpisodes,
     ramadan,
     animeMovies,
     animeSeries,
@@ -748,6 +862,9 @@ export async function homeCatalog(lang: string) {
     discover("trending", lang),
     discoverMany("movies", lang, 1, 2),
     discoverMany("series", lang, 1, 2),
+    discoverNewEpisodes("foreign", lang),
+    discoverNewEpisodes("anime", lang),
+    discoverNewEpisodes("arabic", lang),
     discoverCatalog("tv", "ramadan", lang),
     discoverCatalogMany("movie", "anime", lang, 1, 2),
     discoverCatalogMany("tv", "anime", lang, 1, 2),
@@ -761,6 +878,9 @@ export async function homeCatalog(lang: string) {
     trending: row(trending),
     movies: row(movies),
     series: row(series),
+    foreignEpisodes: row(foreignEpisodes),
+    animeEpisodes: row(animeEpisodes),
+    arabicEpisodes: row(arabicEpisodes),
     ramadan: row(ramadan),
     animeMovies: row(animeMovies),
     animeSeries: row(animeSeries),
