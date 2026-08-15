@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { MediaItem } from "../lib/tmdb";
+import { titleHref } from "../lib/slug";
 
 export default function MediaCard({
   item,
@@ -11,7 +12,7 @@ export default function MediaCard({
   movieLabel: string;
   showLabel: string;
 }) {
-  const href = item.type === "tv" ? `/tv/${item.id}` : `/movie/${item.id}`;
+  const href = titleHref(item);
 
   return (
     <Link href={href} className="poster-card group block w-full">

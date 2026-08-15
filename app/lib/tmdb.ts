@@ -1,5 +1,6 @@
 import type { CatalogGroup, CatalogKind } from "./catalog";
 import { BROWSE_PAGE_SIZE } from "./catalog";
+import { parseTitleSlug, slugifyTitle } from "./slug";
 
 const TMDB = "https://api.themoviedb.org/3";
 const IMG = "https://image.tmdb.org/t/p";
@@ -406,6 +407,49 @@ function mergeLists(a: MediaItem[], b: MediaItem[]): MediaItem[] {
     }
   }
   return out;
+}
+
+export async function getTitleBySlug(
+  slug: string,
+  lang: string
+): Promise<TitleDetails | null> {
+  const parsed = parseTitleSlug(slug);
+  if (!parsed) return null;
+  const path = parsed.type === "movie" ? "/search/movie" : "/search/tv";
+  const base: Record<string, string | number> = {
+    query: parsed.query,
+    language: "en-US",
+    include_adult: "false",
+    page: 1,
+  };
+  const withYear: Record<string, string | number> = { ...base };
+  if (parsed.year) {
+    if (parsed.type === "movie") withYear.year = parsed.year;
+    else withYear.first_air_date_year = parsed.year;
+  }
+  const first = await tmdb<ListResponse>(path, withYear);
+  let rows = first?.results ?? [];
+  if (!rows.length && parsed.year) {
+    const second = await tmdb<ListResponse>(path, base);
+    rows = second?.results ?? [];
+  }
+  const items = rows.map((row) => mapItem(row, parsed.type));
+  const needle = parsed.titleSlug;
+  const ranked = items
+    .map((item) => {
+      const slugTitle = slugifyTitle(item.title);
+      let score = 0;
+      if (slugTitle === needle) score += 8;
+      else if (slugTitle.startsWith(needle) || needle.startsWith(slugTitle)) score += 4;
+      else if (slugTitle.includes(needle) || needle.includes(slugTitle)) score += 2;
+      if (parsed.year && item.year === parsed.year) score += 5;
+      return { item, score };
+    })
+    .filter((row) => row.score > 0)
+    .sort((a, b) => b.score - a.score);
+  const match = ranked[0]?.item ?? items[0];
+  if (!match) return null;
+  return getTitle(match.type, match.id, lang);
 }
 
 export async function searchMedia(query: string, lang: string): Promise<MediaItem[]> {

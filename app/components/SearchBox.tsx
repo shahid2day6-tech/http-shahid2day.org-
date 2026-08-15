@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { MediaItem } from "../lib/tmdb";
+import { titleHref } from "../lib/slug";
 import { useLang } from "../context/LanguageContext";
 
 export default function SearchBox() {
@@ -69,10 +70,6 @@ export default function SearchBox() {
     router.push(`/search?q=${encodeURIComponent(q)}`);
   }
 
-  function hrefFor(item: MediaItem) {
-    return item.type === "tv" ? `/tv/${item.id}` : `/movie/${item.id}`;
-  }
-
   const showPanel = open && query.trim().length >= 2;
 
   return (
@@ -122,7 +119,7 @@ export default function SearchBox() {
               {items.map((item) => (
                 <li key={`${item.type}-${item.id}`}>
                   <Link
-                    href={hrefFor(item)}
+                    href={titleHref(item)}
                     onClick={() => setOpen(false)}
                     className="flex items-center gap-3 border-b border-white/5 px-3 py-3 last:border-b-0 hover:bg-white/5"
                   >

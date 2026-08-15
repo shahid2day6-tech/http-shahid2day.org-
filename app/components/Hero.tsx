@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import type { MediaItem } from "../lib/tmdb";
+import { titleHref } from "../lib/slug";
 import { useLang } from "../context/LanguageContext";
 
 export default function Hero({ items }: { items: MediaItem[] }) {
@@ -21,7 +22,7 @@ export default function Hero({ items }: { items: MediaItem[] }) {
 
   const current = slides[index];
   if (!current) return null;
-  const href = current.type === "tv" ? `/tv/${current.id}` : `/movie/${current.id}`;
+  const href = titleHref(current);
 
   return (
     <section className="relative mb-10 h-[68vw] max-h-[620px] min-h-[380px] overflow-hidden rounded-b-3xl border-b border-[#262626]">
