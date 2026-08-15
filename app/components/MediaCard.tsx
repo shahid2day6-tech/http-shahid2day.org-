@@ -21,7 +21,7 @@ export default function MediaCard({
             src={item.poster}
             alt={item.title}
             fill
-            sizes="140px"
+            sizes="180px"
             className="object-cover transition duration-500 group-hover:scale-[1.04]"
           />
         ) : (

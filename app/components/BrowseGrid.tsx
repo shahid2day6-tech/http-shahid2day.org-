@@ -77,7 +77,7 @@ export default function BrowseGrid({
   const numbers = paginationItems(page, pages);
 
   return (
-    <div className="mx-auto max-w-[1600px] px-4 py-8 sm:px-6">
+    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
       <div className="mb-6">
         <h1 className="text-3xl font-black">{title}</h1>
         <p className="mt-1 text-sm text-[#a3a3a3]">
@@ -89,7 +89,7 @@ export default function BrowseGrid({
       {items.length === 0 ? (
         <p className="text-[#a3a3a3]">{t("noResults")}</p>
       ) : (
-        <div className="grid grid-cols-3 gap-3 sm:grid-cols-5 md:grid-cols-7 xl:grid-cols-9">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
           {items.map((item) => (
             <MediaCard
               key={`${item.type}-${item.id}`}
