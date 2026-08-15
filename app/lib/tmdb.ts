@@ -171,6 +171,38 @@ type ListResponse = {
   total_results?: number;
 };
 
+function pageRange(count: number): number[] {
+  return Array.from({ length: count }, (_, index) => index + 1);
+}
+
+export async function listSitemapItems(
+  path: string,
+  params: Record<string, string | number>,
+  pages = 8
+): Promise<MediaItem[]> {
+  const fallback: MediaType | undefined = path.includes("/tv")
+    ? "tv"
+    : path.includes("/movie")
+      ? "movie"
+      : undefined;
+  const rows = await Promise.all(
+    pageRange(pages).map((page) =>
+      tmdb<ListResponse>(path, {
+        ...params,
+        page,
+        include_adult: "false",
+        language: "en-US",
+      })
+    )
+  );
+  return rows.flatMap((data) =>
+    (data?.results ?? [])
+      .filter((row) => row.media_type !== "person")
+      .map((row) => mapItem(row, fallback))
+      .filter((item) => item.id > 0 && item.title)
+  );
+}
+
 export type DiscoverResult = {
   items: MediaItem[];
   page: number;
