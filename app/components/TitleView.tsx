@@ -4,93 +4,69 @@ import Image from "next/image";
 import type { TitleDetails } from "../lib/tmdb";
 import { useLang } from "../context/LanguageContext";
 import MediaRow from "./MediaRow";
-import BrandWordmark from "./BrandWordmark";
+
+function InfoRow({ label, value }: { label: string; value: string }) {
+  if (!value) return null;
+  return (
+    <div className="flex items-start gap-3">
+      <span className="shrink-0 rounded-md bg-[#e50914] px-3 py-1 text-sm font-bold text-white">
+        {label}
+      </span>
+      <span className="pt-0.5 text-sm leading-7 text-white sm:text-base" dir="auto">
+        {value}
+      </span>
+    </div>
+  );
+}
 
 export default function TitleView({ title }: { title: TitleDetails }) {
   const { t } = useLang();
 
   return (
     <article>
-      <section className="relative min-h-[420px] overflow-hidden">
-        {title.backdrop && (
-          <Image
-            src={title.backdrop}
-            alt={title.title}
-            fill
-            priority
-            className="object-cover"
-            sizes="100vw"
-          />
-        )}
-        <div className="hero-mask absolute inset-0" />
-        <div className="absolute top-5 start-4 z-10 sm:start-6">
-          <BrandWordmark size="lg" />
-        </div>
-        <div className="relative mx-auto flex max-w-7xl flex-col gap-6 px-4 py-16 sm:flex-row sm:items-end sm:px-6">
+      <section className="bg-[#050505] px-4 py-8 sm:px-6">
+        <div className="mx-auto flex max-w-7xl flex-col gap-6 sm:flex-row sm:items-start">
           {title.poster && (
-            <div className="relative h-[280px] w-[186px] shrink-0 overflow-hidden rounded-2xl border border-[#262626] shadow-2xl">
-              <Image src={title.poster} alt={title.title} fill className="object-cover" />
+            <div className="relative mx-auto h-[360px] w-[240px] shrink-0 overflow-hidden rounded-xl border border-[#262626] shadow-2xl sm:mx-0 sm:h-[420px] sm:w-[280px]">
+              <Image src={title.poster} alt={title.title} fill className="object-cover" priority />
             </div>
           )}
-          <div className="max-w-2xl">
-            <p className="mb-2 text-sm font-bold text-[#e50914]">
-              {title.type === "tv" ? t("show") : t("movie")}
-            </p>
-            <h1 className="text-3xl font-black sm:text-5xl" dir="auto">
+
+          <div className="min-w-0 flex-1">
+            <h1 className="mb-5 text-2xl font-black sm:text-4xl" dir="auto">
               {title.title}
             </h1>
-            <div className="mt-3 flex flex-wrap gap-2 text-sm text-[#d4d4d4]">
-              {title.year && <span>{title.year}</span>}
-              {title.rating !== "0" && <span>★ {title.rating}</span>}
-              {title.runtime && <span>{title.runtime}</span>}
-              {title.seasons ? (
-                <span>
-                  {title.seasons} {t("seasons")}
-                </span>
-              ) : null}
-              {title.genres.map((genre) => (
-                <span key={genre} className="rounded-full bg-white/10 px-2 py-0.5">
-                  {genre}
-                </span>
-              ))}
+
+            <div className="space-y-3">
+              <InfoRow
+                label={t("classification")}
+                value={title.type === "tv" ? t("show") : t("movie")}
+              />
+              <InfoRow label={t("year")} value={title.year} />
+              <InfoRow label={t("rating")} value={title.rating !== "0" ? `★ ${title.rating}` : ""} />
+              <InfoRow label={t("duration")} value={title.runtime} />
+              <InfoRow
+                label={t("seasons")}
+                value={title.seasons ? `${title.seasons}` : ""}
+              />
+              <InfoRow label={t("genres")} value={title.genres.join(" / ")} />
             </div>
-            {title.trailer && (
-              <a
-                href={`https://www.youtube.com/watch?v=${title.trailer}`}
-                target="_blank"
-                rel="noreferrer"
-                className="btn-light mt-5 inline-flex px-5 py-2.5 text-sm"
-              >
-                {t("watchTrailer")}
-              </a>
+
+            {title.overview && (
+              <div className="mt-6">
+                <span className="inline-block rounded-md bg-[#e50914] px-3 py-1 text-sm font-bold text-white">
+                  {t("overview")}
+                </span>
+                <div className="mt-2 rounded-xl bg-[#1c1c1c] p-4 text-sm leading-8 text-[#f0f0f0] sm:p-5 sm:text-base">
+                  <p dir="auto">{title.overview}</p>
+                </div>
+              </div>
             )}
           </div>
         </div>
       </section>
 
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-        {title.overview && (
-          <section className="mb-10">
-            <h2 className="mb-3 text-xl font-black">{t("overview")}</h2>
-            <p className="max-w-3xl leading-8 text-[#d4d4d4]">{title.overview}</p>
-          </section>
-        )}
-
-        {title.trailer && (
-          <section className="mb-10">
-            <h2 className="mb-3 text-xl font-black">{t("watchTrailer")}</h2>
-            <div className="aspect-video overflow-hidden rounded-2xl border border-[#262626] bg-black">
-              <iframe
-                src={`https://www.youtube.com/embed/${title.trailer}`}
-                title={title.title}
-                className="h-full w-full"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
-            </div>
-          </section>
-        )}
-
         {title.providers.length > 0 && (
           <section className="mb-10">
             <h2 className="mb-3 text-xl font-black">{t("watchOn")}</h2>
