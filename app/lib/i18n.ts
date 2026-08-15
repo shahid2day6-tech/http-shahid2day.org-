@@ -2,8 +2,8 @@ export type Lang = "ar" | "en";
 
 export const dict = {
   ar: {
-    brand: "شاهد لليوم",
-    brandEn: "Shahid2Day",
+    brand: "شاهد تو داي",
+    brandEn: "SHAHID2DAY",
     tagline: "أفلام · مسلسلات · أنمي · عربي · تركي · آسيوي",
     search: "ابحث عن فيلم أو مسلسل أو أنمي...",
     home: "الرئيسية",
@@ -28,7 +28,7 @@ export const dict = {
     noResults: "لا توجد نتائج",
     loading: "جاري التحميل...",
     footerAbout:
-      "شاهد لليوم منصة لاكتشاف الأفلام والمسلسلات والأنمي العربي والتركي والآسيوي. البيانات من TMDB، والإعلانات الرسمية من يوتيوب.",
+      "شاهد تو داي منصة لاكتشاف الأفلام والمسلسلات والأنمي العربي والتركي والآسيوي. البيانات من TMDB، والإعلانات الرسمية من يوتيوب.",
     rights: "جميع الحقوق محفوظة",
     language: "English",
     movie: "فيلم",
@@ -41,8 +41,8 @@ export const dict = {
     showingCount: "عرض {count} من {total} عنوان",
   },
   en: {
-    brand: "Shahid2Day",
-    brandEn: "شاهد لليوم",
+    brand: "SHAHID2DAY",
+    brandEn: "شاهد تو داي",
     tagline: "Movies · Series · Anime · Arabic · Turkish · Asian",
     search: "Search movies, series, or anime...",
     home: "Home",
@@ -67,7 +67,7 @@ export const dict = {
     noResults: "No results",
     loading: "Loading...",
     footerAbout:
-      "Shahid2Day is a discovery catalog for movies, series, and anime across Arabic, Turkish, and Asian titles. Metadata by TMDB. Official trailers via YouTube.",
+      "SHAHID2DAY is a discovery catalog for movies, series, and anime across Arabic, Turkish, and Asian titles. Metadata by TMDB. Official trailers via YouTube.",
     rights: "All rights reserved",
     language: "العربية",
     movie: "Movie",
