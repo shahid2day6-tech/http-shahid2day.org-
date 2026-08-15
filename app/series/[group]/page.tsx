@@ -4,6 +4,7 @@ import BrowseGrid from "../../components/BrowseGrid";
 import { RAMADAN_GROUPS, SERIES_GROUPS, isTvCatalogGroup } from "../../lib/catalog";
 import { discoverBrowse } from "../../lib/tmdb";
 import { dict } from "../../lib/i18n";
+import { sectionKeywords } from "../../lib/seo";
 
 export const revalidate = 3600;
 
@@ -18,7 +19,10 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { group } = await params;
   const item = TV_GROUPS.find((entry) => entry.group === group);
-  return { title: item ? dict.ar[item.label] : "مسلسلات" };
+  return {
+    title: item ? dict.ar[item.label] : "مسلسلات",
+    keywords: item?.group === "anime" ? sectionKeywords("anime") : sectionKeywords("series"),
+  };
 }
 
 export default async function SeriesGroupPage({ params }: Props) {

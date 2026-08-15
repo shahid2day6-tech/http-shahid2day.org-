@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import FilteredBrowse from "../components/FilteredBrowse";
 import { browseHeading, isCatalogSort } from "../lib/filters";
 import { dict, type DictKey } from "../lib/i18n";
+import { pageKeywords } from "../lib/seo";
 import { discoverFiltered } from "../lib/tmdb";
 
 export const dynamic = "force-dynamic";
@@ -24,6 +25,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   const sort = isCatalogSort(params.sort) ? params.sort : "latest";
   return {
     title: browseHeading((key: DictKey) => dict.ar[key], sort, params.section, params.genre, params.year),
+    keywords: pageKeywords("تصفح", "مشاهدة افلام", "مسلسلات مترجمة", "انمي مترجم"),
   };
 }
 

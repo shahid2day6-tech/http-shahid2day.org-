@@ -125,7 +125,9 @@ async function tmdb<T>(
   }
   const res = await fetch(
     url.toString(),
-    revalidate === false ? { cache: "no-store" } : { next: { revalidate } }
+    revalidate === false
+      ? { cache: "no-store" }
+      : { next: { revalidate, tags: ["catalog", "tmdb"] } }
   );
   if (!res.ok) return null;
   return (await res.json()) as T;

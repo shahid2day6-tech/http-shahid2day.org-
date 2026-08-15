@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import BrowseGrid from "../components/BrowseGrid";
+import { sectionKeywords } from "../lib/seo";
 import { discoverBrowse } from "../lib/tmdb";
 
-export const metadata: Metadata = { title: "أنمي" };
+export const metadata: Metadata = { title: "أنمي", keywords: sectionKeywords("anime") };
 export const revalidate = 3600;
 
 export default async function AnimePage() {

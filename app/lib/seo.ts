@@ -531,8 +531,33 @@ nya filmer 2026
 انمي مترجم الموسم الحلقة
 `;
 
+function rebrandKeyword(line: string): string {
+  return line
+    .replace(/movievault\.eu alternative/gi, "shahid2day.org")
+    .replace(/movievault\.dev/gi, "shahid2day.org")
+    .replace(/movie vault/gi, "SHAHID2DAY")
+    .replace(/MovieVault/g, "SHAHID2DAY")
+    .replace(/movievault/gi, "SHAHID2DAY")
+    .replace(/موقع خزنة الأفلام/g, "موقع شاهد تو داي")
+    .replace(/موقع خزنة الافلام/g, "موقع شاهد تو داي")
+    .replace(/موقع انمي خزنة افلام/g, "موقع انمي شاهد تو داي")
+    .replace(/موقع انمي عربي خزنة افلام/g, "موقع انمي عربي شاهد تو داي")
+    .replace(/خزنة الأفلام/g, "شاهد تو داي")
+    .replace(/خزنة الافلام/g, "شاهد تو داي")
+    .replace(/وقت الافلام - /g, "شاهد تو داي — ")
+    .replace(/وقت الأفلام/g, "شاهد تو داي")
+    .replace(/وقت الافلام/g, "شاهد تو داي")
+    .replace(/وقت الأنمي/g, "شاهد تو داي أنمي")
+    .replace(/وقت انمي/g, "شاهد تو داي انمي")
+    .replace(/وقت مسلسلات/g, "شاهد تو داي مسلسلات")
+    .replace(/waqt al aflam/gi, "shahid2day")
+    .replace(/waqt movies/gi, "shahid2day movies")
+    .replace(/waqt series/gi, "shahid2day series")
+    .replace(/waqt anime/gi, "shahid2day anime");
+}
+
 export const SEO_KEYWORDS = KEYWORD_TEXT.split("\n")
-  .map((item) => item.trim())
+  .map((item) => rebrandKeyword(item.trim()))
   .filter(Boolean);
 
 export const SEO_DESCRIPTION =
@@ -554,14 +579,56 @@ export function documentTitle(page: string): string {
   return `${page} | ${SITE_NAME_AR} | ${SITE_NAME_EN}`;
 }
 
-export function titleKeywords(name: string, listing: string): string[] {
+export function sectionKeywords(section: "movies" | "series" | "anime"): string[] {
+  if (section === "movies") {
+    return pageKeywords(
+      "أفلام",
+      "مشاهدة افلام",
+      "افلام مترجمة",
+      "مشاهدة افلام اون لاين",
+      "افلام اجنبي مترجم",
+      `${SITE_NAME_AR} أفلام`,
+      `${SITE_NAME_EN} movies`
+    );
+  }
+  if (section === "series") {
+    return pageKeywords(
+      "مسلسلات",
+      "مشاهدة مسلسلات",
+      "مسلسلات مترجمة",
+      "مشاهدة مسلسلات اون لاين",
+      `${SITE_NAME_AR} مسلسلات`,
+      `${SITE_NAME_EN} series`
+    );
+  }
+  return pageKeywords(
+    "أنمي",
+    "انمي مترجم",
+    "مشاهدة انمي اون لاين",
+    "موقع انمي",
+    `${SITE_NAME_AR} أنمي`,
+    `${SITE_NAME_EN} anime`
+  );
+}
+
+export function titleKeywords(
+  name: string,
+  listing: string,
+  extras?: { year?: string; type?: "movie" | "tv" }
+): string[] {
+  const year = extras?.year && /^\d{4}$/.test(extras.year) ? extras.year : "";
+  const kind = extras?.type === "tv" ? "مسلسل" : extras?.type === "movie" ? "فيلم" : "فيلم";
+  const animeKind = "انمي";
   return pageKeywords(
     name,
     listing,
+    `مشاهدة فيلم ${name} ${year} مترجم ${SITE_NAME_AR}`.replace(/\s+/g, " ").trim(),
+    `مشاهدة مسلسل ${name} ${year} مترجم ${SITE_NAME_AR}`.replace(/\s+/g, " ").trim(),
+    `مشاهدة انمي ${name} ${year} مترجم ${SITE_NAME_AR}`.replace(/\s+/g, " ").trim(),
+    `مشاهدة ${kind} ${name} ${year} مترجم ${SITE_NAME_EN}`.replace(/\s+/g, " ").trim(),
+    `${kind} ${name} ${year} مترجم`.replace(/\s+/g, " ").trim(),
+    `${animeKind} ${name} مترجم`,
     `${SITE_NAME_AR} ${name} مترجم`,
-    `${SITE_NAME_EN} ${name} مترجم`,
-    `${name} مترجم`,
-    `فيلم ${name} مترجم`,
-    `مسلسل ${name} مترجم`
+    `${SITE_NAME_EN} ${name} مترجم`
   );
 }

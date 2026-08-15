@@ -4,6 +4,7 @@ import BrowseGrid from "../../components/BrowseGrid";
 import { MOVIE_GROUPS, isMovieGroup } from "../../lib/catalog";
 import { discoverBrowse } from "../../lib/tmdb";
 import { dict } from "../../lib/i18n";
+import { sectionKeywords } from "../../lib/seo";
 
 export const revalidate = 3600;
 
@@ -16,7 +17,10 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { group } = await params;
   const item = MOVIE_GROUPS.find((entry) => entry.group === group);
-  return { title: item ? dict.ar[item.label] : "أفلام" };
+  return {
+    title: item ? dict.ar[item.label] : "أفلام",
+    keywords: sectionKeywords("movies"),
+  };
 }
 
 export default async function MovieGroupPage({ params }: Props) {
