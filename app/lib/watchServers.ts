@@ -5,110 +5,16 @@ export type WatchServer = {
   url: string;
 };
 
-function withLangParams(baseUrl: string, subLang: string): string {
-  const separator = baseUrl.includes("?") ? "&" : "?";
-  return `${baseUrl}${separator}sub=${subLang}&sub_lang=${subLang}&ds_lang=${subLang}&lang=${subLang}&audio_lang=${subLang}`;
-}
-
 export function buildWatchServers(
   type: "movie" | "tv",
   id: string,
   season = 1,
-  episode = 1,
-  subLang = "ar"
+  episode = 1
 ): WatchServer[] {
-  const vidlink =
+  const url =
     type === "tv"
-      ? `https://vidlink.pro/tv/${id}/${season}/${episode}?primaryColor=e50914&secondaryColor=111111&autoplay=true`
-      : `https://vidlink.pro/movie/${id}?primaryColor=e50914&secondaryColor=111111&autoplay=true`;
-  const twoEmbed =
-    type === "tv"
-      ? `https://www.2embed.cc/embedtv/${id}?s=${season}&e=${episode}`
-      : `https://www.2embed.cc/embed/${id}`;
-  const vidsharing =
-    type === "tv"
-      ? `https://1embed.cc/embed/tv/${id}/${season}/${episode}`
-      : `https://1embed.cc/embed/movie/${id}`;
-  const fileHosts =
-    type === "tv"
-      ? {
-          dood: `https://watch.embed-api.stream/embed/tv/${id}/${season}/${episode}`,
-          mixdrop: `https://vsembed.su/embed/tv/${id}/${season}/${episode}`,
-          earnvids: `https://vidcore.org/embed/tv/${id}/${season}/${episode}`,
-          streamhg: `https://watch.embed-api.stream/embed/tv/${id}/${season}/${episode}`,
-        }
-      : {
-          dood: `https://vidstreams.net/embed/tmdb${id}/`,
-          mixdrop: `https://watch.embed-api.stream/embed/movie/${id}`,
-          earnvids: `https://vsembed.su/embed/movie/${id}`,
-          streamhg: `https://vidcore.org/embed/movie/${id}`,
-        };
+      ? `https://vsembed.su/embed/tv/${id}/${season}/${episode}`
+      : `https://vsembed.su/embed/movie/${id}`;
 
-  return [
-    { name: "DoodStream", label: "DoodStream", url: fileHosts.dood },
-    { name: "Mixdrop", label: "Mixdrop", url: fileHosts.mixdrop },
-    { name: "EarnVids", label: "EarnVids", url: fileHosts.earnvids },
-    { name: "StreamHG", label: "StreamHG", url: fileHosts.streamhg },
-    {
-      name: "Shahid2Day",
-      label: "Shahid2Day",
-      url:
-        type === "tv"
-          ? `https://vidsrc.me/embed/tv/${id}/${season}/${episode}`
-          : `https://vidsrc.me/embed/movie/${id}`,
-    },
-    {
-      name: "2Embed",
-      label: "2Embed",
-      url: twoEmbed,
-    },
-    {
-      name: "VidSrc",
-      label: "VidSrc",
-      url:
-        type === "tv"
-          ? `https://vidsrc.to/embed/tv/${id}/${season}/${episode}`
-          : `https://vidsrc.to/embed/movie/${id}`,
-    },
-    {
-      name: "Vidعربي",
-      label: "Vidعربي",
-      recommended: true,
-      url: withLangParams(vidlink, "ar"),
-    },
-    {
-      name: "VidLink",
-      label: "VidLink",
-      url: withLangParams(vidlink, subLang),
-    },
-    {
-      name: "MultiEmbed",
-      label: "MultiEmbed",
-      url:
-        type === "tv"
-          ? `https://multiembed.mov/?video_id=${id}&tmdb=1&s=${season}&e=${episode}`
-          : `https://multiembed.mov/?video_id=${id}&tmdb=1`,
-    },
-    {
-      name: "AutoEmbed",
-      label: "AutoEmbed",
-      url:
-        type === "tv"
-          ? `https://player.autoembed.cc/embed/tv/${id}/${season}/${episode}`
-          : `https://player.autoembed.cc/embed/movie/${id}`,
-    },
-    {
-      name: "Videasy",
-      label: "Videasy",
-      url:
-        type === "tv"
-          ? `https://player.videasy.to/tv/${id}/${season}/${episode}`
-          : `https://player.videasy.to/movie/${id}`,
-    },
-    {
-      name: "Vidsharing",
-      label: "Vidsharing",
-      url: vidsharing,
-    },
-  ];
+  return [{ name: "EarnVids", label: "EarnVids", url }];
 }
