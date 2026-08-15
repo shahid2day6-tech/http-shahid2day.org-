@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { isMovieGroup, isSeriesGroup, type CatalogGroup, type CatalogKind } from "../../lib/catalog";
+import { isMovieGroup, isTvCatalogGroup, type CatalogGroup, type CatalogKind } from "../../lib/catalog";
 import { discoverBrowse, type CategoryKey } from "../../lib/tmdb";
 
 const CATEGORIES: CategoryKey[] = [
@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
       totalResults: data.totalResults,
     });
   }
-  if (kind === "tv" && group && isSeriesGroup(group)) {
+  if (kind === "tv" && group && isTvCatalogGroup(group)) {
     const data = await discoverBrowse({ kind: "tv", group }, lang, page);
     return NextResponse.json({
       results: data.items,

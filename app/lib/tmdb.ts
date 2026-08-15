@@ -251,6 +251,17 @@ export async function discoverCatalog(
     common.with_original_language = "ar";
   } else if (group === "indian") {
     common.with_origin_country = "IN";
+  } else if (group.startsWith("ramadan")) {
+    common.with_original_language = "ar";
+    common.with_origin_country = "EG|SA|AE|SY|LB|JO|IQ|KW|QA|BH|OM|TN|MA|DZ";
+    const year = group === "ramadan" ? 0 : Number(group.replace("ramadan", ""));
+    if (year) {
+      common["first_air_date.gte"] = `${year}-02-01`;
+      common["first_air_date.lte"] = `${year}-05-31`;
+    } else {
+      common["first_air_date.gte"] = "2022-02-01";
+      common["first_air_date.lte"] = "2026-05-31";
+    }
   } else {
     common.with_original_language = "en";
   }
@@ -454,10 +465,11 @@ export async function getTitle(
 }
 
 export async function homeCatalog(lang: string) {
-  const [trending, movies, series, anime, arabic, turkish, asian] = await Promise.all([
+  const [trending, movies, series, ramadan, anime, arabic, turkish, asian] = await Promise.all([
     discover("trending", lang),
     discover("movies", lang),
     discover("series", lang),
+    discoverCatalog("tv", "ramadan", lang),
     discover("anime", lang),
     discover("arabic", lang),
     discover("turkish", lang),
@@ -468,6 +480,7 @@ export async function homeCatalog(lang: string) {
     trending: row(trending),
     movies: row(movies),
     series: row(series),
+    ramadan: row(ramadan),
     anime: row(anime),
     arabic: row(arabic),
     turkish: row(turkish),

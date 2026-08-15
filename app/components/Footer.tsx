@@ -22,6 +22,7 @@ export default function Footer() {
             <Link href="/series">{t("series")}</Link>
             <Link href="/movies/arabic">{t("arabicMovies")}</Link>
             <Link href="/series/arabic">{t("arabicSeries")}</Link>
+            <Link href="/series/ramadan">{t("ramadanSeries")}</Link>
             <Link href="/movies/turkish">{t("turkishMovies")}</Link>
             <Link href="/series/turkish">{t("turkishSeries")}</Link>
           </div>

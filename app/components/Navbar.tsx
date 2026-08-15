@@ -7,8 +7,10 @@ import { useLang } from "../context/LanguageContext";
 import Logo from "./Logo";
 import {
   MOVIE_GROUPS,
+  RAMADAN_GROUPS,
   SERIES_GROUPS,
   catalogHref,
+  type CatalogGroup,
   type CatalogKind,
 } from "../lib/catalog";
 import type { DictKey } from "../lib/i18n";
@@ -17,16 +19,18 @@ function CatalogMenu({
   kind,
   href,
   labelKey,
+  groups,
 }: {
   kind: CatalogKind;
   href: string;
   labelKey: DictKey;
+  groups: { group: CatalogGroup; label: DictKey }[];
 }) {
   const { t } = useLang();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  const groups = kind === "movie" ? MOVIE_GROUPS : SERIES_GROUPS;
-  const active = pathname === href || pathname.startsWith(`${href}/`);
+  const active =
+    pathname === href || groups.some((item) => pathname === catalogHref(kind, item.group));
 
   return (
     <div
@@ -93,8 +97,14 @@ export default function Navbar() {
             >
               {t("home")}
             </Link>
-            <CatalogMenu kind="movie" href="/movies" labelKey="movies" />
-            <CatalogMenu kind="tv" href="/series" labelKey="series" />
+            <CatalogMenu kind="movie" href="/movies" labelKey="movies" groups={MOVIE_GROUPS} />
+            <CatalogMenu kind="tv" href="/series" labelKey="series" groups={SERIES_GROUPS} />
+            <CatalogMenu
+              kind="tv"
+              href="/series/ramadan"
+              labelKey="ramadanSeries"
+              groups={RAMADAN_GROUPS}
+            />
           </nav>
           <button
             type="button"

@@ -9,6 +9,7 @@ export default function HomeCatalog({
   trending,
   movies,
   series,
+  ramadan,
   anime,
   arabic,
   turkish,
@@ -17,6 +18,7 @@ export default function HomeCatalog({
   trending: MediaItem[];
   movies: MediaItem[];
   series: MediaItem[];
+  ramadan: MediaItem[];
   anime: MediaItem[];
   arabic: MediaItem[];
   turkish: MediaItem[];
@@ -31,6 +33,7 @@ export default function HomeCatalog({
         <MediaRow title={t("trending")} items={trending} />
         <MediaRow title={t("latestMovies")} href="/movies" items={movies} />
         <MediaRow title={t("latestSeries")} href="/series" items={series} />
+        <MediaRow title={t("ramadanSeries")} href="/series/ramadan" items={ramadan} />
         <MediaRow title={t("anime")} href="/anime" items={anime} />
         <MediaRow title={t("arabic")} href="/arabic" items={arabic} />
         <MediaRow title={t("turkish")} href="/turkish" items={turkish} />

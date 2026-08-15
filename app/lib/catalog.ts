@@ -8,7 +8,13 @@ export type CatalogGroup =
   | "turkish"
   | "arabic"
   | "indian"
-  | "dubbed";
+  | "dubbed"
+  | "ramadan"
+  | "ramadan2022"
+  | "ramadan2023"
+  | "ramadan2024"
+  | "ramadan2025"
+  | "ramadan2026";
 
 export const MOVIE_GROUPS: { group: CatalogGroup; label: DictKey }[] = [
   { group: "foreign", label: "foreignMovies" },
@@ -29,6 +35,15 @@ export const SERIES_GROUPS: { group: CatalogGroup; label: DictKey }[] = [
   { group: "indian", label: "indianSeries" },
 ];
 
+export const RAMADAN_GROUPS: { group: CatalogGroup; label: DictKey }[] = [
+  { group: "ramadan", label: "ramadanSeries" },
+  { group: "ramadan2026", label: "ramadan2026" },
+  { group: "ramadan2025", label: "ramadan2025" },
+  { group: "ramadan2024", label: "ramadan2024" },
+  { group: "ramadan2023", label: "ramadan2023" },
+  { group: "ramadan2022", label: "ramadan2022" },
+];
+
 export const BROWSE_COLS = 5;
 export const BROWSE_ROWS = 9;
 export const BROWSE_PAGE_SIZE = BROWSE_ROWS * BROWSE_COLS;
@@ -43,4 +58,12 @@ export function isMovieGroup(group: string): group is CatalogGroup {
 
 export function isSeriesGroup(group: string): group is CatalogGroup {
   return SERIES_GROUPS.some((item) => item.group === group);
+}
+
+export function isRamadanGroup(group: string): group is CatalogGroup {
+  return RAMADAN_GROUPS.some((item) => item.group === group);
+}
+
+export function isTvCatalogGroup(group: string): group is CatalogGroup {
+  return isSeriesGroup(group) || isRamadanGroup(group);
 }
