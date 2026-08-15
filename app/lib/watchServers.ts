@@ -18,22 +18,12 @@ export function buildWatchServers(
   subLang = "ar"
 ): WatchServer[] {
   const lang = subLang === "en" ? "en" : "ar";
-  const vidlink =
-    type === "tv"
-      ? `https://vidlink.pro/tv/${id}/${season}/${episode}?primaryColor=e50914&secondaryColor=111111&autoplay=true`
-      : `https://vidlink.pro/movie/${id}?primaryColor=e50914&secondaryColor=111111&autoplay=true`;
   const vidsrcMe =
     type === "tv"
       ? `https://vidsrc.me/embed/tv/${id}/${season}/${episode}`
       : `https://vidsrc.me/embed/movie/${id}`;
 
   return [
-    {
-      name: "مترجم",
-      label: "مترجم",
-      recommended: true,
-      url: withLangParams(vidlink, lang),
-    },
     {
       name: "Shahid2Day",
       label: "Shahid2Day",
