@@ -16,9 +16,7 @@ type Props = {
 
 export default function WatchPlayer({ id, type, season, episode }: Props) {
   const { t, lang } = useLang();
-  const subLang = lang === "en" ? "en" : "ar";
   const [title, setTitle] = useState<TitleDetails | null>(null);
-  const [active, setActive] = useState(0);
   const [started, setStarted] = useState(false);
   const [selectedSeason, setSelectedSeason] = useState(season);
   const [selectedEpisode, setSelectedEpisode] = useState(episode);
@@ -37,10 +35,10 @@ export default function WatchPlayer({ id, type, season, episode }: Props) {
   }, [id, type, lang]);
 
   const servers = useMemo(
-    () => buildWatchServers(type, id, selectedSeason, selectedEpisode, subLang),
-    [type, id, selectedSeason, selectedEpisode, subLang]
+    () => buildWatchServers(type, id, selectedSeason, selectedEpisode),
+    [type, id, selectedSeason, selectedEpisode]
   );
-  const current = servers[Math.min(active, servers.length - 1)];
+  const current = servers[0];
   const backHref = title ? titleHref(title) : "/";
   const seasons = title?.seasonEpisodes ?? [];
   const episodes =
@@ -48,14 +46,12 @@ export default function WatchPlayer({ id, type, season, episode }: Props) {
   const heading = title ? listingTitle(title) : t("watchNow");
   const nextEpisode = episodes.find((item) => item.episodeNumber === selectedEpisode + 1);
 
-  function playOn(index: number) {
-    setActive(index);
+  function playOn() {
     setStarted(true);
   }
 
   function goEpisode(next: number) {
     setSelectedEpisode(next);
-    setActive(0);
     setStarted(true);
   }
 
@@ -81,7 +77,6 @@ export default function WatchPlayer({ id, type, season, episode }: Props) {
               const next = Number(e.target.value);
               setSelectedSeason(next);
               setSelectedEpisode(1);
-              setActive(0);
               setStarted(true);
             }}
             className="rounded-lg border border-[#262626] bg-[#141414] px-3 py-2 text-sm font-bold"
@@ -115,32 +110,6 @@ export default function WatchPlayer({ id, type, season, episode }: Props) {
         </div>
       )}
 
-      <div className="mx-auto max-w-6xl px-4 pb-3">
-        <p className="mb-2 text-sm font-black text-[#a3a3a3]">{t("servers")}</p>
-        <div className="flex gap-2 overflow-x-auto pb-1">
-          {servers.map((server, index) => {
-            const selected = index === active && started;
-            return (
-              <button
-                key={server.name}
-                type="button"
-                onClick={() => playOn(index)}
-                className={`relative shrink-0 rounded-lg px-4 py-2 text-sm font-black ${
-                  selected ? "bg-[#e50914] text-white" : "bg-[#1a1a1a] text-[#d4d4d4]"
-                }`}
-              >
-                {server.label}
-                {server.recommended ? (
-                  <span className="absolute -top-2 start-1 rounded bg-[#3f3f3f] px-1.5 py-0.5 text-[9px] font-bold text-white">
-                    {t("recommended")}
-                  </span>
-                ) : null}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
       <div className="mx-auto max-w-6xl px-4 pb-10">
         <div className="relative aspect-video overflow-hidden rounded-xl bg-[#0e0e0e]">
           {title?.backdrop ? (
@@ -163,7 +132,7 @@ export default function WatchPlayer({ id, type, season, episode }: Props) {
           ) : (
             <button
               type="button"
-              onClick={() => playOn(0)}
+              onClick={() => playOn()}
               className="relative z-10 flex h-full w-full flex-col items-center justify-center gap-4"
             >
               {title?.poster ? (
