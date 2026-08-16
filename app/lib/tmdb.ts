@@ -43,6 +43,13 @@ export type TitleDetails = MediaItem & {
   episodes?: number;
   network?: string;
   homepage?: string | null;
+  seasonList?: {
+    seasonNumber: number;
+    name: string;
+    episodeCount: number;
+    poster: string | null;
+    year: string | null;
+  }[];
   seasonEpisodes?: {
     seasonNumber: number;
     name: string;
@@ -54,6 +61,15 @@ export type TitleDetails = MediaItem & {
       still: string | null;
     }[];
   }[];
+};
+
+export type TvSeasonEpisode = {
+  episodeNumber: number;
+  name: string;
+  overview: string;
+  still: string | null;
+  runtime: number | null;
+  voteAverage: number;
 };
 
 function key(): string {
@@ -981,53 +997,83 @@ function providerList(data: Record<string, unknown> | null): TitleDetails["provi
   }));
 }
 
-async function loadRecentSeasons(
-  tvId: number,
+function mapSeasonList(
   primary: Record<string, unknown>,
-  lang: string
-): Promise<NonNullable<TitleDetails["seasonEpisodes"]>> {
-  const language = lang.startsWith("ar") ? "ar-SA" : "en-US";
-  const seasons = (
-    (primary.seasons as { season_number?: number; name?: string }[] | undefined) ?? []
-  )
+  fallback?: Record<string, unknown> | null
+): NonNullable<TitleDetails["seasonList"]> {
+  const rows =
+    (primary.seasons as
+      | {
+          season_number?: number;
+          name?: string;
+          episode_count?: number;
+          poster_path?: string | null;
+          air_date?: string;
+        }[]
+      | undefined) ??
+    (fallback?.seasons as
+      | {
+          season_number?: number;
+          name?: string;
+          episode_count?: number;
+          poster_path?: string | null;
+          air_date?: string;
+        }[]
+      | undefined) ??
+    [];
+  return rows
     .filter((season) => Number(season.season_number) > 0)
-    .slice(-3);
+    .map((season) => ({
+      seasonNumber: Number(season.season_number),
+      name: season.name || "",
+      episodeCount: Number(season.episode_count ?? 0),
+      poster: posterUrl(season.poster_path ?? null, "w300"),
+      year: String(season.air_date ?? "").slice(0, 4) || null,
+    }));
+}
 
-  const packs = await Promise.all(
-    seasons.map(async (season) => {
-      const num = Number(season.season_number);
-      const [ar, en] = await Promise.all([
-        tmdb<{ name?: string; episodes?: Record<string, unknown>[] }>(`/tv/${tvId}/season/${num}`, {
-          language,
-        }),
-        language.startsWith("ar")
-          ? tmdb<{ episodes?: Record<string, unknown>[] }>(`/tv/${tvId}/season/${num}`, {
-              language: "en-US",
-            })
-          : Promise.resolve(null),
-      ]);
-      const episodes = (ar?.episodes ?? []).map((episode, index) => {
-        const enEp = en?.episodes?.[index];
-        const number = Number(episode.episode_number ?? index + 1);
-        return {
-          episodeNumber: number,
-          name: pickText(episode.name as string, enEp?.name as string) || `الحلقة ${number}`,
-          overview: pickText(episode.overview as string, enEp?.overview as string),
-          airDate: String(episode.air_date ?? "").slice(0, 10),
-          still: posterUrl(
-            ((episode.still_path as string | null) ?? (enEp?.still_path as string | null) ?? null),
-            "w300"
-          ),
-        };
-      });
-      return {
-        seasonNumber: num,
-        name: pickText(ar?.name, season.name) || `الموسم ${num}`,
-        episodes,
-      };
-    })
+export async function getTvSeason(
+  tvId: number,
+  season: number,
+  lang: string
+): Promise<{ seasonNumber: number; episodes: TvSeasonEpisode[] } | null> {
+  const language = lang.startsWith("ar") ? "ar-SA" : "en-US";
+  const [primary, fallback] = await Promise.all([
+    tmdb<{
+      season_number?: number;
+      episodes?: Record<string, unknown>[];
+    }>(`/tv/${tvId}/season/${season}`, { language }),
+    language === "ar-SA"
+      ? tmdb<{ episodes?: Record<string, unknown>[] }>(`/tv/${tvId}/season/${season}`, {
+          language: "en-US",
+        })
+      : Promise.resolve(null),
+  ]);
+  if (!primary) return null;
+  const enByNumber = new Map<number, Record<string, unknown>>(
+    (fallback?.episodes ?? []).map((episode) => [
+      Number(episode.episode_number ?? 0),
+      episode,
+    ])
   );
-  return packs.filter((season) => season.episodes.length);
+  return {
+    seasonNumber: Number(primary.season_number ?? season),
+    episodes: (primary.episodes ?? []).map((episode, index) => {
+      const number = Number(episode.episode_number ?? index + 1);
+      const enEp = enByNumber.get(number);
+      return {
+        episodeNumber: number,
+        name: pickText(episode.name as string, enEp?.name as string) || `الحلقة ${number}`,
+        overview: pickText(episode.overview as string, enEp?.overview as string),
+        still: posterUrl(
+          ((episode.still_path as string | null) ?? (enEp?.still_path as string | null) ?? null),
+          "w300"
+        ),
+        runtime: Number(episode.runtime ?? enEp?.runtime ?? 0) || null,
+        voteAverage: Number(episode.vote_average ?? 0),
+      };
+    }),
+  };
 }
 
 async function discoverRamadan(
@@ -1198,7 +1244,8 @@ export async function getTitle(
     episodes: type === "tv" ? Number(primary.number_of_episodes ?? 0) || undefined : undefined,
     network: networks || undefined,
     homepage: (primary.homepage as string | null) ?? (fallback?.homepage as string | null) ?? null,
-    seasonEpisodes: type === "tv" ? await loadRecentSeasons(id, primary, lang) : [],
+    seasonList: type === "tv" ? mapSeasonList(primary, fallback) : [],
+    seasonEpisodes: [],
   };
 }
 

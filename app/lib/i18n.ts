@@ -110,6 +110,11 @@ export const dict = {
     subtitled: "مترجم",
     playTranslated: "مشاهدة مترجم",
     nextEpisode: "الحلقة التالية",
+    prevEpisode: "الحلقة السابقة",
+    allSeasons: "كل المواسم",
+    allEpisodes: "كل الحلقات",
+    minuteShort: "د",
+    noEpisodes: "لا توجد حلقات.",
   },
   en: {
     brand: "SHAHID2DAY",
@@ -220,6 +225,11 @@ export const dict = {
     subtitled: "Subtitled",
     playTranslated: "Watch with subtitles",
     nextEpisode: "Next episode",
+    prevEpisode: "Previous episode",
+    allSeasons: "All Seasons",
+    allEpisodes: "All Episodes",
+    minuteShort: "m",
+    noEpisodes: "No episodes.",
   },
 } as const;
 

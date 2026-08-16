@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useLang } from "../context/LanguageContext";
-import { listingTitle, type TitleDetails } from "../lib/tmdb";
+import { listingTitle, type TitleDetails, type TvSeasonEpisode } from "../lib/tmdb";
 import { titleHref } from "../lib/slug";
 import { buildWatchServers } from "../lib/watchServers";
+import TvEpisodeBrowser, { type TvEpisode, type TvSeason } from "./TvEpisodeBrowser";
 
 type Props = {
   id: string;
@@ -15,12 +17,16 @@ type Props = {
 };
 
 export default function WatchPlayer({ id, type, season, episode }: Props) {
-  const { t, lang } = useLang();
+  const { t, lang, isRtl } = useLang();
+  const router = useRouter();
   const [title, setTitle] = useState<TitleDetails | null>(null);
   const [started, setStarted] = useState(true);
   const [active, setActive] = useState(0);
   const [selectedSeason, setSelectedSeason] = useState(season);
   const [selectedEpisode, setSelectedEpisode] = useState(episode);
+  const [episodes, setEpisodes] = useState<TvSeasonEpisode[]>([]);
+  const [epLoading, setEpLoading] = useState(false);
+  const pendingEpisodeRef = useRef<number | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -35,31 +41,110 @@ export default function WatchPlayer({ id, type, season, episode }: Props) {
     };
   }, [id, type, lang]);
 
+  useEffect(() => {
+    if (type !== "tv") return;
+    let cancelled = false;
+    setEpLoading(true);
+    fetch(`/api/tv/${id}/season/${selectedSeason}?lang=${lang === "en" ? "en" : "ar"}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (cancelled || !data || data.error) return;
+        const list = (data.episodes ?? []) as TvSeasonEpisode[];
+        setEpisodes(list);
+        const pending = pendingEpisodeRef.current;
+        if (pending && list.some((item) => item.episodeNumber === pending)) {
+          setSelectedEpisode(pending);
+          pendingEpisodeRef.current = null;
+        }
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelled) setEpLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [id, type, lang, selectedSeason]);
+
   const servers = useMemo(
     () => buildWatchServers(type, id, selectedSeason, selectedEpisode),
     [type, id, selectedSeason, selectedEpisode]
   );
   const current = servers[Math.min(active, Math.max(servers.length - 1, 0))];
   const backHref = title ? titleHref(title) : "/";
-  const seasons = title?.seasonEpisodes ?? [];
-  const episodes =
-    seasons.find((item) => item.seasonNumber === selectedSeason)?.episodes ?? [];
   const heading = title ? listingTitle(title) : t("watchNow");
-  const nextEpisode = episodes.find((item) => item.episodeNumber === selectedEpisode + 1);
+  const seasonCards: TvSeason[] = (title?.seasonList ?? []).map((item) => ({
+    season_number: item.seasonNumber,
+    name: item.name,
+    episode_count: item.episodeCount,
+    poster: item.poster,
+    year: item.year,
+  }));
+  const episodeCards: TvEpisode[] = episodes.map((item) => ({
+    episode_number: item.episodeNumber,
+    name: item.name,
+    overview: item.overview,
+    still: item.still,
+    runtime: item.runtime,
+    vote_average: item.voteAverage,
+  }));
+  const episodeNav = useMemo(() => {
+    const sorted = [...seasonCards].sort((a, b) => a.season_number - b.season_number);
+    const index = sorted.findIndex((item) => item.season_number === selectedSeason);
+    const maxEp = episodes.length
+      ? Math.max(...episodes.map((item) => item.episodeNumber))
+      : 0;
+    let prev: { s: number; e: number } | null = null;
+    if (selectedEpisode > 1) prev = { s: selectedSeason, e: selectedEpisode - 1 };
+    else if (index > 0) {
+      const previous = sorted[index - 1];
+      prev = { s: previous.season_number, e: previous.episode_count || 1 };
+    }
+    let next: { s: number; e: number } | null = null;
+    if (maxEp && selectedEpisode < maxEp) next = { s: selectedSeason, e: selectedEpisode + 1 };
+    else if (index >= 0 && index < sorted.length - 1) {
+      next = { s: sorted[index + 1].season_number, e: 1 };
+    }
+    return { prev, next };
+  }, [seasonCards, episodes, selectedSeason, selectedEpisode]);
+
+  function syncUrl(nextSeason: number, nextEpisode: number) {
+    const params = new URLSearchParams(window.location.search);
+    params.set("id", id);
+    params.set("type", type);
+    if (type === "tv") {
+      params.set("season", String(nextSeason));
+      params.set("episode", String(nextEpisode));
+    }
+    router.replace(`/watch?${params.toString()}`, { scroll: false });
+  }
 
   function playOn(index = active) {
     setActive(index);
     setStarted(true);
   }
 
-  function goEpisode(next: number) {
-    setSelectedEpisode(next);
+  function playEpisode(nextEpisode: number) {
+    setSelectedEpisode(nextEpisode);
     setStarted(true);
+    syncUrl(selectedSeason, nextEpisode);
+    document.getElementById("watch-player")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function goTo(nextSeason: number, nextEpisode: number) {
+    if (nextSeason !== selectedSeason) {
+      pendingEpisodeRef.current = nextEpisode;
+      setSelectedSeason(nextSeason);
+    }
+    setSelectedEpisode(nextEpisode);
+    setStarted(true);
+    syncUrl(nextSeason, nextEpisode);
+    document.getElementById("watch-player")?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   return (
     <div className="min-h-screen bg-black text-white">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
+      <div className="mx-auto flex max-w-[1100px] items-center justify-between gap-3 px-4 py-3">
         <Link href={backHref} className="text-sm font-bold text-[#e50914]">
           ← {t("details")}
         </Link>
@@ -71,48 +156,7 @@ export default function WatchPlayer({ id, type, season, episode }: Props) {
         </span>
       </div>
 
-      {type === "tv" && seasons.length > 0 && (
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-2 px-4 pb-3">
-          <select
-            value={selectedSeason}
-            onChange={(e) => {
-              const next = Number(e.target.value);
-              setSelectedSeason(next);
-              setSelectedEpisode(1);
-              setStarted(true);
-            }}
-            className="rounded-lg border border-[#262626] bg-[#141414] px-3 py-2 text-sm font-bold"
-          >
-            {seasons.map((item) => (
-              <option key={item.seasonNumber} value={item.seasonNumber}>
-                {t("season")} {item.seasonNumber}
-              </option>
-            ))}
-          </select>
-          <select
-            value={selectedEpisode}
-            onChange={(e) => goEpisode(Number(e.target.value))}
-            className="rounded-lg border border-[#262626] bg-[#141414] px-3 py-2 text-sm font-bold"
-          >
-            {episodes.map((item) => (
-              <option key={item.episodeNumber} value={item.episodeNumber}>
-                {t("episode")} {item.episodeNumber}
-              </option>
-            ))}
-          </select>
-          {nextEpisode ? (
-            <button
-              type="button"
-              onClick={() => goEpisode(nextEpisode.episodeNumber)}
-              className="rounded-lg bg-[#e50914] px-3 py-2 text-sm font-black"
-            >
-              {t("nextEpisode")}
-            </button>
-          ) : null}
-        </div>
-      )}
-
-      <div className="mx-auto max-w-6xl px-4 pb-3">
+      <div className="mx-auto max-w-[1100px] px-4 pb-3">
         <p className="mb-2 text-sm font-black text-[#a3a3a3]">{t("servers")}</p>
         <div className="flex gap-2 overflow-x-auto pb-1">
           {servers.map((server, index) => {
@@ -138,8 +182,8 @@ export default function WatchPlayer({ id, type, season, episode }: Props) {
         </div>
       </div>
 
-      <div className="mx-auto max-w-6xl px-4 pb-10">
-        <div className="relative aspect-video overflow-hidden rounded-xl bg-[#0e0e0e]">
+      <div className="mx-auto max-w-[1100px] px-4 pb-10">
+        <div id="watch-player" className="relative aspect-video overflow-hidden rounded-xl bg-[#0e0e0e]">
           {title?.backdrop ? (
             <div
               className="absolute inset-0 bg-cover bg-center"
@@ -182,6 +226,83 @@ export default function WatchPlayer({ id, type, season, episode }: Props) {
             </button>
           )}
         </div>
+
+        {type === "tv" && seasonCards.length > 0 ? (
+          <div
+            className="mt-4 mb-4 flex items-stretch gap-2 sm:gap-3"
+            dir={isRtl ? "rtl" : "ltr"}
+            role="navigation"
+            aria-label={t("episodes")}
+          >
+            <button
+              type="button"
+              disabled={epLoading || !episodeNav.prev}
+              onClick={() => episodeNav.prev && goTo(episodeNav.prev.s, episodeNav.prev.e)}
+              className={`episode-nav-btn flex flex-1 items-center justify-center gap-2 ${
+                !epLoading && episodeNav.prev ? "" : "episode-nav-btn-disabled"
+              }`}
+            >
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                className={isRtl ? "rotate-180" : ""}
+                aria-hidden
+              >
+                <path d="M15 18l-6-6 6-6" />
+              </svg>
+              <span className="hidden truncate sm:inline">{t("prevEpisode")}</span>
+            </button>
+            <div className="flex min-w-[5.5rem] flex-col items-center justify-center rounded-2xl border border-[var(--border)] bg-[var(--bg-surface)] px-3 py-2 text-center">
+              <span className="text-[10px] font-semibold text-[var(--text-dim)]">{t("episode")}</span>
+              <span className="text-sm font-black">
+                {selectedEpisode}
+                {episodes.length > 0 ? ` / ${Math.max(...episodes.map((item) => item.episodeNumber))}` : ""}
+              </span>
+            </div>
+            <button
+              type="button"
+              disabled={epLoading || !episodeNav.next}
+              onClick={() => episodeNav.next && goTo(episodeNav.next.s, episodeNav.next.e)}
+              className={`episode-nav-btn flex flex-1 items-center justify-center gap-2 ${
+                !epLoading && episodeNav.next ? "episode-nav-btn-primary" : "episode-nav-btn-disabled"
+              }`}
+            >
+              <span className="hidden truncate sm:inline">{t("nextEpisode")}</span>
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                className={isRtl ? "rotate-180" : ""}
+                aria-hidden
+              >
+                <path d="M9 18l6-6-6-6" />
+              </svg>
+            </button>
+          </div>
+        ) : null}
+
+        {type === "tv" ? (
+          <TvEpisodeBrowser
+            seasons={seasonCards}
+            episodes={episodeCards}
+            selectedSeason={selectedSeason}
+            selectedEpisode={selectedEpisode}
+            loading={epLoading}
+            onSelectSeason={(nextSeason) => {
+              pendingEpisodeRef.current = null;
+              setSelectedSeason(nextSeason);
+              syncUrl(nextSeason, selectedEpisode);
+            }}
+            onSelectEpisode={playEpisode}
+          />
+        ) : null}
       </div>
     </div>
   );

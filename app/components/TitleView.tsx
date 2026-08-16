@@ -172,54 +172,6 @@ export default function TitleView({ title }: { title: TitleDetails }) {
           </section>
         )}
 
-        {title.seasonEpisodes && title.seasonEpisodes.length > 0 && (
-          <section className="mb-10">
-            <h2 className="mb-5 text-xl font-black">{t("episodes")}</h2>
-            <div className="space-y-8">
-              {title.seasonEpisodes.map((season) => (
-                <div key={season.seasonNumber}>
-                  <h3 className="mb-3 text-lg font-bold text-white">
-                    {t("season")} {season.seasonNumber}
-                    {season.name ? ` · ${season.name}` : ""}
-                  </h3>
-                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-                    {season.episodes.map((episode) => (
-                      <a
-                        key={`${season.seasonNumber}-${episode.episodeNumber}`}
-                        href={`/watch?id=${title.id}&type=tv&season=${season.seasonNumber}&episode=${episode.episodeNumber}`}
-                        className="overflow-hidden rounded-xl bg-[#141414] hover:bg-[#1c1c1c]"
-                      >
-                        <div className="relative aspect-video bg-[#1a1a1a]">
-                          {episode.still ? (
-                            <Image
-                              src={episode.still}
-                              alt={episode.name}
-                              fill
-                              sizes="220px"
-                              className="object-cover"
-                            />
-                          ) : null}
-                          <span className="absolute start-2 top-2 rounded-md bg-[#e50914] px-1.5 py-0.5 text-[10px] font-black text-white">
-                            {t("episode")} {episode.episodeNumber}
-                          </span>
-                        </div>
-                        <div className="p-2.5">
-                          <p className="line-clamp-2 text-sm font-bold" dir="auto">
-                            {episode.name}
-                          </p>
-                          {episode.airDate ? (
-                            <p className="mt-1 text-xs text-[#a3a3a3]">{episode.airDate}</p>
-                          ) : null}
-                        </div>
-                      </a>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
         {title.cast.length > 0 && (
           <section className="mb-10">
             <h2 className="mb-3 text-xl font-black">{t("cast")}</h2>
