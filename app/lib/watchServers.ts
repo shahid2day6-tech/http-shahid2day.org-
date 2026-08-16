@@ -23,8 +23,8 @@ export function buildWatchServers(
       recommended: true,
       url:
         type === "tv"
-          ? `https://player.smashy.stream/tv/${id}?s=${season}&e=${episode}&subLang=Arabic`
-          : `https://player.smashy.stream/movie/${id}?subLang=Arabic`,
+          ? `https://anyembed.xyz/embed/tmdb-tv-${id}-${season}-${episode}?subLang=Arabic`
+          : `https://anyembed.xyz/embed/tmdb-movie-${id}?subLang=Arabic`,
     },
     {
       name: "VidLink1",
