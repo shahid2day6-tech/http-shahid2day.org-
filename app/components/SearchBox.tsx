@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import type { MediaItem } from "../lib/tmdb";
 import { titleHref } from "../lib/slug";
 import { useLang } from "../context/LanguageContext";
+import { SearchDropdownAd } from "./ads/SearchDropdownAd";
 
 export default function SearchBox() {
   const { t, lang } = useLang();
@@ -70,7 +71,8 @@ export default function SearchBox() {
     router.push(`/search?q=${encodeURIComponent(q)}`);
   }
 
-  const showPanel = open && query.trim().length >= 2;
+  const showPanel = open;
+  const q = query.trim();
 
   return (
     <form ref={rootRef} onSubmit={onSearch} className="relative ms-auto w-full min-w-0 sm:max-w-xl">
@@ -81,7 +83,7 @@ export default function SearchBox() {
             setQuery(e.target.value);
             setOpen(true);
           }}
-          onFocus={() => query.trim().length >= 2 && setOpen(true)}
+          onFocus={() => setOpen(true)}
           placeholder={t("searchHint")}
           className="min-w-0 flex-1 bg-transparent px-4 py-2 text-sm text-white outline-none placeholder:text-[#6b6b6b]"
           autoComplete="off"
@@ -110,7 +112,9 @@ export default function SearchBox() {
 
       {showPanel && (
         <div className="absolute inset-x-0 top-[calc(100%+8px)] z-[60] overflow-hidden rounded-2xl border border-white/10 bg-[#1a1612] shadow-2xl">
-          {loading && items.length === 0 ? (
+          {q.length < 2 ? (
+            <p className="px-4 py-4 text-sm text-[#a3a3a3]">{t("searchHint")}</p>
+          ) : loading && items.length === 0 ? (
             <p className="px-4 py-6 text-sm text-[#a3a3a3]">{t("loading")}</p>
           ) : items.length === 0 ? (
             <p className="px-4 py-6 text-sm text-[#a3a3a3]">{t("noResults")}</p>
@@ -167,6 +171,7 @@ export default function SearchBox() {
               ))}
             </ul>
           )}
+          <SearchDropdownAd />
         </div>
       )}
     </form>

@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { isAdsterraBannersEnabled, type AdsterraBannerSize } from "../../lib/adsterra";
+import { isAdsterraBannersEnabled } from "../../lib/adsterra";
 import { useLang } from "../../context/LanguageContext";
 import { AdsterraBanner, useAdsterraSlot } from "./AdsterraBanner";
 
@@ -14,27 +13,9 @@ type Props = {
 export function SiteAdsterraRail({ variant = "primary", className = "" }: Props) {
   const pathname = usePathname();
   const { t } = useLang();
-  const [wide, setWide] = useState<boolean | null>(null);
   const onWatch = pathname === "/watch";
-  const bannerSize: AdsterraBannerSize | null =
-    onWatch || wide === null
-      ? null
-      : variant === "primary"
-        ? wide
-          ? "728x90"
-          : "320x50"
-        : wide
-          ? "320x50"
-          : "728x90";
+  const bannerSize = onWatch || variant === "alt" ? null : "728x90";
   const owned = useAdsterraSlot(bannerSize);
-
-  useEffect(() => {
-    const mq = window.matchMedia("(min-width: 768px)");
-    const sync = () => setWide(mq.matches);
-    sync();
-    mq.addEventListener("change", sync);
-    return () => mq.removeEventListener("change", sync);
-  }, []);
 
   if (onWatch || !isAdsterraBannersEnabled() || !owned || !bannerSize) return null;
 
