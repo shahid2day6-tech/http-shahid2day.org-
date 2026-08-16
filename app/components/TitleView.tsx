@@ -79,43 +79,26 @@ export default function TitleView({ title }: { title: TitleDetails }) {
     title.type === "tv" ? `&season=${selectedSeason}&episode=${selectedEpisode}` : ""
   }`;
   const seasonCards: TvSeason[] =
-    title.type === "movie"
-      ? [
-          {
-            season_number: 1,
-            name: title.title,
-            episode_count: 1,
-            poster: title.poster,
-            year: title.year,
-          },
-        ]
-      : (title.seasonList ?? []).map((item) => ({
+    title.type === "tv"
+      ? (title.seasonList ?? []).map((item) => ({
           season_number: item.seasonNumber,
           name: item.name,
           episode_count: item.episodeCount,
           poster: item.poster,
           year: item.year,
-        }));
+        }))
+      : [];
   const episodeCards: TvEpisode[] =
-    title.type === "movie"
-      ? [
-          {
-            episode_number: 1,
-            name: title.title,
-            overview: title.overview,
-            still: title.backdrop || title.poster,
-            runtime: Number((title.runtime || "").replace(/\D/g, "")) || null,
-            vote_average: Number(title.rating) || 0,
-          },
-        ]
-      : episodes.map((item) => ({
+    title.type === "tv"
+      ? episodes.map((item) => ({
           episode_number: item.episodeNumber,
           name: item.name,
           overview: item.overview,
           still: item.still,
           runtime: item.runtime,
           vote_average: item.voteAverage,
-        }));
+        }))
+      : [];
 
   return (
     <article>
@@ -196,13 +179,13 @@ export default function TitleView({ title }: { title: TitleDetails }) {
       </section>
 
       <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6">
-        {seasonCards.length > 0 ? (
+        {title.type === "tv" && seasonCards.length > 0 ? (
           <TvEpisodeBrowser
             seasons={seasonCards}
             episodes={episodeCards}
-            selectedSeason={title.type === "movie" ? 1 : selectedSeason}
-            selectedEpisode={title.type === "movie" ? 1 : selectedEpisode}
-            loading={title.type === "tv" && epLoading && episodeCards.length === 0}
+            selectedSeason={selectedSeason}
+            selectedEpisode={selectedEpisode}
+            loading={epLoading && episodeCards.length === 0}
             onSelectSeason={(nextSeason) => {
               setSelectedSeason(nextSeason);
               setSelectedEpisode(1);
