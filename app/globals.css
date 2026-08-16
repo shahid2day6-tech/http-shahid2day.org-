@@ -19,8 +19,8 @@
   --text-dim: #737373;
   --bg-surface: #1a1a1a;
   --border-hover: #404040;
-  --nav-accent: #93302e;
-  --nav-accent-bright: #c45a55;
+  --nav-accent: #c0453c;
+  --nav-accent-bright: #d65c54;
   --rating: #e50914;
   --accent: #e50914;
   --accent-soft: rgba(229, 9, 20, 0.16);
@@ -222,8 +222,8 @@ a {
 }
 
 .episode-rail {
-  background: #93302e;
-  border: 2px solid #c45a55;
+  background: linear-gradient(180deg, #c0453c 0%, #b03a32 100%);
+  border: 2px solid rgba(255, 255, 255, 0.42);
   border-radius: 1rem;
   padding: 0.85rem 1rem 1.15rem;
 }
