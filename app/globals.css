@@ -19,8 +19,8 @@
   --text-dim: #737373;
   --bg-surface: #1a1a1a;
   --border-hover: #404040;
-  --nav-accent: #e50914;
-  --nav-accent-bright: #ff2a33;
+  --nav-accent: #93302e;
+  --nav-accent-bright: #c45a55;
   --rating: #e50914;
   --accent: #e50914;
   --accent-soft: rgba(229, 9, 20, 0.16);
@@ -179,6 +179,7 @@ a {
 
 .season-rail {
   background: linear-gradient(180deg, #0f5b63 0%, #0b4248 100%);
+  border: 2px solid rgba(255, 255, 255, 0.28);
   border-radius: 1rem;
   padding: 0.85rem 1rem 1.1rem;
 }
@@ -203,7 +204,7 @@ a {
   height: 6.75rem;
   padding: 0.55rem 0.4rem;
   border-radius: 0.85rem;
-  border: 3px solid transparent;
+  border: 2px solid rgba(255, 255, 255, 0.32);
   background: #0b1c28;
   color: #e2e8f0;
   transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
@@ -216,11 +217,13 @@ a {
 
 .season-card-active {
   border-color: #fff;
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2);
+  border-width: 3px;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35);
 }
 
 .episode-rail {
-  background: linear-gradient(180deg, #e50914 0%, #b20710 55%, #7f0a10 100%);
+  background: #93302e;
+  border: 2px solid #c45a55;
   border-radius: 1rem;
   padding: 0.85rem 1rem 1.15rem;
 }
@@ -242,7 +245,8 @@ a {
   margin-bottom: 0.9rem;
   padding: 0.55rem 0.7rem;
   border-radius: 0.75rem;
-  background: rgba(0, 0, 0, 0.22);
+  border: 1.5px solid rgba(255, 255, 255, 0.28);
+  background: rgba(0, 0, 0, 0.28);
   color: #fff;
 }
 
@@ -257,7 +261,7 @@ a {
   height: 6.75rem;
   padding: 0.5rem 0.35rem;
   border-radius: 0.85rem;
-  border: 3px solid transparent;
+  border: 2px solid rgba(255, 255, 255, 0.32);
   background: #0b1c28;
   color: #fff;
   transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
@@ -270,7 +274,8 @@ a {
 
 .episode-num-card-active {
   border-color: #fff;
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2);
+  border-width: 3px;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35);
 }
 
 .episode-num-card-label {
@@ -289,17 +294,17 @@ a {
 }
 
 .episode-rail .ep-card-pro {
-  border-color: transparent;
+  border: 2px solid rgba(255, 255, 255, 0.32);
 }
 
 .episode-rail .ep-card-pro:hover {
-  border-color: rgba(255, 255, 255, 0.55);
+  border-color: rgba(255, 255, 255, 0.7);
 }
 
 .episode-rail .ep-card-pro-active {
-  border-color: #fff;
+  border: 3px solid #fff;
   background: #fff1f1;
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.4);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35);
 }
 
 .ep-card-pro {
