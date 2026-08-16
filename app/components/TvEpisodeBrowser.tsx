@@ -135,7 +135,6 @@ export default function TvEpisodeBrowser({
                       aria-pressed={active}
                       aria-label={`${t("episode")} ${ep.episode_number}`}
                     >
-                      <span className="episode-num-card-label">{t("episode")}</span>
                       <span className="episode-num-card-value">{ep.episode_number}</span>
                     </button>
                   );
