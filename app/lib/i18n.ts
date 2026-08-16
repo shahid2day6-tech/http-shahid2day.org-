@@ -120,6 +120,8 @@ export const dict = {
     playerCornerHintStep1: "داخل الفيديو",
     playerCornerHintStep2: "الزاوية ← Servers",
     playerCornerHintStep3: "لغتك أو مشغّل أوضح",
+    adLabel: "إعلان",
+    adSponsored: "إعلان ممول",
   },
   en: {
     brand: "SHAHID2DAY",
@@ -240,6 +242,8 @@ export const dict = {
     playerCornerHintStep1: "Inside the video",
     playerCornerHintStep2: "Corner → Servers",
     playerCornerHintStep3: "Your language or a clearer player",
+    adLabel: "Ad",
+    adSponsored: "Sponsored",
   },
 } as const;
 

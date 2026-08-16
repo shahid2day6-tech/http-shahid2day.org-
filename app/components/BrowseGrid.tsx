@@ -7,6 +7,8 @@ import { sectionFrom, type CatalogSort } from "../lib/filters";
 import { useLang } from "../context/LanguageContext";
 import MediaCard from "./MediaCard";
 import CatalogToolbar from "./CatalogToolbar";
+import { SiteAdsterraRail } from "./ads/SiteAdsterraRail";
+import { withInGridAds } from "./ads/insertInGridAds";
 
 function paginationItems(current: number, total: number): (number | "gap")[] {
   if (total <= 5) {
@@ -111,6 +113,7 @@ export default function BrowseGrid({
           year={query?.year ?? "all"}
         />
       )}
+      <SiteAdsterraRail />
       <div className="mb-6">
         <h1 className="text-3xl font-black">{title}</h1>
         <p className="mt-1 text-sm text-[#a3a3a3]">
@@ -123,14 +126,16 @@ export default function BrowseGrid({
         <p className="text-[#a3a3a3]">{t("noResults")}</p>
       ) : (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-          {items.map((item) => (
-            <MediaCard
-              key={item.href ?? `${item.type}-${item.id}`}
-              item={item}
-              movieLabel={t("movie")}
-              showLabel={t("show")}
-            />
-          ))}
+          {withInGridAds(
+            items.map((item) => (
+              <MediaCard
+                key={item.href ?? `${item.type}-${item.id}`}
+                item={item}
+                movieLabel={t("movie")}
+                showLabel={t("show")}
+              />
+            )),
+          )}
         </div>
       )}
       {canPage && pages > 1 && (

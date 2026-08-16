@@ -9,6 +9,7 @@ import { titleHref } from "../lib/slug";
 import { buildWatchServers } from "../lib/watchServers";
 import TvEpisodeBrowser, { type TvEpisode, type TvSeason } from "./TvEpisodeBrowser";
 import WatchSuggestions from "./WatchSuggestions";
+import { WatchPageAds } from "./ads/WatchPageAds";
 
 type Props = {
   id: string;
@@ -343,6 +344,8 @@ export default function WatchPlayer({
           )}
         </div>
         </div>
+
+        <WatchPageAds />
 
         {seasonCards.length > 0 && type === "tv" ? (
           <div

@@ -5,6 +5,7 @@ import { useLang } from "../context/LanguageContext";
 import Hero from "./Hero";
 import MediaRow from "./MediaRow";
 import CatalogToolbar from "./CatalogToolbar";
+import { SiteAdsterraRail } from "./ads/SiteAdsterraRail";
 
 export default function HomeCatalog({
   trending,
@@ -43,6 +44,7 @@ export default function HomeCatalog({
     <>
       <Hero items={trending} />
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        <SiteAdsterraRail />
         <CatalogToolbar />
         <MediaRow title={t("trending")} items={trending} />
         <MediaRow title={t("newForeignEpisodes")} href="/series/foreign" items={foreignEpisodes} />

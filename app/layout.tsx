@@ -3,6 +3,8 @@ import Script from "next/script";
 import { Bebas_Neue, Tajawal } from "next/font/google";
 import { LanguageProvider } from "./context/LanguageContext";
 import SiteShell from "./components/SiteShell";
+import { MonetagTag } from "./components/ads/MonetagTag";
+import { MonetagVignette } from "./components/ads/MonetagVignette";
 import { SITE_LOGO, SITE_NAME_AR, SITE_NAME_EN, SITE_URL } from "./lib/site";
 import { pageKeywords, SEO_DESCRIPTION } from "./lib/seo";
 import "./globals.css";
@@ -124,6 +126,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
         <LanguageProvider>
           <SiteShell>{children}</SiteShell>
+          <MonetagTag />
+          <MonetagVignette />
         </LanguageProvider>
       </body>
     </html>
