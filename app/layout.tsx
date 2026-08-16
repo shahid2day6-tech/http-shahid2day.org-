@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Bebas_Neue, Tajawal } from "next/font/google";
 import { LanguageProvider } from "./context/LanguageContext";
 import SiteShell from "./components/SiteShell";
@@ -108,6 +109,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ar" dir="rtl">
       <body className={`${tajawal.variable} ${bebas.variable} antialiased`}>
+        <Script src="https://www.googletagmanager.com/gtag/js?id=G-QQLS5BWD27" strategy="afterInteractive" />
+        <Script id="ga-gtag" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-QQLS5BWD27');
+          `}
+        </Script>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
