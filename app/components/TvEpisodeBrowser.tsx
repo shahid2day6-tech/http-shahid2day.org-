@@ -115,13 +115,13 @@ export default function TvEpisodeBrowser({
         )}
 
         {loading ? (
-          <div className="flex flex-wrap gap-2.5">
+          <div className="flex gap-2.5 overflow-x-auto pb-1 scrollbar-hide">
             {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="skeleton h-[6.75rem] w-[5.75rem] rounded-xl bg-black/20" />
+              <div key={i} className="skeleton h-[6.75rem] w-[5.75rem] shrink-0 rounded-xl bg-black/20" />
             ))}
           </div>
         ) : (
-          <div className="flex flex-wrap gap-2.5">
+          <div className="flex gap-2.5 overflow-x-auto pb-1 scrollbar-hide">
             {sortedEpisodes.map((ep) => {
               const active = selectedEpisode === ep.episode_number;
               return (
