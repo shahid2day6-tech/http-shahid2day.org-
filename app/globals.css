@@ -19,8 +19,8 @@
   --text-dim: #737373;
   --bg-surface: #1a1a1a;
   --border-hover: #404040;
-  --nav-accent: #c0453c;
-  --nav-accent-bright: #d65c54;
+  --nav-accent: #c62828;
+  --nav-accent-bright: #ef5350;
   --rating: #e50914;
   --accent: #e50914;
   --accent-soft: rgba(229, 9, 20, 0.16);
@@ -221,9 +221,10 @@ a {
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35);
 }
 
-.episode-rail {
-  background: linear-gradient(180deg, #c0453c 0%, #b03a32 100%);
-  border: 2px solid rgba(255, 255, 255, 0.42);
+.episode-rail,
+.episode-panel {
+  background: #c62828 !important;
+  border: 2px solid #ffcdd2;
   border-radius: 1rem;
   padding: 0.85rem 1rem 1.15rem;
 }

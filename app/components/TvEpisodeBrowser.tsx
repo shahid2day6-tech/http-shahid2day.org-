@@ -80,7 +80,7 @@ export default function TvEpisodeBrowser({
         </div>
       </div>
 
-      <div className="episode-rail">
+      <div className="episode-panel episode-rail" style={{ background: "#c62828" }}>
         <div className="episode-rail-head">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
             <polygon points="5,3 19,12 5,21" />
