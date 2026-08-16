@@ -94,8 +94,7 @@ export const dict = {
     episodes: "الحلقات",
     noResults: "لا توجد نتائج",
     loading: "جاري التحميل...",
-    footerAbout:
-      "شاهد تو داي منصة لاكتشاف الأفلام والمسلسلات والأنمي العربي والتركي والآسيوي. البيانات من TMDB، والإعلانات الرسمية من يوتيوب.",
+    footerAbout: "شاهد تو داي منصة لاكتشاف الأفلام والمسلسلات والأنمي العربي والتركي والآسيوي.",
     rights: "جميع الحقوق محفوظة",
     language: "English",
     movie: "فيلم",
@@ -215,8 +214,7 @@ export const dict = {
     episodes: "Episodes",
     noResults: "No results",
     loading: "Loading...",
-    footerAbout:
-      "SHAHID2DAY is a discovery catalog for movies, series, and anime across Arabic, Turkish, and Asian titles. Metadata by TMDB. Official trailers via YouTube.",
+    footerAbout: "SHAHID2DAY is a discovery platform for Arabic, Turkish, and Asian movies, series, and anime.",
     rights: "All rights reserved",
     language: "العربية",
     movie: "Movie",

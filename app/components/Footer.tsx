@@ -32,9 +32,6 @@ export default function Footer() {
           <p className="mt-2">
             {t("rights")} © {year} {t("brand")}
           </p>
-          <p className="mt-3 text-xs">
-            This product uses the TMDB API but is not endorsed or certified by TMDB.
-          </p>
         </div>
       </div>
     </footer>
