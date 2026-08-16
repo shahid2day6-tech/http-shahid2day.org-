@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { MediaItem } from "../lib/tmdb";
 import { useLang } from "../context/LanguageContext";
 import MediaCard from "./MediaCard";
+import { InGridAdCard } from "./ads/InGridAdCard";
 
 export default function WatchSuggestions({ items }: { items: MediaItem[] }) {
   const { t, isRtl } = useLang();
@@ -87,11 +88,18 @@ export default function WatchSuggestions({ items }: { items: MediaItem[] }) {
         </div>
       </div>
       <div ref={scrollRef} className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-        {items.map((item) => (
-          <div key={item.href ?? `${item.type}-${item.id}`} className="w-[165px] shrink-0 sm:w-[180px]">
-            <MediaCard item={item} movieLabel={t("movie")} showLabel={t("show")} />
-          </div>
-        ))}
+        {items.flatMap((item, index) => {
+          const card = (
+            <div key={item.href ?? `${item.type}-${item.id}`} className="w-[165px] shrink-0 sm:w-[180px]">
+              <MediaCard item={item} movieLabel={t("movie")} showLabel={t("show")} />
+            </div>
+          );
+          if (index !== 3) return [card];
+          return [
+            <InGridAdCard key="suggest-ad" className="w-[165px] shrink-0 sm:w-[180px]" />,
+            card,
+          ];
+        })}
       </div>
     </section>
   );

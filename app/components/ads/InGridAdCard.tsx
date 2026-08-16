@@ -7,7 +7,7 @@ import { AdsterraBanner, useAdsterraSlot } from "./AdsterraBanner";
 
 const BANNER = getAdsterraDims("300x250");
 
-export function InGridAdCard() {
+export function InGridAdCard({ className = "" }: { className?: string }) {
   const { t } = useLang();
   const owned = useAdsterraSlot("300x250");
   const frameRef = useRef<HTMLDivElement>(null);
@@ -31,7 +31,7 @@ export function InGridAdCard() {
   if (!isAdsterraEnabled() || !isAdsterraBannersEnabled() || !owned) return null;
 
   return (
-    <div>
+    <div className={className}>
       <div className="relative overflow-hidden rounded-xl border border-[#262626] bg-[#141414]">
         <div ref={frameRef} className="relative aspect-[2/3] w-full">
           <span className="absolute start-2 top-2 z-10 rounded-md bg-black/70 px-1.5 py-0.5 text-[10px] font-black text-white">

@@ -6,13 +6,26 @@ import { isAdsterraBannersEnabled, type AdsterraBannerSize } from "../../lib/ads
 import { useLang } from "../../context/LanguageContext";
 import { AdsterraBanner, useAdsterraSlot } from "./AdsterraBanner";
 
-export function SiteAdsterraRail() {
+type Props = {
+  variant?: "primary" | "alt";
+  className?: string;
+};
+
+export function SiteAdsterraRail({ variant = "primary", className = "" }: Props) {
   const pathname = usePathname();
   const { t } = useLang();
   const [wide, setWide] = useState<boolean | null>(null);
   const onWatch = pathname === "/watch";
   const bannerSize: AdsterraBannerSize | null =
-    onWatch || wide === null ? null : wide ? "728x90" : "320x50";
+    onWatch || wide === null
+      ? null
+      : variant === "primary"
+        ? wide
+          ? "728x90"
+          : "320x50"
+        : wide
+          ? "320x50"
+          : "728x90";
   const owned = useAdsterraSlot(bannerSize);
 
   useEffect(() => {
@@ -26,7 +39,7 @@ export function SiteAdsterraRail() {
   if (onWatch || !isAdsterraBannersEnabled() || !owned || !bannerSize) return null;
 
   return (
-    <div className="mb-4 flex flex-col items-center overflow-hidden">
+    <div className={`flex flex-col items-center overflow-x-auto ${className}`}>
       <span className="mb-1 text-[10px] font-bold uppercase tracking-wide text-[#a3a3a3]">
         {t("adLabel")}
       </span>

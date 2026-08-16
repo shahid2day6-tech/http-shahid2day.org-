@@ -44,10 +44,10 @@ export default function HomeCatalog({
     <>
       <Hero items={trending} />
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
-        <SiteAdsterraRail />
         <CatalogToolbar />
         <MediaRow title={t("trending")} items={trending} />
         <MediaRow title={t("newForeignEpisodes")} href="/series/foreign" items={foreignEpisodes} />
+        <SiteAdsterraRail variant="alt" className="mb-10" />
         <MediaRow title={t("newAnimeEpisodes")} href="/series/anime" items={animeEpisodes} />
         <MediaRow title={t("newArabicEpisodes")} href="/series/arabic" items={arabicEpisodes} />
         <MediaRow title={t("latestMovies")} href="/movies" items={movies} />

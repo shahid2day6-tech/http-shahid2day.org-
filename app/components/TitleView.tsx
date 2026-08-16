@@ -218,7 +218,6 @@ export default function TitleView({ title }: { title: TitleDetails }) {
       </div>
 
       <div id="watch-on" className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-        <SiteAdsterraRail />
         {title.overview && (
           <section className="mb-10 max-w-3xl rounded-2xl bg-[#141414] p-5 sm:p-6">
             <h2 className="mb-3 text-xl font-black">{t("overview")}</h2>
@@ -280,6 +279,7 @@ export default function TitleView({ title }: { title: TitleDetails }) {
           </section>
         )}
 
+        <SiteAdsterraRail variant="alt" className="mb-10" />
         <MediaRow title={t("similar")} items={title.similar} />
       </div>
     </article>

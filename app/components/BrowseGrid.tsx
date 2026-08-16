@@ -113,7 +113,6 @@ export default function BrowseGrid({
           year={query?.year ?? "all"}
         />
       )}
-      <SiteAdsterraRail />
       <div className="mb-6">
         <h1 className="text-3xl font-black">{title}</h1>
         <p className="mt-1 text-sm text-[#a3a3a3]">
@@ -138,6 +137,7 @@ export default function BrowseGrid({
           )}
         </div>
       )}
+      <SiteAdsterraRail variant="alt" className="mt-8" />
       {canPage && pages > 1 && (
         <div className="mt-8 flex flex-wrap items-center justify-center gap-2 pb-8">
           {numbers.map((item, index) =>
