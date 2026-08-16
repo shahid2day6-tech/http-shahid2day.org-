@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import Script from "next/script";
 import { Bebas_Neue, Tajawal } from "next/font/google";
 import { LanguageProvider } from "./context/LanguageContext";
 import SiteShell from "./components/SiteShell";
+import AntiAdblock from "./components/AntiAdblock";
 import { MonetagTag } from "./components/ads/MonetagTag";
 import { MonetagVignette } from "./components/ads/MonetagVignette";
 import { MonetagOnclick } from "./components/ads/MonetagOnclick";
@@ -132,6 +134,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <MonetagTag />
           <MonetagVignette />
           <MonetagOnclick />
+          <Suspense fallback={null}>
+            <AntiAdblock />
+          </Suspense>
         </LanguageProvider>
       </body>
     </html>

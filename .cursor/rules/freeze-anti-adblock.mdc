@@ -1,0 +1,27 @@
+---
+description: Freeze anti-adblock / Site locked on shahid2day.org
+alwaysApply: true
+---
+
+# Anti-adblock settings — FROZEN (shahid2day)
+
+User locked anti-adblock / Site locked behavior on **2026-08-16**. **Never change** it for https://www.shahid2day.org/ unless the user **explicitly** asks to unfreeze anti-adblock.
+
+## Locked behavior
+
+1. Desktop: bait OR local `/ads.js` + `/advertisement.js` OR ≥2 remote ad probes → full-site wall.
+2. Touch tablets/phones: only lock if **both** local probe scripts fail (built-in shields must not false-lock).
+3. Keep full-site **AntiAdblock** wall. Do not remove or soften for desktop.
+4. Lock copy stays **English**: "Site locked" / "Turn off your ad blocker…" / "I turned it off — continue".
+5. Brand accent for lock icon + continue button: Shahid2Day red `#e50914`.
+6. Background: `/lock-bg.mp4` + `/lock-bg.jpg` poster.
+
+## Do not touch (unless unfrozen)
+
+- `app/components/AntiAdblock.tsx`
+- `app/lib/detectAdBlock.ts`
+- `public/ads.js`
+- `public/advertisement.js`
+- `public/lock-bg.mp4` / `public/lock-bg.jpg` (replace only if user asks for a new lock video)
+
+No “fixes”, soften, harden, or removal without an explicit unfreeze.
