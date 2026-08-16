@@ -18,13 +18,10 @@ export function buildWatchServers(
 
   return [
     {
-      name: "Smashy",
-      label: "Smashy",
+      name: "VidLink",
+      label: "VidLink",
       recommended: true,
-      url:
-        type === "tv"
-          ? `https://anyembed.xyz/embed/tmdb-tv-${id}-${season}-${episode}?subLang=Arabic`
-          : `https://anyembed.xyz/embed/tmdb-movie-${id}?subLang=Arabic`,
+      url: vidlink,
     },
     {
       name: "VidLink1",
@@ -41,11 +38,6 @@ export function buildWatchServers(
         type === "tv"
           ? `https://vidsrc.cc/v2/embed/tv/${id}/${season}/${episode}?autoPlay=true&ds_lang=ar`
           : `https://vidsrc.cc/v2/embed/movie/${id}?autoPlay=true&ds_lang=ar`,
-    },
-    {
-      name: "VidLink",
-      label: "VidLink",
-      url: vidlink,
     },
     {
       name: "MultiEmbed",
@@ -91,6 +83,14 @@ export function buildWatchServers(
         type === "tv"
           ? `https://watch.embed-api.stream/embed/tv/${id}/${season}/${episode}`
           : `https://watch.embed-api.stream/embed/movie/${id}`,
+    },
+    {
+      name: "Smashy",
+      label: "Smashy",
+      url:
+        type === "tv"
+          ? `https://anyembed.xyz/embed/tmdb-tv-${id}-${season}-${episode}?subLang=Arabic`
+          : `https://anyembed.xyz/embed/tmdb-movie-${id}?subLang=Arabic`,
     },
   ];
 }
