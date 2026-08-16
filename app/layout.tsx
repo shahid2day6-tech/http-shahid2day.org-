@@ -39,6 +39,9 @@ export const metadata: Metadata = {
   keywords: pageKeywords(),
   verification: {
     google: "7B70jSYQyMKbAYWnNp_L4G6DWtwFBUeGY-XgeFefxlw",
+    other: {
+      clckd: "237d59ff30c2737d80e61b0f9969ed4f",
+    },
   },
   authors: [{ name: SITE_NAME_EN, url: SITE_URL }],
   creator: SITE_NAME_EN,
@@ -114,6 +117,9 @@ const jsonLd = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ar" dir="rtl">
+      <head>
+        <meta name="clckd" content="237d59ff30c2737d80e61b0f9969ed4f" />
+      </head>
       <body className={`${tajawal.variable} ${bebas.variable} antialiased`}>
         <Script src="https://www.googletagmanager.com/gtag/js?id=G-QQLS5BWD27" strategy="afterInteractive" />
         <Script id="ga-gtag" strategy="afterInteractive">
