@@ -5,7 +5,6 @@ import { useEffect, useState, type ReactNode } from "react";
 import { listingTitle, type TitleDetails, type TvSeasonEpisode } from "../lib/tmdb";
 import { useLang } from "../context/LanguageContext";
 import MediaRow from "./MediaRow";
-import BrandWordmark from "./BrandWordmark";
 import TvEpisodeBrowser, { type TvEpisode, type TvSeason } from "./TvEpisodeBrowser";
 
 function FactBox({ label, value }: { label: string; value: string }) {
@@ -131,13 +130,10 @@ export default function TitleView({ title }: { title: TitleDetails }) {
           />
         )}
         <div className="hero-mask absolute inset-0" />
-        <div className="absolute top-5 start-4 z-10 sm:start-6">
-          <BrandWordmark size="lg" />
-        </div>
-        <div className="relative mx-auto flex max-w-7xl flex-col gap-6 px-4 py-16 sm:flex-row sm:items-end sm:px-6 sm:pl-[252px]">
+        <div className="relative mx-auto flex max-w-7xl flex-col gap-6 px-4 py-8 sm:flex-row sm:items-end sm:px-6 sm:pl-[252px] sm:py-10">
           {title.poster && (
-            <div className="relative h-[360px] w-[240px] shrink-0 overflow-hidden rounded-2xl border border-[#262626] shadow-2xl sm:h-[460px] sm:w-[306px]">
-              <Image src={title.poster} alt={title.title} fill className="object-cover" sizes="306px" />
+            <div className="relative h-[420px] w-[280px] shrink-0 overflow-hidden rounded-2xl border border-[#262626] shadow-2xl sm:h-[540px] sm:w-[360px]">
+              <Image src={title.poster} alt={title.title} fill className="object-cover" sizes="360px" />
             </div>
           )}
           <div className="max-w-2xl">
