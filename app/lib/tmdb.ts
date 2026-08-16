@@ -922,15 +922,27 @@ export async function getTitleBySlug(
 
 export async function searchMedia(query: string, lang: string): Promise<MediaItem[]> {
   const language = lang.startsWith("ar") ? "ar-SA" : "en-US";
-  const data = await tmdb<ListResponse>("/search/multi", {
-    language,
-    query,
-    include_adult: "false",
-    page: 1,
-  });
-  return (data?.results ?? [])
+  const pages = await Promise.all(
+    [1, 2, 3].map((page) =>
+      tmdb<ListResponse>("/search/multi", {
+        language,
+        query,
+        include_adult: "false",
+        page: String(page),
+      })
+    )
+  );
+  const seen = new Set<string>();
+  return pages
+    .flatMap((data) => data?.results ?? [])
     .filter((item) => item.media_type === "movie" || item.media_type === "tv")
     .map((item) => mapItem(item))
+    .filter((item) => {
+      const key = `${item.type}-${item.id}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
     .sort((a, b) => Number(Boolean(b.poster)) - Number(Boolean(a.poster)));
 }
 
