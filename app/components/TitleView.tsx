@@ -260,20 +260,38 @@ export default function TitleView({ title }: { title: TitleDetails }) {
             <h2 className="mb-3 text-xl font-black">{t("cast")}</h2>
             <div className="row-scroll">
               {title.cast.map((person) => (
-                <div key={person.name} className="w-[110px] shrink-0">
-                  <div className="relative mb-2 aspect-[2/3] overflow-hidden rounded-xl bg-[#141414]">
-                    {person.photo ? (
-                      <Image src={person.photo} alt={person.name} fill className="object-cover" />
-                    ) : (
-                      <div className="flex h-full items-center justify-center text-2xl font-black text-white/70">
-                        {person.name.trim().charAt(0) || "؟"}
-                      </div>
-                    )}
+                <div key={person.name} className="w-[220px] shrink-0 sm:w-[260px]">
+                  <div className="relative mb-3 aspect-[3/4] overflow-hidden rounded-2xl border border-[#262626] bg-[#141414]">
+                    {title.backdrop ? (
+                      <Image
+                        src={title.backdrop}
+                        alt=""
+                        fill
+                        className="object-cover scale-125 blur-md"
+                        sizes="260px"
+                      />
+                    ) : null}
+                    <div className="absolute inset-0 bg-black/45" />
+                    <div className="absolute inset-3 overflow-hidden rounded-2xl sm:inset-4">
+                      {person.photo ? (
+                        <Image
+                          src={person.photo}
+                          alt={person.name}
+                          fill
+                          className="object-cover object-top"
+                          sizes="240px"
+                        />
+                      ) : (
+                        <div className="flex h-full items-center justify-center bg-[#1a1a1a] text-5xl font-black text-white/70">
+                          {person.name.trim().charAt(0) || "؟"}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  <p className="text-sm font-bold" dir="auto">
+                  <p className="text-base font-black sm:text-lg" dir="auto">
                     {person.name}
                   </p>
-                  <p className="text-xs text-[#a3a3a3]" dir="auto">
+                  <p className="text-sm text-[#a3a3a3]" dir="auto">
                     {person.character}
                   </p>
                 </div>

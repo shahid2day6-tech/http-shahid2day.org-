@@ -972,7 +972,7 @@ function mapCast(people: Record<string, unknown>[]): TitleDetails["cast"] {
       return {
         name: pickText(person.name as string, person.original_name as string),
         character: pickText(person.character as string, roles?.[0]?.character),
-        photo: posterUrl((person.profile_path as string | null) ?? null, "w185"),
+        photo: posterUrl((person.profile_path as string | null) ?? null, "w500"),
         order: Number(person.order ?? index),
       };
     })
