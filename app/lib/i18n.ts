@@ -116,6 +116,11 @@ export const dict = {
     allEpisodes: "كل الحلقات",
     minuteShort: "د",
     noEpisodes: "لا توجد حلقات.",
+    playerCornerHintTitle: "الترجمة من داخل المشغّل",
+    playerCornerHint: "من داخل الفيديو اضغط زر Servers في الزاوية، ثم اختر لغتك أو مشغّل أوضح.",
+    playerCornerHintStep1: "داخل الفيديو",
+    playerCornerHintStep2: "الزاوية ← Servers",
+    playerCornerHintStep3: "لغتك أو مشغّل أوضح",
   },
   en: {
     brand: "SHAHID2DAY",
@@ -232,6 +237,11 @@ export const dict = {
     allEpisodes: "All Episodes",
     minuteShort: "m",
     noEpisodes: "No episodes.",
+    playerCornerHintTitle: "Subtitles in the player",
+    playerCornerHint: "Inside the video, tap Servers in the corner, then pick your language or a clearer player.",
+    playerCornerHintStep1: "Inside the video",
+    playerCornerHintStep2: "Corner → Servers",
+    playerCornerHintStep3: "Your language or a clearer player",
   },
 } as const;
 

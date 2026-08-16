@@ -229,7 +229,51 @@ export default function WatchPlayer({
         </section>
       ) : null}
 
-      <div className="mx-auto max-w-[1100px] px-4 pb-3">
+      <div className="mx-auto max-w-[1100px] px-4 pb-10">
+        <div
+          role="note"
+          className="mb-3 overflow-hidden rounded-2xl border-2 border-amber-400 bg-amber-50 shadow-[0_8px_24px_rgba(245,158,11,0.22)]"
+        >
+          <div className="flex flex-col gap-3 border-s-[6px] border-amber-500 p-3.5 sm:flex-row sm:items-center sm:gap-4">
+            <div className="flex items-center gap-3">
+              <span className="flex shrink-0 items-center gap-2 rounded-lg bg-black px-3 py-2 shadow-lg ring-2 ring-[#e50914]">
+                <span className="flex flex-col gap-[3px]" aria-hidden>
+                  <span className="block h-[2px] w-4 rounded-full bg-white" />
+                  <span className="block h-[2px] w-4 rounded-full bg-white" />
+                  <span className="block h-[2px] w-4 rounded-full bg-white" />
+                </span>
+                <span className="text-[13px] font-black tracking-wide text-white">Servers</span>
+              </span>
+              <span className="hidden text-lg text-amber-600 sm:inline rtl:rotate-180" aria-hidden>
+                ←
+              </span>
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-black text-amber-950">{t("playerCornerHintTitle")}</p>
+              <p className="mt-1 text-[13px] leading-relaxed text-amber-900/80">
+                {t("playerCornerHint")}
+              </p>
+              <ol className="mt-2.5 flex flex-wrap gap-2">
+                {[t("playerCornerHintStep1"), t("playerCornerHintStep2"), t("playerCornerHintStep3")].map(
+                  (step, i) => (
+                    <li
+                      key={step}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-amber-300 bg-white px-2.5 py-1 text-[11px] font-bold text-amber-950"
+                    >
+                      <span className="flex h-4 w-4 items-center justify-center rounded-full bg-amber-500 text-[10px] text-white">
+                        {i + 1}
+                      </span>
+                      {step}
+                    </li>
+                  )
+                )}
+              </ol>
+            </div>
+          </div>
+        </div>
+
+        <div className="overflow-hidden rounded-xl border-2 border-[#3f3f3f] bg-[#0e0e0e]">
+        <div className="border-b border-[#3f3f3f] bg-[#141414] px-3 py-2.5">
         <p className="mb-2 text-sm font-black text-[#a3a3a3]">{t("servers")}</p>
         <div className="flex gap-2 overflow-x-auto pb-1">
           {servers.map((server, index) => {
@@ -253,10 +297,9 @@ export default function WatchPlayer({
             );
           })}
         </div>
-      </div>
+        </div>
 
-      <div className="mx-auto max-w-[1100px] px-4 pb-10">
-        <div id="watch-player" className="relative aspect-video overflow-hidden rounded-xl bg-[#0e0e0e]">
+        <div id="watch-player" className="relative aspect-video overflow-hidden bg-[#0e0e0e]">
           {title?.backdrop ? (
             <div
               className="absolute inset-0 bg-cover bg-center"
@@ -298,6 +341,7 @@ export default function WatchPlayer({
               </span>
             </button>
           )}
+        </div>
         </div>
 
         {seasonCards.length > 0 && type === "tv" ? (
