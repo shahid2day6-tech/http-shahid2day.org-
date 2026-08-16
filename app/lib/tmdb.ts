@@ -1137,8 +1137,8 @@ export async function getTitle(
   const language = lang.startsWith("ar") ? "ar-SA" : "en-US";
   const extras =
     type === "tv"
-      ? "videos,credits,aggregate_credits,similar,watch/providers,translations"
-      : "videos,credits,similar,watch/providers,translations";
+      ? "videos,credits,aggregate_credits,similar,recommendations,watch/providers,translations"
+      : "videos,credits,similar,recommendations,watch/providers,translations";
   const [primary, fallback] = await Promise.all([
     tmdb<Record<string, unknown>>(`/${type}/${id}`, {
       language,
@@ -1219,9 +1219,13 @@ export async function getTitle(
   const similar = uniqueItems(
     [
       ...((primary.similar as ListResponse)?.results ?? []),
+      ...((primary.recommendations as ListResponse)?.results ?? []),
       ...((fallback?.similar as ListResponse)?.results ?? []),
-    ].map((row) => mapItem(row, type))
-  ).slice(0, 12);
+      ...((fallback?.recommendations as ListResponse)?.results ?? []),
+    ]
+      .map((row) => mapItem(row, type))
+      .filter((row) => row.id !== id)
+  ).slice(0, 16);
 
   const providers = providerList(primary);
   if (!providers.length) providers.push(...providerList(fallback));

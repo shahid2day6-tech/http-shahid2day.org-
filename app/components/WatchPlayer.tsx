@@ -7,8 +7,8 @@ import { useLang } from "../context/LanguageContext";
 import { listingTitle, type TitleDetails, type TvSeasonEpisode } from "../lib/tmdb";
 import { titleHref } from "../lib/slug";
 import { buildWatchServers } from "../lib/watchServers";
-import MediaRow from "./MediaRow";
 import TvEpisodeBrowser, { type TvEpisode, type TvSeason } from "./TvEpisodeBrowser";
+import WatchSuggestions from "./WatchSuggestions";
 
 type Props = {
   id: string;
@@ -381,7 +381,7 @@ export default function WatchPlayer({
           />
         ) : null}
 
-        {title?.similar?.length ? <MediaRow title={t("similar")} items={title.similar} /> : null}
+        <WatchSuggestions items={title?.similar ?? []} />
       </div>
     </div>
   );
