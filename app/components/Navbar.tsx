@@ -41,7 +41,7 @@ function CatalogMenu({
     >
       <Link
         href={href}
-        className={`inline-flex items-center gap-1 px-3 py-1.5 text-sm font-bold sm:px-4 sm:text-base ${
+        className={`inline-flex items-center gap-1 px-2.5 py-1.5 text-[13px] font-bold sm:px-4 sm:text-base ${
           active ? "text-white" : "text-white/80 hover:text-white"
         }`}
         onClick={() => setOpen((value) => !value)}
@@ -79,11 +79,11 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-50">
       <div className="bg-[#9d0b12]">
-        <div className="mx-auto flex max-w-7xl items-center gap-3 px-3 py-3 sm:px-6 sm:py-3.5">
-          <nav className="flex min-w-0 flex-1 items-center gap-1 overflow-visible sm:gap-2">
+        <div className="mx-auto flex max-w-7xl items-center gap-2 px-2 py-2 sm:gap-3 sm:px-6 sm:py-3">
+          <nav className="flex min-w-0 flex-1 items-center gap-0.5 overflow-x-auto sm:gap-2">
             <Link
               href="/"
-              className={`shrink-0 px-3 py-1.5 text-sm font-bold sm:px-4 sm:text-base ${
+              className={`shrink-0 px-2.5 py-1.5 text-[13px] font-bold sm:px-4 sm:text-base ${
                 pathname === "/" ? "text-white" : "text-white/80 hover:text-white"
               }`}
             >
@@ -109,11 +109,18 @@ export default function Navbar() {
       </div>
 
       <div className="border-b border-[#1a1a1a] bg-[#0a0a0a]">
-        <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:gap-6 sm:px-6 sm:py-5">
-          <Link href="/" className="shrink-0 self-start sm:self-center">
-            <Logo size="xl" />
+        <div className="mx-auto flex max-w-7xl items-center gap-3 px-3 py-2 sm:gap-5 sm:px-6 sm:py-3 md:py-4">
+          <Link href="/" className="shrink-0">
+            <span className="md:hidden">
+              <Logo size="md" />
+            </span>
+            <span className="hidden md:inline-flex lg:hidden">
+              <Logo size="lg" />
+            </span>
+            <span className="hidden lg:inline-flex">
+              <Logo size="xl" />
+            </span>
           </Link>
-
           <SearchBox />
         </div>
       </div>

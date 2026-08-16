@@ -39,7 +39,7 @@ function ActionBox({
   return (
     <a
       href={href}
-      className={`flex w-full max-w-[220px] flex-col items-center justify-center rounded-2xl px-6 py-7 ${colors}`}
+      className={`flex w-full max-w-[220px] flex-1 flex-col items-center justify-center rounded-2xl px-4 py-5 sm:px-6 sm:py-7 ${colors}`}
     >
       {children}
       <span className="mt-3 text-lg font-black text-white">{label}</span>
@@ -118,7 +118,7 @@ export default function TitleView({ title }: { title: TitleDetails }) {
 
   return (
     <article>
-      <section className="relative min-h-[560px] overflow-hidden sm:min-h-[640px]">
+      <section className="relative overflow-hidden md:min-h-[560px] lg:min-h-[640px]">
         {title.backdrop && (
           <Image
             src={title.backdrop}
@@ -130,14 +130,14 @@ export default function TitleView({ title }: { title: TitleDetails }) {
           />
         )}
         <div className="hero-mask absolute inset-0" />
-        <div className="relative mx-auto flex max-w-7xl flex-col gap-6 px-4 py-8 sm:flex-row sm:items-end sm:px-6 sm:pl-[252px] sm:py-10">
+        <div className="relative mx-auto flex max-w-7xl flex-col items-center gap-5 px-4 py-6 sm:px-6 md:flex-row md:items-end md:gap-8 md:py-10 lg:pl-[252px]">
           {title.poster && (
-            <div className="relative h-[420px] w-[280px] shrink-0 overflow-hidden rounded-2xl border border-[#262626] shadow-2xl sm:h-[540px] sm:w-[360px]">
-              <Image src={title.poster} alt={title.title} fill className="object-cover" sizes="360px" />
+            <div className="relative aspect-[2/3] w-[min(78vw,280px)] shrink-0 overflow-hidden rounded-2xl border border-[#262626] shadow-2xl sm:w-[300px] md:w-[320px] lg:w-[360px]">
+              <Image src={title.poster} alt={title.title} fill className="object-cover" sizes="(max-width: 768px) 78vw, 360px" />
             </div>
           )}
-          <div className="max-w-2xl">
-            <h1 className="text-3xl font-black sm:text-5xl" dir="rtl">
+          <div className="w-full max-w-2xl">
+            <h1 className="text-2xl font-black sm:text-4xl md:text-5xl" dir="rtl">
               {listingTitle(title)}
             </h1>
             <div className="mt-4 flex flex-col items-start gap-2">
@@ -164,7 +164,7 @@ export default function TitleView({ title }: { title: TitleDetails }) {
             </div>
           </div>
         </div>
-        <div className="relative z-10 mx-4 mb-6 flex w-[220px] flex-col gap-3 sm:absolute sm:bottom-16 sm:left-4 sm:mx-0 sm:mb-0">
+        <div className="relative z-10 mx-auto mb-6 flex w-full max-w-md flex-row justify-center gap-3 px-4 lg:absolute lg:bottom-16 lg:left-4 lg:mx-0 lg:mb-0 lg:w-[220px] lg:max-w-none lg:flex-col lg:px-0">
           <ActionBox href={watchHref} label={t("watchNow")} tone="red">
             <span className="flex h-14 w-14 items-center justify-center rounded-full bg-white/90">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="#9d0b12" aria-hidden>
