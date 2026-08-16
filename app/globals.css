@@ -19,9 +19,9 @@
   --text-dim: #737373;
   --bg-surface: #1a1a1a;
   --border-hover: #404040;
-  --nav-accent: #f97316;
-  --nav-accent-bright: #ea580c;
-  --rating: #f97316;
+  --nav-accent: #e50914;
+  --nav-accent-bright: #ff2a33;
+  --rating: #e50914;
   --accent: #e50914;
   --accent-soft: rgba(229, 9, 20, 0.16);
   --accent-bright: #b20710;
@@ -220,7 +220,7 @@ a {
 }
 
 .episode-rail {
-  background: linear-gradient(180deg, #f97316 0%, #ea580c 55%, #c2410c 100%);
+  background: linear-gradient(180deg, #e50914 0%, #b20710 55%, #7f0a10 100%);
   border-radius: 1rem;
   padding: 0.85rem 1rem 1.15rem;
 }
@@ -298,7 +298,7 @@ a {
 
 .episode-rail .ep-card-pro-active {
   border-color: #fff;
-  background: #fff7ed;
+  background: #fff1f1;
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.4);
 }
 
