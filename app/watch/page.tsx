@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import WatchPlayer from "../components/WatchPlayer";
+import { getTitle, getTvSeason } from "../lib/tmdb";
 
 export const metadata: Metadata = {
   title: "شاهد الان",
@@ -30,5 +31,17 @@ export default async function WatchPage({ searchParams }: Props) {
     );
   }
 
-  return <WatchPlayer id={id} type={type} season={season} episode={episode} />;
+  const title = await getTitle(type, Number(id), "ar");
+  const seasonData = type === "tv" ? await getTvSeason(Number(id), season, "ar") : null;
+
+  return (
+    <WatchPlayer
+      id={id}
+      type={type}
+      season={season}
+      episode={episode}
+      initialTitle={title}
+      initialEpisodes={seasonData?.episodes ?? []}
+    />
+  );
 }

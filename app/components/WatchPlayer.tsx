@@ -7,6 +7,7 @@ import { useLang } from "../context/LanguageContext";
 import { listingTitle, type TitleDetails, type TvSeasonEpisode } from "../lib/tmdb";
 import { titleHref } from "../lib/slug";
 import { buildWatchServers } from "../lib/watchServers";
+import MediaRow from "./MediaRow";
 import TvEpisodeBrowser, { type TvEpisode, type TvSeason } from "./TvEpisodeBrowser";
 
 type Props = {
@@ -14,17 +15,26 @@ type Props = {
   type: "movie" | "tv";
   season: number;
   episode: number;
+  initialTitle?: TitleDetails | null;
+  initialEpisodes?: TvSeasonEpisode[];
 };
 
-export default function WatchPlayer({ id, type, season, episode }: Props) {
+export default function WatchPlayer({
+  id,
+  type,
+  season,
+  episode,
+  initialTitle = null,
+  initialEpisodes = [],
+}: Props) {
   const { t, lang, isRtl } = useLang();
   const router = useRouter();
-  const [title, setTitle] = useState<TitleDetails | null>(null);
+  const [title, setTitle] = useState<TitleDetails | null>(initialTitle);
   const [started, setStarted] = useState(true);
   const [active, setActive] = useState(0);
   const [selectedSeason, setSelectedSeason] = useState(season);
   const [selectedEpisode, setSelectedEpisode] = useState(episode);
-  const [episodes, setEpisodes] = useState<TvSeasonEpisode[]>([]);
+  const [episodes, setEpisodes] = useState<TvSeasonEpisode[]>(initialEpisodes);
   const [epLoading, setEpLoading] = useState(false);
   const pendingEpisodeRef = useRef<number | null>(null);
 
@@ -73,21 +83,44 @@ export default function WatchPlayer({ id, type, season, episode }: Props) {
   const current = servers[Math.min(active, Math.max(servers.length - 1, 0))];
   const backHref = title ? titleHref(title) : "/";
   const heading = title ? listingTitle(title) : t("watchNow");
-  const seasonCards: TvSeason[] = (title?.seasonList ?? []).map((item) => ({
-    season_number: item.seasonNumber,
-    name: item.name,
-    episode_count: item.episodeCount,
-    poster: item.poster,
-    year: item.year,
-  }));
-  const episodeCards: TvEpisode[] = episodes.map((item) => ({
-    episode_number: item.episodeNumber,
-    name: item.name,
-    overview: item.overview,
-    still: item.still,
-    runtime: item.runtime,
-    vote_average: item.voteAverage,
-  }));
+  const seasonCards: TvSeason[] =
+    type === "movie" && title
+      ? [
+          {
+            season_number: 1,
+            name: title.title,
+            episode_count: 1,
+            poster: title.poster,
+            year: title.year,
+          },
+        ]
+      : (title?.seasonList ?? []).map((item) => ({
+          season_number: item.seasonNumber,
+          name: item.name,
+          episode_count: item.episodeCount,
+          poster: item.poster,
+          year: item.year,
+        }));
+  const episodeCards: TvEpisode[] =
+    type === "movie" && title
+      ? [
+          {
+            episode_number: 1,
+            name: title.title,
+            overview: title.overview,
+            still: title.backdrop || title.poster,
+            runtime: Number((title.runtime || "").replace(/\D/g, "")) || null,
+            vote_average: Number(title.rating) || 0,
+          },
+        ]
+      : episodes.map((item) => ({
+          episode_number: item.episodeNumber,
+          name: item.name,
+          overview: item.overview,
+          still: item.still,
+          runtime: item.runtime,
+          vote_average: item.voteAverage,
+        }));
   const episodeNav = useMemo(() => {
     const sorted = [...seasonCards].sort((a, b) => a.season_number - b.season_number);
     const index = sorted.findIndex((item) => item.season_number === selectedSeason);
@@ -155,6 +188,46 @@ export default function WatchPlayer({ id, type, season, episode }: Props) {
           {t("subtitled")}
         </span>
       </div>
+
+      {title ? (
+        <section className="mx-auto mb-4 max-w-[1100px] overflow-hidden rounded-2xl border border-[#262626] bg-[#141414] px-4">
+          <div className="flex flex-col gap-4 py-4 sm:flex-row sm:items-end">
+            {title.poster ? (
+              <img
+                src={title.poster}
+                alt={heading}
+                className="mx-auto h-44 w-[118px] rounded-xl object-cover shadow-xl sm:mx-0 sm:h-52 sm:w-36"
+              />
+            ) : null}
+            <div className="min-w-0 flex-1 text-center sm:text-start">
+              <span className="inline-flex rounded-md bg-[#e50914] px-2.5 py-0.5 text-[12px] font-black text-white">
+                HD
+              </span>
+              {title.year ? (
+                <p className="mt-1 text-sm font-semibold text-[#a3a3a3]">{title.year}</p>
+              ) : null}
+              <h1 className="mt-1 text-xl font-black sm:text-3xl" dir="auto">
+                {heading}
+              </h1>
+              <p className="mt-2 text-sm font-semibold text-[#d4d4d4]">
+                {[
+                  title.type === "tv" ? t("show") : t("movie"),
+                  title.runtime,
+                  title.genres.slice(0, 3).join(" / "),
+                  title.rating !== "0" ? `★ ${title.rating}` : "",
+                ]
+                  .filter(Boolean)
+                  .join(" · ")}
+              </p>
+              {title.overview ? (
+                <p className="mt-3 line-clamp-3 text-sm leading-7 text-[#a3a3a3]" dir="auto">
+                  {title.overview}
+                </p>
+              ) : null}
+            </div>
+          </div>
+        </section>
+      ) : null}
 
       <div className="mx-auto max-w-[1100px] px-4 pb-3">
         <p className="mb-2 text-sm font-black text-[#a3a3a3]">{t("servers")}</p>
@@ -227,7 +300,7 @@ export default function WatchPlayer({ id, type, season, episode }: Props) {
           )}
         </div>
 
-        {type === "tv" && seasonCards.length > 0 ? (
+        {seasonCards.length > 0 && type === "tv" ? (
           <div
             className="mt-4 mb-4 flex items-stretch gap-2 sm:gap-3"
             dir={isRtl ? "rtl" : "ltr"}
@@ -288,14 +361,18 @@ export default function WatchPlayer({ id, type, season, episode }: Props) {
           </div>
         ) : null}
 
-        {type === "tv" ? (
+        {title && seasonCards.length > 0 ? (
           <TvEpisodeBrowser
             seasons={seasonCards}
             episodes={episodeCards}
-            selectedSeason={selectedSeason}
-            selectedEpisode={selectedEpisode}
-            loading={epLoading}
+            selectedSeason={type === "movie" ? 1 : selectedSeason}
+            selectedEpisode={type === "movie" ? 1 : selectedEpisode}
+            loading={type === "tv" && epLoading && episodeCards.length === 0}
             onSelectSeason={(nextSeason) => {
+              if (type === "movie") {
+                document.getElementById("watch-player")?.scrollIntoView({ behavior: "smooth", block: "start" });
+                return;
+              }
               pendingEpisodeRef.current = null;
               setSelectedSeason(nextSeason);
               syncUrl(nextSeason, selectedEpisode);
@@ -303,6 +380,8 @@ export default function WatchPlayer({ id, type, season, episode }: Props) {
             onSelectEpisode={playEpisode}
           />
         ) : null}
+
+        {title?.similar?.length ? <MediaRow title={t("similar")} items={title.similar} /> : null}
       </div>
     </div>
   );
