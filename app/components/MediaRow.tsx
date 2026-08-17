@@ -38,7 +38,7 @@ export default function MediaRow({
               <MediaCard item={item} movieLabel={t("movie")} showLabel={t("show")} />
             </div>
           );
-          if (index !== 3) return [card];
+          if (index !== 1) return [card];
           return [
             <InGridAdCard
               key={`${title}-ad`}

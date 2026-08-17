@@ -1,25 +1,23 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { getAdsterraDims, isAdsterraBannersEnabled, isAdsterraEnabled } from "../../lib/adsterra";
-import { isHilltopBannersEnabled } from "../../lib/hilltop";
+import { getAdsterraDims } from "../../lib/adsterra";
 import { useLang } from "../../context/LanguageContext";
-import { useAdsterraSlot } from "./AdsterraBanner";
-import { Banner300Waterfall } from "./Banner300Waterfall";
+import { AdsterraBanner } from "./AdsterraBanner";
+import { HilltopBanner300 } from "./HilltopBanner300";
+import { useCoverAdNetwork } from "./useCoverAdNetwork";
 
 const BANNER = getAdsterraDims("300x250");
 
 export function InGridAdCard({ className = "" }: { className?: string }) {
   const { t } = useLang();
-  const adsterraOn = isAdsterraEnabled() && isAdsterraBannersEnabled();
-  const hilltopOn = isHilltopBannersEnabled();
-  const owned = useAdsterraSlot(adsterraOn ? "300x250" : null);
+  const network = useCoverAdNetwork();
   const frameRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
 
   useEffect(() => {
     const el = frameRef.current;
-    if (!el || !(owned || (hilltopOn && !adsterraOn))) return;
+    if (!el || !network) return;
     const sync = () => {
       const w = el.clientWidth;
       const h = el.clientHeight;
@@ -30,9 +28,9 @@ export function InGridAdCard({ className = "" }: { className?: string }) {
     const ro = new ResizeObserver(sync);
     ro.observe(el);
     return () => ro.disconnect();
-  }, [owned, hilltopOn, adsterraOn]);
+  }, [network]);
 
-  if ((!adsterraOn && !hilltopOn) || (adsterraOn && !owned)) return null;
+  if (!network) return null;
 
   return (
     <div className={className}>
@@ -49,7 +47,11 @@ export function InGridAdCard({ className = "" }: { className?: string }) {
               transform: `translate(-50%, -50%) scale(${scale})`,
             }}
           >
-            <Banner300Waterfall skipClaim nativeSize />
+            {network === "adsterra" ? (
+              <AdsterraBanner size="300x250" skipClaim nativeSize />
+            ) : (
+              <HilltopBanner300 skipClaim />
+            )}
           </div>
         </div>
       </div>

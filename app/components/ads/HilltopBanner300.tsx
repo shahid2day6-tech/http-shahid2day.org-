@@ -9,12 +9,21 @@ import {
 } from "../../lib/hilltop";
 import { isBrowserSearchCrawler } from "../../lib/isSearchCrawler";
 
-/** Official Hilltop MultiTag 300×250. One instance per page. */
-export function HilltopBanner300({ className = "" }: { className?: string }) {
+export function HilltopBanner300({
+  className = "",
+  skipClaim = false,
+}: {
+  className?: string;
+  skipClaim?: boolean;
+}) {
   const boxRef = useRef<HTMLDivElement>(null);
-  const [owned, setOwned] = useState(false);
+  const [owned, setOwned] = useState(skipClaim);
 
   useEffect(() => {
+    if (skipClaim) {
+      setOwned(true);
+      return;
+    }
     if (!isHilltopBannersEnabled() || isBrowserSearchCrawler()) {
       setOwned(false);
       return;
@@ -25,7 +34,7 @@ export function HilltopBanner300({ className = "" }: { className?: string }) {
       if (ok) releaseHilltop300();
       setOwned(false);
     };
-  }, []);
+  }, [skipClaim]);
 
   useEffect(() => {
     const el = boxRef.current;
