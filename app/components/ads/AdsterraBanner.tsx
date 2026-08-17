@@ -15,8 +15,12 @@ import { isBrowserSearchCrawler } from "../../lib/isSearchCrawler";
 type Props = {
   size: AdsterraBannerSize;
   className?: string;
+  wrapClassName?: string;
+  label?: string;
   skipClaim?: boolean;
   nativeSize?: boolean;
+  stayVisible?: boolean;
+  collapseIfEmpty?: boolean;
   onFilled?: () => void;
   onEmpty?: () => void;
 };
@@ -49,14 +53,19 @@ export function useAdsterraSlot(size: AdsterraBannerSize | null) {
 export function AdsterraBanner({
   size,
   className = "",
+  wrapClassName = "",
+  label,
   skipClaim = false,
   nativeSize = false,
+  stayVisible = false,
+  collapseIfEmpty = true,
   onFilled,
   onEmpty,
 }: Props) {
   const key = getAdsterraKey(size);
   const { width, height } = getAdsterraDims(size);
   const [owned, setOwned] = useState(skipClaim);
+  const [empty, setEmpty] = useState(false);
   const onFilledRef = useRef(onFilled);
   const onEmptyRef = useRef(onEmpty);
   const filledRef = useRef(false);
@@ -81,34 +90,40 @@ export function AdsterraBanner({
   }, [size, skipClaim, key]);
 
   useEffect(() => {
-    if (!owned || !onEmpty) return;
-
+    if (!owned) return;
     filledRef.current = false;
+    setEmpty(false);
+
+    function markEmpty() {
+      if (filledRef.current) return;
+      setEmpty(true);
+      onEmptyRef.current?.();
+    }
 
     function onMessage(event: MessageEvent) {
       const data = event.data;
       if (!data || data.source !== "s2d-adsterra" || data.size !== size) return;
       if (data.status === "filled") {
         filledRef.current = true;
+        setEmpty(false);
         onFilledRef.current?.();
-      } else if (data.status === "empty" && !filledRef.current) {
-        onEmptyRef.current?.();
+      } else if (data.status === "empty") {
+        markEmpty();
       }
     }
 
     window.addEventListener("message", onMessage);
-    const giveUp = window.setTimeout(() => {
-      if (!filledRef.current) onEmptyRef.current?.();
-    }, 8000);
+    const giveUp = window.setTimeout(markEmpty, 8000);
     return () => {
       window.removeEventListener("message", onMessage);
       window.clearTimeout(giveUp);
     };
-  }, [owned, size, onEmpty]);
+  }, [owned, size]);
 
   if (!owned || !key) return null;
+  if (empty && collapseIfEmpty && !stayVisible) return null;
 
-  return (
+  const frame = (
     <iframe
       src={`/ads/adsterra?size=${size}`}
       width={width}
@@ -129,5 +144,18 @@ export function AdsterraBanner({
         flexShrink: 0,
       }}
     />
+  );
+
+  if (!label && !wrapClassName) return frame;
+
+  return (
+    <div className={wrapClassName} data-site-ui="1">
+      {label ? (
+        <span className="mb-1 text-[10px] font-bold uppercase tracking-wide text-[#a3a3a3]">
+          {label}
+        </span>
+      ) : null}
+      {frame}
+    </div>
   );
 }

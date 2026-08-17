@@ -15,28 +15,13 @@ export function WatchPageAds({ showBox = true }: { showBox?: boolean }) {
   return (
     <div className="mt-4 flex w-full flex-col items-stretch gap-3">
       {railOwned ? (
-        <div className="flex max-w-full flex-col items-center overflow-x-auto">
-          <span className="mb-1 text-[10px] font-bold uppercase tracking-wide text-[#a3a3a3]">
-            {t("adLabel")}
-          </span>
-          <AdsterraBanner size="728x90" skipClaim />
-        </div>
+        <AdsterraBanner size="728x90" skipClaim label={t("adLabel")} wrapClassName="flex max-w-full flex-col items-center overflow-x-auto" />
       ) : null}
       {showBox && boxOwned ? (
-        <div className="flex flex-col items-center overflow-hidden">
-          <span className="mb-1 text-[10px] font-bold uppercase tracking-wide text-[#a3a3a3]">
-            {t("adLabel")}
-          </span>
-          <AdsterraBanner size="300x250" skipClaim />
-        </div>
+        <AdsterraBanner size="300x250" skipClaim label={t("adLabel")} wrapClassName="flex flex-col items-center overflow-hidden" />
       ) : null}
       {altOwned ? (
-        <div className="flex max-w-full flex-col items-center overflow-x-auto">
-          <span className="mb-1 text-[10px] font-bold uppercase tracking-wide text-[#a3a3a3]">
-            {t("adLabel")}
-          </span>
-          <AdsterraBanner size="320x50" skipClaim />
-        </div>
+        <AdsterraBanner size="320x50" skipClaim label={t("adLabel")} wrapClassName="flex max-w-full flex-col items-center overflow-x-auto" />
       ) : null}
     </div>
   );

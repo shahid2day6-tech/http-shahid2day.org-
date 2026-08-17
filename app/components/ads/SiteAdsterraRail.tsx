@@ -17,11 +17,11 @@ export function SiteAdsterraRail({ variant = "primary", className = "" }: Props)
   if (!isAdsterraBannersEnabled() || !owned) return null;
 
   return (
-    <div className={`flex max-w-full flex-col items-center overflow-x-auto ${className}`}>
-      <span className="mb-1 text-[10px] font-bold uppercase tracking-wide text-[#a3a3a3]">
-        {t("adLabel")}
-      </span>
-      <AdsterraBanner size={bannerSize} skipClaim />
-    </div>
+    <AdsterraBanner
+      size={bannerSize}
+      skipClaim
+      label={t("adLabel")}
+      wrapClassName={`flex max-w-full flex-col items-center overflow-x-auto ${className}`}
+    />
   );
 }
