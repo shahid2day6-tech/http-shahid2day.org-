@@ -1,15 +1,11 @@
 "use client";
 
-import { useState } from "react";
 import { isAdsterraBannersEnabled } from "../../lib/adsterra";
 import { isHilltopBannersEnabled } from "../../lib/hilltop";
 import { AdsterraBanner } from "./AdsterraBanner";
 import { HilltopBanner300 } from "./HilltopBanner300";
 
-/**
- * 300×250: Adsterra first (in-flow). If it stays empty, swap to Hilltop.
- * Never request both at once.
- */
+/** 300×250 Adsterra in-flow. Keep the slot reserved — swapping away kills fill. */
 export function Banner300Waterfall({
   skipClaim = false,
   nativeSize = false,
@@ -19,21 +15,13 @@ export function Banner300Waterfall({
 }) {
   const adsterraOn = isAdsterraBannersEnabled();
   const hilltopOn = isHilltopBannersEnabled();
-  const [useHilltop, setUseHilltop] = useState(!adsterraOn && hilltopOn);
-
-  if (useHilltop && hilltopOn) {
-    return <HilltopBanner300 />;
-  }
 
   if (adsterraOn) {
-    return (
-      <AdsterraBanner
-        size="300x250"
-        skipClaim={skipClaim}
-        nativeSize={nativeSize}
-        onEmpty={hilltopOn ? () => setUseHilltop(true) : undefined}
-      />
-    );
+    return <AdsterraBanner size="300x250" skipClaim={skipClaim} nativeSize={nativeSize} />;
+  }
+
+  if (hilltopOn) {
+    return <HilltopBanner300 />;
   }
 
   return null;

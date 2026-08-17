@@ -345,7 +345,7 @@ export default function WatchPlayer({
         </div>
         </div>
 
-        <WatchPageAds showBox={!title?.similar?.length} />
+        <WatchPageAds showBox />
 
         {seasonCards.length > 0 && type === "tv" ? (
           <div
