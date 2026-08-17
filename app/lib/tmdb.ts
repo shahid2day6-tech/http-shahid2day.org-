@@ -2,6 +2,7 @@ import type { CatalogGroup, CatalogKind } from "./catalog";
 import { BROWSE_PAGE_SIZE } from "./catalog";
 import { parseTitleSlug, slugifyTitle } from "./slug";
 import { FILTER_GENRES, parseSection, type CatalogFilters, type CatalogSort } from "./filters";
+import { FEATURED_ANIME_IDS } from "./featuredAnime";
 
 const TMDB = "https://api.themoviedb.org/3";
 const IMG = "https://image.tmdb.org/t/p";
@@ -1265,6 +1266,14 @@ export async function getTitle(
   };
 }
 
+async function fetchFeaturedTv(id: number, lang: string): Promise<MediaItem | null> {
+  const language = lang.startsWith("ar") ? "ar-SA" : "en-US";
+  const data = await tmdb<Record<string, unknown>>(`/tv/${id}`, { language });
+  if (!data || !Number(data.id)) return null;
+  const item = mapItem(data, "tv");
+  return item.poster ? item : null;
+}
+
 export async function homeCatalog(lang: string) {
   const [
     trending,
@@ -1281,6 +1290,7 @@ export async function homeCatalog(lang: string) {
     turkish,
     asian,
     franchises,
+    featuredAnime,
   ] = await Promise.all([
     discover("trending", lang),
     discoverMany("movies", lang, 1, 2),
@@ -1296,14 +1306,20 @@ export async function homeCatalog(lang: string) {
     discover("turkish", lang),
     discover("asian", lang),
     discoverFranchises(lang, 1),
+    Promise.all(FEATURED_ANIME_IDS.map((id) => fetchFeaturedTv(id, lang))),
   ]);
   const row = (result: DiscoverResult) => uniqueItems(result.items).slice(0, 24);
+  const newAnime = uniqueItems([
+    ...featuredAnime.filter((item): item is MediaItem => Boolean(item)),
+    ...row(animeSeries),
+  ]).slice(0, 24);
   return {
     trending: row(trending),
     movies: row(movies),
     series: row(series),
     foreignEpisodes: row(foreignEpisodes),
     animeEpisodes: row(animeEpisodes),
+    newAnime,
     arabicEpisodes: row(arabicEpisodes),
     ramadan: row(ramadan),
     animeMovies: row(animeMovies),

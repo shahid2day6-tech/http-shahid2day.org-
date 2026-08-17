@@ -1,4 +1,5 @@
 import { SITE_NAME_AR, SITE_NAME_EN } from "./site";
+import { FEATURED_ANIME_KEYWORDS } from "./featuredAnime";
 
 export const ENGLISH_SEO_KEYWORDS = [
   "watch2day",
@@ -618,6 +619,7 @@ export function pageKeywords(...extra: string[]): string[] {
     "shahid2day.org",
     ...ENGLISH_SEO_KEYWORDS,
     SITE_NAME_AR,
+    ...FEATURED_ANIME_KEYWORDS,
     ...extra,
     ...SEO_KEYWORDS,
   ]) {
