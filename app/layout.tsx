@@ -41,6 +41,8 @@ export const metadata: Metadata = {
     google: "7B70jSYQyMKbAYWnNp_L4G6DWtwFBUeGY-XgeFefxlw",
     other: {
       clckd: "237d59ff30c2737d80e61b0f9969ed4f",
+      "141f2ead4524320f21fe73ef86766a6178294da9":
+        "141f2ead4524320f21fe73ef86766a6178294da9",
     },
   },
   authors: [{ name: SITE_NAME_EN, url: SITE_URL }],
@@ -119,6 +121,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="ar" dir="rtl">
       <head>
         <meta name="clckd" content="237d59ff30c2737d80e61b0f9969ed4f" />
+        <meta
+          name="141f2ead4524320f21fe73ef86766a6178294da9"
+          content="141f2ead4524320f21fe73ef86766a6178294da9"
+        />
       </head>
       <body className={`${tajawal.variable} ${bebas.variable} antialiased`}>
         <Script src="https://www.googletagmanager.com/gtag/js?id=G-QQLS5BWD27" strategy="afterInteractive" />
