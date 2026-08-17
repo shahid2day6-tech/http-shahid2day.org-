@@ -8,6 +8,9 @@ import {
 } from "../../lib/adsterra";
 import { isSearchCrawlerUserAgent } from "../../lib/isSearchCrawler";
 
+export const dynamic = "force-dynamic";
+export const runtime = "edge";
+
 export function GET(request: Request) {
   if (!isAdsterraEnabled()) {
     return new NextResponse("disabled", { status: 404 });

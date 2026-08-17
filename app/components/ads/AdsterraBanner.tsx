@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
+  ADSTERRA_INVOKE_HOST,
   claimAdsterraSize,
   getAdsterraDims,
   getAdsterraKey,
@@ -18,6 +19,31 @@ type Props = {
   skipClaim?: boolean;
   nativeSize?: boolean;
 };
+
+function bannerHtml(key: string, width: number, height: number) {
+  return `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="referrer" content="origin">
+<style>
+  html,body{margin:0;padding:0;overflow:hidden;background:transparent;width:${width}px;height:${height}px}
+</style>
+</head>
+<body>
+<script>
+window.atOptions = {
+  key: ${JSON.stringify(key)},
+  format: "iframe",
+  height: ${height},
+  width: ${width},
+  params: {}
+};
+</script>
+<script src="${ADSTERRA_INVOKE_HOST}/${key}/invoke.js"></script>
+</body>
+</html>`;
+}
 
 export function useAdsterraSlot(size: AdsterraBannerSize | null) {
   const [owned, setOwned] = useState(false);
@@ -48,6 +74,10 @@ export function AdsterraBanner({ size, className = "", skipClaim = false, native
   const key = getAdsterraKey(size);
   const { width, height } = getAdsterraDims(size);
   const [owned, setOwned] = useState(skipClaim);
+  const html = useMemo(
+    () => (key ? bannerHtml(key, width, height) : ""),
+    [key, width, height]
+  );
 
   useEffect(() => {
     if (skipClaim) {
@@ -66,17 +96,16 @@ export function AdsterraBanner({ size, className = "", skipClaim = false, native
     };
   }, [size, skipClaim, key]);
 
-  if (!owned || !key) return null;
+  if (!owned || !key || !html) return null;
 
   return (
     <iframe
-      src={`/ads/adsterra?size=${size}`}
+      srcDoc={html}
       width={width}
       height={height}
       title="Advertisement"
       scrolling="no"
-      referrerPolicy="no-referrer-when-downgrade"
-      allowTransparency
+      referrerPolicy="origin"
       className={className}
       style={{
         width,
