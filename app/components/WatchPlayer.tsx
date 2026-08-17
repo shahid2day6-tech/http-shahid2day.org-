@@ -179,13 +179,13 @@ export default function WatchPlayer({
   return (
     <div className="min-h-screen bg-black text-white">
       <div className="mx-auto flex max-w-[1100px] items-center justify-between gap-3 px-4 py-3">
-        <Link href={backHref} className="text-sm font-bold text-[#e50914]">
+        <Link href={backHref} className="text-sm font-bold text-[#a34316]">
           ← {t("details")}
         </Link>
         <p className="truncate text-sm font-black sm:text-base" dir="auto">
           {heading}
         </p>
-        <span className="shrink-0 rounded-md bg-[#e50914] px-2 py-1 text-[11px] font-black">
+        <span className="shrink-0 rounded-md bg-[#a34316] px-2 py-1 text-[11px] font-black">
           {t("subtitled")}
         </span>
       </div>
@@ -201,7 +201,7 @@ export default function WatchPlayer({
               />
             ) : null}
             <div className="min-w-0 flex-1 text-center sm:text-start">
-              <span className="inline-flex rounded-md bg-[#e50914] px-2.5 py-0.5 text-[12px] font-black text-white">
+              <span className="inline-flex rounded-md bg-[#a34316] px-2.5 py-0.5 text-[12px] font-black text-white">
                 HD
               </span>
               {title.year ? (
@@ -237,7 +237,7 @@ export default function WatchPlayer({
         >
           <div className="flex flex-col gap-3 border-s-[6px] border-amber-500 p-3.5 sm:flex-row sm:items-center sm:gap-4">
             <div className="flex items-center gap-3">
-              <span className="flex shrink-0 items-center gap-2 rounded-lg bg-black px-3 py-2 shadow-lg ring-2 ring-[#e50914]">
+              <span className="flex shrink-0 items-center gap-2 rounded-lg bg-black px-3 py-2 shadow-lg ring-2 ring-[#a34316]">
                 <span className="flex flex-col gap-[3px]" aria-hidden>
                   <span className="block h-[2px] w-4 rounded-full bg-white" />
                   <span className="block h-[2px] w-4 rounded-full bg-white" />
@@ -285,7 +285,7 @@ export default function WatchPlayer({
                 type="button"
                 onClick={() => playOn(index)}
                 className={`relative shrink-0 rounded-lg px-4 py-2 text-sm font-black ${
-                  selected ? "bg-[#e50914] text-white" : "bg-[#1a1a1a] text-[#d4d4d4]"
+                  selected ? "bg-[#a34316] text-white" : "bg-[#1a1a1a] text-[#d4d4d4]"
                 }`}
               >
                 {server.label}
@@ -331,7 +331,7 @@ export default function WatchPlayer({
                   className="h-40 w-28 rounded-lg object-cover shadow-2xl sm:h-52 sm:w-36"
                 />
               ) : null}
-              <span className="flex h-16 w-16 items-center justify-center rounded-full bg-[#e50914] shadow-[0_8px_30px_rgba(229,9,20,0.55)]">
+              <span className="flex h-16 w-16 items-center justify-center rounded-full bg-[#a34316] shadow-[0_8px_30px_rgba(163,67,22,0.55)]">
                 <svg width="26" height="26" viewBox="0 0 24 24" fill="white" aria-hidden>
                   <path d="M8 5.14v13.72L19 12 8 5.14z" />
                 </svg>

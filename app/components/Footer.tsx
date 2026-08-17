@@ -2,18 +2,19 @@
 
 import Link from "next/link";
 import { useLang } from "../context/LanguageContext";
-import Logo from "./Logo";
 
 export default function Footer() {
   const { t } = useLang();
   const year = new Date().getFullYear();
 
   return (
-    <footer className="mt-16 border-t border-[#262626] bg-[#0a0a0a]">
+    <footer className="mt-16 border-t border-[#243044] bg-[#0a0e1a]">
       <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 md:grid-cols-3">
         <div>
-          <Logo />
-          <p className="mt-4 max-w-sm text-sm leading-7 text-[#a3a3a3]">{t("footerAbout")}</p>
+          <span className="brand-wordmark text-[1.55rem]" dir="ltr">
+            SHAHID<span className="digit">2</span>DAY
+          </span>
+          <p className="mt-4 max-w-sm text-sm leading-7 text-[#d6cfc2]">{t("footerAbout")}</p>
         </div>
         <div>
           <p className="mb-3 text-sm font-black">{t("browse")}</p>

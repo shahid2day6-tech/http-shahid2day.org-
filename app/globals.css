@@ -1,30 +1,30 @@
 @import "tailwindcss";
 
 :root {
-  --bg: #050505;
-  --bg-elevated: #0e0e0e;
-  --bg-card: #141414;
-  --red: #e50914;
-  --red-dark: #b20710;
-  --red-soft: rgba(229, 9, 20, 0.16);
+  --bg: #0a0e1a;
+  --bg-elevated: #111827;
+  --bg-card: #162032;
+  --red: #a34316;
+  --red-dark: #8a3712;
+  --red-soft: rgba(163, 67, 22, 0.22);
   --btn: #e6e2d8;
   --btn-hover: #f3efe6;
   --btn-text: #111111;
-  --text: #f5f5f5;
-  --muted: #a3a3a3;
-  --border: #262626;
-  --glow: rgba(229, 9, 20, 0.32);
-  --text-muted: #a3a3a3;
-  --text-primary: #f5f5f5;
-  --text-dim: #737373;
-  --bg-surface: #1a1a1a;
-  --border-hover: #404040;
-  --nav-accent: #c62828;
-  --nav-accent-bright: #ef5350;
-  --rating: #e50914;
-  --accent: #e50914;
-  --accent-soft: rgba(229, 9, 20, 0.16);
-  --accent-bright: #b20710;
+  --text: #f5f0e6;
+  --muted: #d6cfc2;
+  --border: #243044;
+  --glow: rgba(163, 67, 22, 0.35);
+  --text-muted: #d6cfc2;
+  --text-primary: #f5f0e6;
+  --text-dim: #9aa3b5;
+  --bg-surface: #1a2332;
+  --border-hover: #a34316;
+  --nav-accent: #a34316;
+  --nav-accent-bright: #c45a1e;
+  --rating: #e8b86d;
+  --accent: #a34316;
+  --accent-soft: rgba(163, 67, 22, 0.22);
+  --accent-bright: #c45a1e;
 }
 
 @theme inline {
@@ -89,21 +89,21 @@ a {
 }
 
 .poster-card:hover {
-  border-color: var(--red);
+  border-color: var(--accent);
   transform: translateY(-4px);
-  box-shadow: 0 12px 32px rgba(229, 9, 20, 0.18);
+  box-shadow: 0 12px 32px rgba(163, 67, 22, 0.18);
 }
 
 .hero-mask {
   background:
-    linear-gradient(180deg, rgba(5, 5, 5, 0.15) 0%, rgba(5, 5, 5, 0.72) 58%, #050505 100%),
-    linear-gradient(90deg, rgba(5, 5, 5, 0.82) 0%, rgba(5, 5, 5, 0.2) 55%, transparent 100%);
+    linear-gradient(180deg, rgba(10, 14, 26, 0.15) 0%, rgba(10, 14, 26, 0.72) 58%, #0a0e1a 100%),
+    linear-gradient(90deg, rgba(10, 14, 26, 0.82) 0%, rgba(10, 14, 26, 0.2) 55%, transparent 100%);
 }
 
 [dir="ltr"] .hero-mask {
   background:
-    linear-gradient(180deg, rgba(5, 5, 5, 0.15) 0%, rgba(5, 5, 5, 0.72) 58%, #050505 100%),
-    linear-gradient(270deg, rgba(5, 5, 5, 0.82) 0%, rgba(5, 5, 5, 0.2) 55%, transparent 100%);
+    linear-gradient(180deg, rgba(10, 14, 26, 0.15) 0%, rgba(10, 14, 26, 0.72) 58%, #0a0e1a 100%),
+    linear-gradient(270deg, rgba(10, 14, 26, 0.82) 0%, rgba(10, 14, 26, 0.2) 55%, transparent 100%);
 }
 
 .row-scroll {
@@ -134,7 +134,7 @@ a {
 }
 
 .brand-wordmark .digit {
-  color: #e50914 !important;
+  color: #c45a1e !important;
   text-shadow: none;
 }
 

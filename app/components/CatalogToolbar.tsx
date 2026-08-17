@@ -61,7 +61,7 @@ function CheckRow({
     >
       <span
         className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-sm border ${
-          checked ? "border-[#e50914] bg-[#e50914]" : "border-white"
+          checked ? "border-[#a34316] bg-[#a34316]" : "border-white"
         }`}
       >
         {checked ? <span className="text-[10px] leading-none">✓</span> : null}
@@ -133,7 +133,7 @@ export default function CatalogToolbar({
               href={hrefFor({ sort: mode.id })}
               prefetch={false}
               className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-bold text-white ${
-                active ? "bg-[#9d0b12]" : "bg-[#151a2b] hover:bg-[#1c2338]"
+                active ? "bg-[#a34316]" : "bg-[#151a2b] hover:bg-[#1c2338]"
               }`}
             >
               <span className={`flex h-7 w-7 items-center justify-center rounded-full text-xs ${mode.tone}`}>

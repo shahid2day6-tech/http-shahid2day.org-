@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import { Suspense } from "react";
 import Script from "next/script";
 import { Bebas_Neue, Tajawal } from "next/font/google";
@@ -11,6 +12,7 @@ import { MonetagOnclick } from "./components/ads/MonetagOnclick";
 import { MonetagClickGate } from "./components/ads/MonetagClickGate";
 import { SITE_LOGO, SITE_NAME_AR, SITE_NAME_EN, SITE_URL } from "./lib/site";
 import { pageKeywords, SEO_DESCRIPTION } from "./lib/seo";
+import { htmlLangDir, parseUiLang, UI_LANG_KEY } from "./lib/langPref";
 import "./globals.css";
 
 const tajawal = Tajawal({
@@ -25,7 +27,7 @@ const bebas = Bebas_Neue({
   variable: "--font-bebas",
 });
 
-const title = `${SITE_NAME_AR} | ${SITE_NAME_EN}`;
+const title = `${SITE_NAME_EN} | Watch Movies & Series Online Free`;
 const description = SEO_DESCRIPTION;
 
 export const metadata: Metadata = {
@@ -33,7 +35,7 @@ export const metadata: Metadata = {
   applicationName: SITE_NAME_EN,
   title: {
     default: title,
-    template: `%s | ${SITE_NAME_AR} | ${SITE_NAME_EN}`,
+    template: `%s | ${SITE_NAME_EN}`,
   },
   description,
   keywords: pageKeywords(),
@@ -57,7 +59,8 @@ export const metadata: Metadata = {
     description: SEO_DESCRIPTION,
     url: SITE_URL,
     siteName: SITE_NAME_EN,
-    locale: "ar_SA",
+    locale: "en_US",
+    alternateLocale: ["ar_SA"],
     type: "website",
     images: [
       {
@@ -100,10 +103,10 @@ export const metadata: Metadata = {
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "WebSite",
-  name: SITE_NAME_AR,
-  alternateName: SITE_NAME_EN,
+  name: SITE_NAME_EN,
+  alternateName: [SITE_NAME_AR, "watch2day", "shahid2day", "watch 2 day"],
   url: SITE_URL,
-  inLanguage: ["ar", "en"],
+  inLanguage: ["en", "ar"],
   keywords: pageKeywords().join(", "),
   image: `${SITE_URL}${SITE_LOGO}`,
   publisher: {
@@ -116,9 +119,11 @@ const jsonLd = {
   },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const initialLang = parseUiLang((await cookies()).get(UI_LANG_KEY)?.value);
+  const { htmlLang, dir } = htmlLangDir(initialLang);
   return (
-    <html lang="ar" dir="rtl">
+    <html lang={htmlLang} dir={dir} suppressHydrationWarning>
       <head>
         <meta name="clckd" content="237d59ff30c2737d80e61b0f9969ed4f" />
         <meta
@@ -140,7 +145,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-        <LanguageProvider>
+        <LanguageProvider initialLang={initialLang}>
           <SiteShell>{children}</SiteShell>
           <MonetagClickGate />
           <MonetagTag />

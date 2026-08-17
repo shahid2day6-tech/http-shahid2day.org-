@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useLang } from "../context/LanguageContext";
-import Logo from "./Logo";
 import SearchBox from "./SearchBox";
 import {
   MOVIE_GROUPS,
@@ -61,7 +60,7 @@ function CatalogMenu({
         <span className="text-[10px]">▼</span>
       </button>
       {open ? (
-        <div className="absolute top-full start-0 z-[80] min-w-[230px] overflow-hidden rounded-b-lg bg-[#1e2130] py-1 shadow-2xl">
+        <div className="absolute top-full start-0 z-[80] min-w-[230px] overflow-hidden rounded-b-lg bg-[#1a2332] py-1 shadow-2xl">
           <Link
             href={href}
             onClick={() => setOpen(false)}
@@ -99,7 +98,7 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-50">
-      <div className="bg-[#9d0b12]">
+      <div className="bg-[#a34316]">
         <div className="mx-auto flex max-w-7xl items-center gap-2 px-2 py-2 sm:gap-3 sm:px-6 sm:py-3">
           <nav className="flex min-w-0 flex-1 items-center gap-0.5 overflow-visible sm:gap-2">
             <Link
@@ -129,17 +128,11 @@ export default function Navbar() {
         </div>
       </div>
 
-      <div className="border-b border-[#1a1a1a] bg-[#0a0a0a]">
+      <div className="border-b border-[#1a2332] bg-[#0a0e1a]">
         <div className="mx-auto flex max-w-7xl items-center gap-3 px-3 py-2 sm:gap-5 sm:px-6 sm:py-3 md:py-4">
           <Link href="/" className="shrink-0">
-            <span className="md:hidden">
-              <Logo size="md" />
-            </span>
-            <span className="hidden md:inline-flex lg:hidden">
-              <Logo size="lg" />
-            </span>
-            <span className="hidden lg:inline-flex">
-              <Logo size="xl" />
+            <span className="brand-wordmark text-[1.55rem] sm:text-[2rem] lg:text-[2.45rem]" dir="ltr">
+              SHAHID<span className="digit">2</span>DAY
             </span>
           </Link>
           <SearchBox />

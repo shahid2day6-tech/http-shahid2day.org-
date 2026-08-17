@@ -23,7 +23,7 @@ export default function MediaRow({
       <div className="mb-4 flex items-end justify-between gap-3">
         <h2 className="text-xl font-black sm:text-2xl">{title}</h2>
         {href && (
-          <Link href={href} className="text-sm font-bold text-[#e50914] hover:underline">
+          <Link href={href} className="text-sm font-bold text-[#a34316] hover:underline">
             {t("browse")}
           </Link>
         )}

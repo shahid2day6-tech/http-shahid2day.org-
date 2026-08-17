@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { dict, type DictKey, type Lang } from "../lib/i18n";
+import { DEFAULT_LANG, persistLang, readBrowserLang } from "../lib/langPref";
 
 type Ctx = {
   lang: Lang;
@@ -12,18 +13,28 @@ type Ctx = {
 
 const LanguageContext = createContext<Ctx | null>(null);
 
-export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [lang, setLang] = useState<Lang>("ar");
+export function LanguageProvider({
+  children,
+  initialLang = DEFAULT_LANG,
+}: {
+  children: React.ReactNode;
+  initialLang?: Lang;
+}) {
+  const [lang, setLang] = useState<Lang>(initialLang);
 
   useEffect(() => {
-    const saved = window.localStorage.getItem("s2d-lang");
-    if (saved === "en" || saved === "ar") setLang(saved);
+    const stored = readBrowserLang();
+    if (stored && stored !== lang) {
+      setLang(stored);
+      persistLang(stored);
+    }
+    // Restore a saved choice after first paint; default stays English.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     document.documentElement.lang = lang;
     document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
-    window.localStorage.setItem("s2d-lang", lang);
   }, [lang]);
 
   const value = useMemo<Ctx>(
@@ -31,7 +42,11 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       lang,
       isRtl: lang === "ar",
       t: (key) => dict[lang][key],
-      toggle: () => setLang((prev) => (prev === "ar" ? "en" : "ar")),
+      toggle: () => {
+        const next = lang === "ar" ? "en" : "ar";
+        setLang(next);
+        persistLang(next);
+      },
     }),
     [lang]
   );

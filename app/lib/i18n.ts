@@ -156,7 +156,7 @@ export const dict = {
     ramadan2024: "Ramadan series 2024",
     ramadan2025: "Ramadan series 2025",
     ramadan2026: "Ramadan series 2026",
-    trending: "Trending today",
+    trending: "Most watched today",
     latestMovies: "Latest movies",
     latestSeries: "Latest series",
     sortLatest: "Latest",

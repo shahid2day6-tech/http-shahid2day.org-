@@ -12,7 +12,7 @@ function FactBox({ label, value }: { label: string; value: string }) {
   if (!value) return null;
   return (
     <div className="flex w-fit max-w-full items-center gap-2">
-      <span className="inline-block w-fit rounded-md bg-[#e50914] px-3 py-1.5 text-sm font-bold text-white">
+      <span className="inline-block w-fit rounded-md bg-[#a34316] px-3 py-1.5 text-sm font-bold text-white">
         {label}
       </span>
       <span className="text-sm font-bold text-white sm:text-base" dir="auto">
@@ -35,7 +35,7 @@ function ActionBox({
 }) {
   const colors =
     tone === "red"
-      ? "bg-[#9d0b12] shadow-[0_8px_24px_rgba(157,11,18,0.45)]"
+      ? "bg-[#a34316] shadow-[0_8px_24px_rgba(163,67,22,0.45)]"
       : "bg-[#2f6b45] shadow-[0_8px_24px_rgba(47,107,69,0.45)]";
   return (
     <a
@@ -168,7 +168,7 @@ export default function TitleView({ title }: { title: TitleDetails }) {
         <div className="relative z-10 mx-auto mb-6 flex w-full max-w-md flex-row justify-center gap-3 px-4 lg:absolute lg:bottom-16 lg:left-4 lg:mx-0 lg:mb-0 lg:w-[220px] lg:max-w-none lg:flex-col lg:px-0">
           <ActionBox href={watchHref} label={t("watchNow")} tone="red">
             <span className="flex h-14 w-14 items-center justify-center rounded-full bg-white/90">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="#9d0b12" aria-hidden>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="#a34316" aria-hidden>
                 <path d="M8 5.14v13.72L19 12 8 5.14z" />
               </svg>
             </span>

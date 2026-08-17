@@ -1,5 +1,50 @@
 import { SITE_NAME_AR, SITE_NAME_EN } from "./site";
 
+export const ENGLISH_SEO_KEYWORDS = [
+  "watch2day",
+  "watch 2 day",
+  "watch2day.org",
+  "shahid2day",
+  "shahid 2 day",
+  "shahid2day.org",
+  "SHAHID2DAY",
+  "Shahid2Day",
+  "watch movies online",
+  "watch movies online free",
+  "watch series online",
+  "watch series online free",
+  "watch anime online",
+  "watch anime online free",
+  "free movies with english subtitles",
+  "watch movies with subtitles",
+  "watch TV shows online free",
+  "stream movies free",
+  "HD movies online",
+  "watch new movies",
+  "full movies online free",
+  "watch movies free",
+  "free movie streaming",
+  "movies with subtitles",
+  "subtitled movies online",
+  "watch series with subtitles",
+  "anime subtitled free",
+  "free HD movies",
+  "movies online free 2026",
+  "new movies 2026",
+  "best free movie site",
+  "watch movies without sign up",
+  "123movies alternative",
+  "putlocker alternative",
+  "fmovies alternative",
+  "soap2day alternative",
+  "watch korean drama free",
+  "watch arabic movies online",
+  "watch turkish series online",
+  "watch hollywood movies free",
+  "free subtitled movies",
+  "free subtitled series",
+];
+
 const KEYWORD_TEXT = `
 أفضل المواقع لمشاهدة افلام و مسلسلات مجاناً
 افضل المواقع لمشاهدة افلام ومسلسلات مجانا
@@ -561,12 +606,21 @@ export const SEO_KEYWORDS = KEYWORD_TEXT.split("\n")
   .filter(Boolean);
 
 export const SEO_DESCRIPTION =
-  "شاهد تو داي SHAHID2DAY محرك بحث لبث الأفلام والمسلسلات والأنمي المترجمة. أفضل المواقع لمشاهدة افلام ومسلسلات مجانا، أفلام أجنبية مترجمة، مسلسلات مترجمة اون لاين، انمي مترجم، سلاسل الأفلام، وأحدث الأفلام 2026.";
+  "SHAHID2DAY (watch2day) — watch movies, series, and anime online free with subtitles. Latest Hollywood, Arabic, Turkish, and Asian titles in HD. شاهد تو داي محرك بحث لبث الأفلام والمسلسلات والأنمي المترجمة.";
 
 export function pageKeywords(...extra: string[]): string[] {
   const seen = new Set<string>();
   const out: string[] = [];
-  for (const word of [SITE_NAME_AR, SITE_NAME_EN, "shahid2day", "shahid2day.org", ...extra, ...SEO_KEYWORDS]) {
+  for (const word of [
+    SITE_NAME_EN,
+    "shahid2day",
+    "watch2day",
+    "shahid2day.org",
+    ...ENGLISH_SEO_KEYWORDS,
+    SITE_NAME_AR,
+    ...extra,
+    ...SEO_KEYWORDS,
+  ]) {
     const key = word.trim();
     if (!key || seen.has(key)) continue;
     seen.add(key);
@@ -576,7 +630,7 @@ export function pageKeywords(...extra: string[]): string[] {
 }
 
 export function documentTitle(page: string): string {
-  return `${page} | ${SITE_NAME_AR} | ${SITE_NAME_EN}`;
+  return `${page} | ${SITE_NAME_EN}`;
 }
 
 export function sectionKeywords(section: "movies" | "series" | "anime"): string[] {
