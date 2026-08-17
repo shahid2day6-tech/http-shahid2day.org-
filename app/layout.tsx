@@ -40,7 +40,10 @@ export const metadata: Metadata = {
   description,
   keywords: pageKeywords(),
   verification: {
-    google: "7B70jSYQyMKbAYWnNp_L4G6DWtwFBUeGY-XgeFefxlw",
+    google: [
+      "7B70jSYQyMKbAYWnNp_L4G6DWtwFBUeGY-XgeFefxlw",
+      "4vzeWpLuwWURO06DBsX8NXJ6uGosbwx_AHoqz9qWyeg",
+    ],
     other: {
       clckd: "237d59ff30c2737d80e61b0f9969ed4f",
       "141f2ead4524320f21fe73ef86766a6178294da9":
