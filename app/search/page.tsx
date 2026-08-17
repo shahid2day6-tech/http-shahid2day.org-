@@ -81,7 +81,7 @@ function SearchResults() {
             type="button"
             onClick={() => setKind(item.id)}
             className={`rounded-full px-4 py-2 text-sm font-black ${
-              kind === item.id ? "bg-[#a34316] text-white" : "bg-[#1a1a1a] text-[#d4d4d4]"
+              kind === item.id ? "bg-[#e50914] text-white" : "bg-[#1a1a1a] text-[#d4d4d4]"
             }`}
           >
             {item.label}

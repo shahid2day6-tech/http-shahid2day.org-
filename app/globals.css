@@ -4,27 +4,27 @@
   --bg: #0a0e1a;
   --bg-elevated: #111827;
   --bg-card: #162032;
-  --red: #a34316;
-  --red-dark: #8a3712;
-  --red-soft: rgba(163, 67, 22, 0.22);
+  --red: #e50914;
+  --red-dark: #9d0b12;
+  --red-soft: rgba(229, 9, 20, 0.22);
   --btn: #e6e2d8;
   --btn-hover: #f3efe6;
   --btn-text: #111111;
   --text: #f5f0e6;
   --muted: #d6cfc2;
   --border: #243044;
-  --glow: rgba(163, 67, 22, 0.35);
+  --glow: rgba(229, 9, 20, 0.35);
   --text-muted: #d6cfc2;
   --text-primary: #f5f0e6;
   --text-dim: #9aa3b5;
   --bg-surface: #1a2332;
-  --border-hover: #a34316;
-  --nav-accent: #a34316;
-  --nav-accent-bright: #c45a1e;
+  --border-hover: #e50914;
+  --nav-accent: #e50914;
+  --nav-accent-bright: #e50914;
   --rating: #e8b86d;
-  --accent: #a34316;
-  --accent-soft: rgba(163, 67, 22, 0.22);
-  --accent-bright: #c45a1e;
+  --accent: #e50914;
+  --accent-soft: rgba(229, 9, 20, 0.22);
+  --accent-bright: #e50914;
 }
 
 @theme inline {
@@ -91,7 +91,7 @@ a {
 .poster-card:hover {
   border-color: var(--accent);
   transform: translateY(-4px);
-  box-shadow: 0 12px 32px rgba(163, 67, 22, 0.18);
+  box-shadow: 0 12px 32px rgba(229, 9, 20, 0.18);
 }
 
 .hero-mask {
@@ -134,7 +134,7 @@ a {
 }
 
 .brand-wordmark .digit {
-  color: #c45a1e !important;
+  color: #e50914 !important;
   text-shadow: none;
 }
 

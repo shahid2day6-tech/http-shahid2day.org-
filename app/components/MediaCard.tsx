@@ -35,7 +35,7 @@ export default function MediaCard({
             {item.title}
           </div>
         )}
-        <span className="absolute start-2 top-2 rounded-md bg-[#a34316] px-1.5 py-0.5 text-[10px] font-black text-white">
+        <span className="absolute start-2 top-2 rounded-md bg-[#e50914] px-1.5 py-0.5 text-[10px] font-black text-white">
           {badge}
         </span>
         {Number(item.rating) > 0 && (

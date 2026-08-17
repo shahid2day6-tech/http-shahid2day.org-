@@ -37,7 +37,7 @@ export default function Hero({ items }: { items: MediaItem[] }) {
       <div className="hero-mask absolute inset-0" />
       <div className="absolute inset-0 flex items-end">
         <div className="mx-auto w-full max-w-7xl px-4 pb-6 sm:px-6 sm:pb-10 md:pb-14">
-          <p className="mb-2 inline-flex rounded-full border border-[#a34316]/50 bg-[#a34316]/15 px-3 py-1 text-xs font-bold text-[#e6e2d8] sm:mb-3">
+          <p className="mb-2 inline-flex rounded-full border border-[#e50914]/50 bg-[#e50914]/15 px-3 py-1 text-xs font-bold text-[#e6e2d8] sm:mb-3">
             {t("trending")}
           </p>
           <h1 className="max-w-2xl text-2xl font-black leading-tight sm:text-4xl md:text-5xl" dir="auto">

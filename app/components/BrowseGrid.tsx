@@ -155,7 +155,7 @@ export default function BrowseGrid({
                 onClick={() => void goTo(item)}
                 disabled={loading}
                 className={`flex h-10 min-w-10 items-center justify-center rounded-md px-3 text-sm font-black text-white ${
-                  item === page ? "bg-[#e06c5c]" : "bg-[#2a2a2a] hover:bg-[#3a3a3a]"
+                  item === page ? "bg-[#e50914]" : "bg-[#2a2a2a] hover:bg-[#3a3a3a]"
                 }`}
               >
                 {item}

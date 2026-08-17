@@ -98,7 +98,7 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-50">
-      <div className="bg-[#a34316]">
+      <div className="bg-[#9d0b12]">
         <div className="mx-auto flex max-w-7xl items-center gap-2 px-2 py-2 sm:gap-3 sm:px-6 sm:py-3">
           <nav className="flex min-w-0 flex-1 items-center gap-0.5 overflow-visible sm:gap-2">
             <Link

@@ -43,7 +43,7 @@ export default function WatchSuggestions({ items }: { items: MediaItem[] }) {
     <section className="mt-8 overflow-hidden rounded-2xl border border-[#262626] bg-[#141414] p-4 sm:p-5">
       <div className="mb-4 flex items-center justify-between gap-3">
         <h2 className="flex items-center gap-2 text-base font-black sm:text-lg">
-          <span className="h-5 w-1 rounded-full bg-[#a34316]" />
+          <span className="h-5 w-1 rounded-full bg-[#e50914]" />
           {t("suggestions")}
         </h2>
         <div className="flex items-center gap-2">
@@ -70,7 +70,7 @@ export default function WatchSuggestions({ items }: { items: MediaItem[] }) {
             type="button"
             onClick={() => scrollByAmount("next")}
             disabled={atEnd}
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-[#a34316]/40 bg-[#a34316]/15 text-[#a34316] disabled:opacity-35"
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-[#e50914]/40 bg-[#e50914]/15 text-[#e50914] disabled:opacity-35"
             aria-label={isRtl ? "التالي" : "Next"}
           >
             <svg
