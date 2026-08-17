@@ -14,7 +14,7 @@ export function SiteAdsterraRail({ variant = "primary", className = "" }: Props)
   const pathname = usePathname();
   const { t } = useLang();
   const onWatch = pathname === "/watch";
-  const bannerSize = onWatch ? null : variant === "alt" ? "320x50" : "728x90";
+  const bannerSize = onWatch || variant === "alt" ? null : "728x90";
   const owned = useAdsterraSlot(bannerSize);
 
   if (onWatch || !isAdsterraBannersEnabled() || !owned || !bannerSize) return null;

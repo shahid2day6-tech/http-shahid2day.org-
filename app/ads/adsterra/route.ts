@@ -8,9 +8,6 @@ import {
 } from "../../lib/adsterra";
 import { isSearchCrawlerUserAgent } from "../../lib/isSearchCrawler";
 
-export const dynamic = "force-dynamic";
-export const runtime = "edge";
-
 export function GET(request: Request) {
   if (!isAdsterraEnabled()) {
     return new NextResponse("disabled", { status: 404 });
@@ -51,6 +48,28 @@ atOptions = {
 };
 </script>
 <script type="text/javascript" src="${ADSTERRA_INVOKE_HOST}/${key}/invoke.js"></script>
+<script>
+(function(){
+  function notify(status){
+    try { parent.postMessage({ source: "s2d-adsterra", size: ${JSON.stringify(size)}, status: status }, "*"); } catch (e) {}
+  }
+  function hasCreative(){
+    var imgs = document.querySelectorAll("img");
+    for (var i = 0; i < imgs.length; i++) {
+      if (imgs[i].naturalWidth > 20 && imgs[i].naturalHeight > 20) return true;
+    }
+    var frames = document.querySelectorAll("iframe");
+    for (var i = 0; i < frames.length; i++) {
+      var r = frames[i].getBoundingClientRect();
+      var src = frames[i].getAttribute("src") || "";
+      if (r.width > 40 && r.height > 40 && src && src.indexOf("about:") !== 0) return true;
+    }
+    return false;
+  }
+  setTimeout(function(){ if (hasCreative()) notify("filled"); }, 1500);
+  setTimeout(function(){ notify(hasCreative() ? "filled" : "empty"); }, 6500);
+})();
+</script>
 </body>
 </html>`;
 

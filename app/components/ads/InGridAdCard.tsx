@@ -2,20 +2,24 @@
 
 import { useEffect, useRef, useState } from "react";
 import { getAdsterraDims, isAdsterraBannersEnabled, isAdsterraEnabled } from "../../lib/adsterra";
+import { isHilltopBannersEnabled } from "../../lib/hilltop";
 import { useLang } from "../../context/LanguageContext";
-import { AdsterraBanner, useAdsterraSlot } from "./AdsterraBanner";
+import { useAdsterraSlot } from "./AdsterraBanner";
+import { Banner300Waterfall } from "./Banner300Waterfall";
 
 const BANNER = getAdsterraDims("300x250");
 
 export function InGridAdCard({ className = "" }: { className?: string }) {
   const { t } = useLang();
-  const owned = useAdsterraSlot("300x250");
+  const adsterraOn = isAdsterraEnabled() && isAdsterraBannersEnabled();
+  const hilltopOn = isHilltopBannersEnabled();
+  const owned = useAdsterraSlot(adsterraOn ? "300x250" : null);
   const frameRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
 
   useEffect(() => {
     const el = frameRef.current;
-    if (!el || !owned) return;
+    if (!el || !(owned || (hilltopOn && !adsterraOn))) return;
     const sync = () => {
       const w = el.clientWidth;
       const h = el.clientHeight;
@@ -26,9 +30,9 @@ export function InGridAdCard({ className = "" }: { className?: string }) {
     const ro = new ResizeObserver(sync);
     ro.observe(el);
     return () => ro.disconnect();
-  }, [owned]);
+  }, [owned, hilltopOn, adsterraOn]);
 
-  if (!isAdsterraEnabled() || !isAdsterraBannersEnabled() || !owned) return null;
+  if ((!adsterraOn && !hilltopOn) || (adsterraOn && !owned)) return null;
 
   return (
     <div className={className}>
@@ -45,7 +49,7 @@ export function InGridAdCard({ className = "" }: { className?: string }) {
               transform: `translate(-50%, -50%) scale(${scale})`,
             }}
           >
-            <AdsterraBanner size="300x250" skipClaim nativeSize />
+            <Banner300Waterfall skipClaim nativeSize />
           </div>
         </div>
       </div>

@@ -1,9 +1,12 @@
 import { type ReactNode } from "react";
 import { isAdsterraBannersEnabled, isAdsterraEnabled } from "../../lib/adsterra";
+import { isHilltopBannersEnabled } from "../../lib/hilltop";
 import { InGridAdCard } from "./InGridAdCard";
 
 export function withInGridAds(cards: ReactNode[], firstAt = 3): ReactNode[] {
-  if (!isAdsterraEnabled() || !isAdsterraBannersEnabled() || cards.length < firstAt) {
+  const adsOn =
+    (isAdsterraEnabled() && isAdsterraBannersEnabled()) || isHilltopBannersEnabled();
+  if (!adsOn || cards.length < firstAt) {
     return cards;
   }
 

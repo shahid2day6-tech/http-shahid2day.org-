@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
-  ADSTERRA_INVOKE_HOST,
   claimAdsterraSize,
   getAdsterraDims,
   getAdsterraKey,
@@ -18,32 +17,9 @@ type Props = {
   className?: string;
   skipClaim?: boolean;
   nativeSize?: boolean;
+  onFilled?: () => void;
+  onEmpty?: () => void;
 };
-
-function bannerHtml(key: string, width: number, height: number) {
-  return `<!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8">
-<meta name="referrer" content="origin">
-<style>
-  html,body{margin:0;padding:0;overflow:hidden;background:transparent;width:${width}px;height:${height}px}
-</style>
-</head>
-<body>
-<script>
-window.atOptions = {
-  key: ${JSON.stringify(key)},
-  format: "iframe",
-  height: ${height},
-  width: ${width},
-  params: {}
-};
-</script>
-<script src="${ADSTERRA_INVOKE_HOST}/${key}/invoke.js"></script>
-</body>
-</html>`;
-}
 
 export function useAdsterraSlot(size: AdsterraBannerSize | null) {
   const [owned, setOwned] = useState(false);
@@ -70,14 +46,22 @@ export function useAdsterraSlot(size: AdsterraBannerSize | null) {
   return owned;
 }
 
-export function AdsterraBanner({ size, className = "", skipClaim = false, nativeSize = false }: Props) {
+export function AdsterraBanner({
+  size,
+  className = "",
+  skipClaim = false,
+  nativeSize = false,
+  onFilled,
+  onEmpty,
+}: Props) {
   const key = getAdsterraKey(size);
   const { width, height } = getAdsterraDims(size);
   const [owned, setOwned] = useState(skipClaim);
-  const html = useMemo(
-    () => (key ? bannerHtml(key, width, height) : ""),
-    [key, width, height]
-  );
+  const onFilledRef = useRef(onFilled);
+  const onEmptyRef = useRef(onEmpty);
+  const filledRef = useRef(false);
+  onFilledRef.current = onFilled;
+  onEmptyRef.current = onEmpty;
 
   useEffect(() => {
     if (skipClaim) {
@@ -96,16 +80,43 @@ export function AdsterraBanner({ size, className = "", skipClaim = false, native
     };
   }, [size, skipClaim, key]);
 
-  if (!owned || !key || !html) return null;
+  useEffect(() => {
+    if (!owned || !onEmpty) return;
+
+    filledRef.current = false;
+
+    function onMessage(event: MessageEvent) {
+      const data = event.data;
+      if (!data || data.source !== "s2d-adsterra" || data.size !== size) return;
+      if (data.status === "filled") {
+        filledRef.current = true;
+        onFilledRef.current?.();
+      } else if (data.status === "empty" && !filledRef.current) {
+        onEmptyRef.current?.();
+      }
+    }
+
+    window.addEventListener("message", onMessage);
+    const giveUp = window.setTimeout(() => {
+      if (!filledRef.current) onEmptyRef.current?.();
+    }, 8000);
+    return () => {
+      window.removeEventListener("message", onMessage);
+      window.clearTimeout(giveUp);
+    };
+  }, [owned, size, onEmpty]);
+
+  if (!owned || !key) return null;
 
   return (
     <iframe
-      srcDoc={html}
+      src={`/ads/adsterra?size=${size}`}
       width={width}
       height={height}
       title="Advertisement"
       scrolling="no"
-      referrerPolicy="origin"
+      referrerPolicy="no-referrer-when-downgrade"
+      allowTransparency
       className={className}
       style={{
         width,
