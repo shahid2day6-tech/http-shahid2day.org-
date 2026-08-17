@@ -43,6 +43,7 @@ export const metadata: Metadata = {
     google: [
       "7B70jSYQyMKbAYWnNp_L4G6DWtwFBUeGY-XgeFefxlw",
       "4vzeWpLuwWURO06DBsX8NXJ6uGosbwx_AHoqz9qWyeg",
+      "rneDTZ9WVyS_qyWoeCx_V1U59XebiAXJjCtd0q6ct_U",
     ],
     other: {
       clckd: "237d59ff30c2737d80e61b0f9969ed4f",
