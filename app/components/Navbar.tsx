@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useLang } from "../context/LanguageContext";
@@ -29,28 +29,48 @@ function CatalogMenu({
 }) {
   const { t } = useLang();
   const pathname = usePathname();
+  const rootRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const active =
     pathname === href || groups.some((item) => pathname === catalogHref(kind, item.group));
 
+  useEffect(() => {
+    function onPointer(event: MouseEvent) {
+      if (!rootRef.current?.contains(event.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", onPointer);
+    return () => document.removeEventListener("mousedown", onPointer);
+  }, []);
+
   return (
     <div
+      ref={rootRef}
       className="relative shrink-0"
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => setOpen(false)}
     >
-      <Link
-        href={href}
+      <button
+        type="button"
         className={`inline-flex items-center gap-1 px-2.5 py-1.5 text-[13px] font-bold sm:px-4 sm:text-base ${
           active ? "text-white" : "text-white/80 hover:text-white"
         }`}
+        aria-expanded={open}
         onClick={() => setOpen((value) => !value)}
       >
         {t(labelKey)}
         <span className="text-[10px]">▼</span>
-      </Link>
-      {open && (
-        <div className="absolute top-full start-0 z-50 min-w-[230px] overflow-hidden rounded-b-lg bg-[#1e2130] py-1 shadow-2xl">
+      </button>
+      {open ? (
+        <div className="absolute top-full start-0 z-[80] min-w-[230px] overflow-hidden rounded-b-lg bg-[#1e2130] py-1 shadow-2xl">
+          <Link
+            href={href}
+            onClick={() => setOpen(false)}
+            className={`block border-b border-white/10 px-4 py-2.5 text-sm font-bold ${
+              pathname === href ? "bg-white/10 text-white" : "text-white hover:bg-white/5"
+            }`}
+          >
+            {t(labelKey)}
+          </Link>
           {groups.map((item) => {
             const to = catalogHref(kind, item.group);
             const current = pathname === to;
@@ -58,6 +78,7 @@ function CatalogMenu({
               <Link
                 key={item.group}
                 href={to}
+                onClick={() => setOpen(false)}
                 className={`block border-b border-white/10 px-4 py-2.5 text-sm font-bold last:border-b-0 ${
                   current ? "bg-white/10 text-white" : "text-white hover:bg-white/5"
                 }`}
@@ -67,7 +88,7 @@ function CatalogMenu({
             );
           })}
         </div>
-      )}
+      ) : null}
     </div>
   );
 }
@@ -80,7 +101,7 @@ export default function Navbar() {
     <header className="sticky top-0 z-50">
       <div className="bg-[#9d0b12]">
         <div className="mx-auto flex max-w-7xl items-center gap-2 px-2 py-2 sm:gap-3 sm:px-6 sm:py-3">
-          <nav className="flex min-w-0 flex-1 items-center gap-0.5 overflow-x-auto sm:gap-2">
+          <nav className="flex min-w-0 flex-1 items-center gap-0.5 overflow-visible sm:gap-2">
             <Link
               href="/"
               className={`shrink-0 px-2.5 py-1.5 text-[13px] font-bold sm:px-4 sm:text-base ${
