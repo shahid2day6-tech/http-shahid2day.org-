@@ -12,8 +12,7 @@ export function CoverAgeBadge({
   tmdbType: "movie" | "tv";
   className?: string;
 }) {
-  const code = useTmdbAgeCode(tmdbType, tmdbId);
-  if (!code) return null;
+  const code = useTmdbAgeCode(tmdbType, tmdbId) ?? "13";
 
   return (
     <span

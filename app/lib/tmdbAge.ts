@@ -1,4 +1,4 @@
-export type AgeCode = "13" | "17" | "18";
+export type AgeCode = "7" | "13" | "17" | "18";
 
 export function formatAgeBadge(code: AgeCode) {
   return `+${code}`;
@@ -7,7 +7,8 @@ export function formatAgeBadge(code: AgeCode) {
 export function ageBadgeClass(code: AgeCode) {
   if (code === "18") return "bg-red-600 text-white";
   if (code === "17") return "bg-orange-600 text-white";
-  return "bg-amber-500 text-white";
+  if (code === "13") return "bg-amber-500 text-white";
+  return "bg-sky-600 text-white";
 }
 
 const TMDB_KEY = process.env.TMDB_API_KEY ?? "";
@@ -22,8 +23,8 @@ type MovieReleaseCountry = { iso_3166_1?: string; release_dates?: ReleaseDateRow
 type TvRatingCountry = { iso_3166_1?: string; rating?: string };
 
 /**
- * Map official TMDB certifications (MPAA, BBFC, FSK, etc.) to +13 / +17 / +18.
- * Unrated / kids titles return null — we do not invent a number.
+ * Map official TMDB certifications to +7 / +13 / +17 / +18.
+ * Kids boards → +7. Missing/unrated → caller defaults to +13.
  */
 export function mapTmdbCertification(raw: string | null | undefined): AgeCode | null {
   if (!raw?.trim()) return null;
@@ -57,6 +58,31 @@ export function mapTmdbCertification(raw: string | null | undefined): AgeCode | 
     return "13";
   }
 
+  if (
+    c === "G" ||
+    c === "PG" ||
+    c === "U" ||
+    c === "AL" ||
+    c === "ALL" ||
+    c === "0" ||
+    c === "6" ||
+    c === "TP" ||
+    c === "L" ||
+    c === "TV-G" ||
+    c === "TVG" ||
+    c === "TV-Y" ||
+    c === "TVY" ||
+    c === "TV-Y7" ||
+    c === "TVY7" ||
+    c === "TV-PG" ||
+    c === "TVPG" ||
+    c === "FSK0" ||
+    c === "FSK6" ||
+    c === "-6"
+  ) {
+    return "7";
+  }
+
   return null;
 }
 
@@ -85,38 +111,42 @@ function pickFromCountries(
     const code = mapTmdbCertification(cert);
     if (code) return code;
   }
-  return null;
+  return "13";
 }
 
 export async function fetchTmdbAgeCode(
   type: "movie" | "tv",
   id: number
-): Promise<AgeCode | null> {
-  if (!TMDB_KEY || !Number.isFinite(id) || id <= 0) return null;
+): Promise<AgeCode> {
+  if (!TMDB_KEY || !Number.isFinite(id) || id <= 0) return "13";
   try {
     if (type === "tv") {
       const res = await fetch(`${BASE}/tv/${id}/content_ratings?api_key=${TMDB_KEY}`, FETCH_OPTS);
-      if (!res.ok) return null;
+      if (!res.ok) return "13";
       const data = (await res.json()) as { results?: TvRatingCountry[] };
-      return pickFromCountries(
-        (data.results ?? []).map((row) => ({
-          iso_3166_1: row.iso_3166_1,
-          cert: row.rating?.trim() || "",
-        }))
+      return (
+        pickFromCountries(
+          (data.results ?? []).map((row) => ({
+            iso_3166_1: row.iso_3166_1,
+            cert: row.rating?.trim() || "",
+          }))
+        ) ?? "13"
       );
     }
 
     const res = await fetch(`${BASE}/movie/${id}/release_dates?api_key=${TMDB_KEY}`, FETCH_OPTS);
-    if (!res.ok) return null;
+    if (!res.ok) return "13";
     const data = (await res.json()) as { results?: MovieReleaseCountry[] };
-    return pickFromCountries(
-      (data.results ?? []).map((row) => ({
-        iso_3166_1: row.iso_3166_1,
-        cert: pickMovieCert(row.release_dates),
-      }))
+    return (
+      pickFromCountries(
+        (data.results ?? []).map((row) => ({
+          iso_3166_1: row.iso_3166_1,
+          cert: pickMovieCert(row.release_dates),
+        }))
+      ) ?? "13"
     );
   } catch {
-    return null;
+    return "13";
   }
 }
 
@@ -136,7 +166,7 @@ export async function fetchTmdbAgeCodes(
         const id = pending.shift();
         if (!id) break;
         const code = await fetchTmdbAgeCode(type, id);
-        if (code) out[String(id)] = code;
+        out[String(id)] = code;
       }
     });
     await Promise.all(workers);

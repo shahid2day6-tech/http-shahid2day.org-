@@ -2,8 +2,8 @@
 
 import type { AgeCode } from "./tmdbAge";
 
-const movieCache = new Map<number, AgeCode | "none">();
-const tvCache = new Map<number, AgeCode | "none">();
+const movieCache = new Map<number, AgeCode>();
+const tvCache = new Map<number, AgeCode>();
 const movieWaiters = new Map<number, Set<() => void>>();
 const tvWaiters = new Map<number, Set<() => void>>();
 const movieQueue = new Set<number>();
@@ -39,11 +39,11 @@ async function flushQueue() {
       tv?: Record<string, AgeCode>;
     };
     for (const id of movies) {
-      movieCache.set(id, payload.movies?.[String(id)] ?? "none");
+      movieCache.set(id, payload.movies?.[String(id)] ?? "13");
       notify("movie", id);
     }
     for (const id of tv) {
-      tvCache.set(id, payload.tv?.[String(id)] ?? "none");
+      tvCache.set(id, payload.tv?.[String(id)] ?? "13");
       notify("tv", id);
     }
   } catch {
@@ -59,11 +59,8 @@ function scheduleFlush() {
   }
 }
 
-export function peekTmdbAge(type: "movie" | "tv", id: number): AgeCode | null | undefined {
-  const value = cacheFor(type).get(id);
-  if (value === undefined) return undefined;
-  if (value === "none") return null;
-  return value;
+export function peekTmdbAge(type: "movie" | "tv", id: number): AgeCode | undefined {
+  return cacheFor(type).get(id);
 }
 
 export function subscribeTmdbAge(
