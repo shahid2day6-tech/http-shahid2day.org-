@@ -16,11 +16,17 @@ export default function AboutCopy() {
       </p>
       <p className="mb-8 text-sm leading-relaxed text-[#d6cfc2]">
         {isAr
-          ? "shahid2day (شاهد تو داي) منصة لعرض واستكشاف المحتوى الترفيهي، تساعد المستخدمين في الوصول إلى الأفلام والمسلسلات والأنمي ضمن تجربة متعددة اللغات."
-          : "shahid2day is an entertainment discovery and streaming interface designed to help users find movies, TV series, and anime in one place with a multilingual experience."}
+          ? "أفلام ومسلسلات مترجمة اون لاين. shahid2day (شاهد تو داي) منصة لعرض واستكشاف المحتوى الترفيهي، تساعد المستخدمين في الوصول إلى الأفلام والمسلسلات والأنمي ضمن تجربة متعددة اللغات."
+          : "أفلام ومسلسلات مترجمة اون لاين. shahid2day is an entertainment discovery and streaming interface designed to help users find movies, TV series, and anime in one place with a multilingual experience."}
       </p>
 
       <div className="space-y-6 text-sm leading-relaxed text-[#d6cfc2]">
+        <section>
+          <h2 className="mb-2 text-lg font-semibold text-white">أفلام ومسلسلات مترجمة اون لاين</h2>
+          <p>
+            أفلام ومسلسلات مترجمة اون لاين. شاهد أحدث الأفلام والمسلسلات المترجمة مجاناً بجودة HD على شاهد تو داي.
+          </p>
+        </section>
         <section>
           <h2 className="mb-2 text-lg font-semibold text-white">{isAr ? "من نحن" : "Who we are"}</h2>
           <p>
@@ -58,14 +64,6 @@ export default function AboutCopy() {
             {isAr
               ? "باستخدامك shahid2day فإنك توافق على الاستخدام القانوني والشخصي فقط."
               : "By using shahid2day, you agree to use the platform for lawful and personal purposes only."}
-          </p>
-        </section>
-        <section>
-          <h2 className="mb-2 text-lg font-semibold text-white">أفلام ومسلسلات مترجمة اون لاين</h2>
-          <p>
-            {isAr
-              ? "شاهد أحدث الأفلام والمسلسلات المترجمة مجاناً بجودة HD على شاهد تو داي."
-              : "Watch the latest subtitled movies and series for free in HD on shahid2day."}
           </p>
         </section>
       </div>

@@ -5,7 +5,7 @@ import AboutCopy from "./AboutCopy";
 export const metadata: Metadata = {
   title: { absolute: "About shahid2day | أفلام ومسلسلات مترجمة اون لاين" },
   description:
-    "شاهد أحدث الأفلام والمسلسلات المترجمة مجاناً بجودة HD على شاهد تو داي.",
+    "أفلام ومسلسلات مترجمة اون لاين. شاهد أحدث الأفلام والمسلسلات المترجمة مجاناً بجودة HD على شاهد تو داي.",
 };
 
 export default function AboutPage() {
