@@ -1380,6 +1380,35 @@ export async function listAdultAnime(lang: string): Promise<MediaItem[]> {
   }));
 }
 
+async function discoverTopRatedAnime(lang: string): Promise<MediaItem[]> {
+  const language = lang.startsWith("ar") ? "ar-SA" : "en-US";
+  const shared = {
+    language,
+    include_adult: "false",
+    sort_by: "vote_average.desc",
+    "vote_average.gte": 8,
+    "vote_count.gte": 200,
+    with_genres: 16,
+    with_original_language: "ja",
+  };
+  const [tv1, tv2, tv3, movie1, movie2] = await Promise.all([
+    discoverList("/discover/tv", { ...shared, with_keywords: 210024, page: 1 }),
+    discoverList("/discover/tv", { ...shared, with_keywords: 210024, page: 2 }),
+    discoverList("/discover/tv", { ...shared, with_keywords: 210024, page: 3 }),
+    discoverList("/discover/movie", { ...shared, page: 1 }),
+    discoverList("/discover/movie", { ...shared, page: 2 }),
+  ]);
+  return uniqueItems([
+    ...(tv1?.results ?? []).map((item) => mapItem(item, "tv")),
+    ...(tv2?.results ?? []).map((item) => mapItem(item, "tv")),
+    ...(tv3?.results ?? []).map((item) => mapItem(item, "tv")),
+    ...(movie1?.results ?? []).map((item) => mapItem(item, "movie")),
+    ...(movie2?.results ?? []).map((item) => mapItem(item, "movie")),
+  ])
+    .filter((item) => Boolean(item.poster) && Number(item.rating) >= 8)
+    .slice(0, 28);
+}
+
 export async function homeCatalog(lang: string) {
   const rail = async (load: (page: number) => Promise<DiscoverResult>) => {
     const [a, b] = await Promise.all([load(1), load(2)]);
@@ -1404,6 +1433,7 @@ export async function homeCatalog(lang: string) {
     adult18Rows,
     dailyMovies,
     dailySeries,
+    topRatedAnime,
   ] = await Promise.all([
     discoverMany("trending", lang, 1, 2),
     discoverMany("movies", lang, 1, 2),
@@ -1412,8 +1442,8 @@ export async function homeCatalog(lang: string) {
     rail((page) => discoverNewEpisodes("anime", lang, page)),
     rail((page) => discoverNewEpisodes("arabic", lang, page)),
     discoverCatalogMany("tv", "ramadan", lang, 1, 2),
-    discoverCatalogMany("movie", "anime", lang, 1, 2),
-    discoverCatalogMany("tv", "anime", lang, 1, 2),
+    discoverCatalogMany("movie", "anime", lang, 1, 3),
+    discoverCatalogMany("tv", "anime", lang, 1, 3),
     discoverCatalogMany("movie", "arabic", lang, 1, 2),
     discoverCatalogMany("tv", "arabic", lang, 1, 2),
     discoverMany("turkish", lang, 1, 2),
@@ -1423,12 +1453,15 @@ export async function homeCatalog(lang: string) {
     Promise.all(ADULT_ANIME.map((item) => fetchFeaturedTitle(item.type, item.id, lang))),
     rail((page) => discoverDailyMovies(lang, page)),
     rail((page) => discoverDailySeries(lang, page)),
+    discoverTopRatedAnime(lang),
   ]);
   const row = (result: DiscoverResult) => uniqueItems(result.items).slice(0, 28);
+  const fillAnime = (primary: MediaItem[], fallback: MediaItem[]) =>
+    uniqueItems([...primary, ...fallback]).slice(0, 28);
   const hotAnimeWeek = uniqueItems(
     weeklyHotAnime.filter((item): item is MediaItem => Boolean(item))
   );
-  const newAnime = uniqueItems(row(animeSeries)).slice(0, 28);
+  const newAnime = fillAnime(row(animeSeries), row(animeMovies));
   const anime18 = uniqueItems(
     adult18Rows.filter((item): item is MediaItem => Boolean(item))
   ).map((item) => ({ ...item, isAdult: true }));
@@ -1437,9 +1470,10 @@ export async function homeCatalog(lang: string) {
     movies: row(movies),
     series: row(series),
     foreignEpisodes: row(foreignEpisodes),
-    animeEpisodes: row(animeEpisodes),
+    animeEpisodes: fillAnime(row(animeEpisodes), row(animeSeries)),
     hotAnimeWeek,
     newAnime,
+    topRatedAnime,
     anime18,
     arabicEpisodes: row(arabicEpisodes),
     ramadan: row(ramadan),
