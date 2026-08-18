@@ -3,6 +3,7 @@
 export type KoreanTitle = { id: number; type: "tv" | "movie"; title: string };
 
 export const KOREAN_TV: KoreanTitle[] = [
+  { id: 278904, type: "tv", title: "No Mercy" },
   { id: 93405, type: "tv", title: "Squid Game" },
   { id: 94796, type: "tv", title: "Crash Landing on You" },
   { id: 67915, type: "tv", title: "Guardian: The Lonely and Great God" },

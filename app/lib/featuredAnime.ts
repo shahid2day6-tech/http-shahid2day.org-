@@ -4,6 +4,8 @@ export type WeeklyHotAnime = { id: number; type: "tv" | "movie" };
 
 /** الأكثر مشاهدة انمي هذا الأسبوع — order matches the requested lists. */
 export const WEEKLY_HOT_ANIME: WeeklyHotAnime[] = [
+  { id: 285166, type: "tv" }, // Jack-of-All-Trades, Party of None (Yuusha Party wo Oidasareta Kiyoubinbou)
+  { id: 324502, type: "tv" }, // Overgeared (premieres October 2026)
   // List 1
   { id: 82823, type: "tv" }, // Boarding School Juliet
   { id: 61223, type: "tv" }, // Akame ga Kill!
@@ -53,6 +55,11 @@ export const FEATURED_ANIME_IDS: number[] = WEEKLY_HOT_ANIME.filter((item) => it
 );
 
 export const FEATURED_ANIME_KEYWORDS: string[] = [
+  "Yuusha Party wo Oidasareta Kiyoubinbou",
+  "Jack-of-All-Trades, Party of None",
+  "勇者パーティを追い出された器用貧乏",
+  "Overgeared",
+  "Overgeared anime",
   "Boarding School Juliet",
   "مشاهدة Boarding School Juliet",
   "انمي Boarding School Juliet مترجم",

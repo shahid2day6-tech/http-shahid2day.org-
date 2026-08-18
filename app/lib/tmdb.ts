@@ -4,6 +4,7 @@ import { parseTitleSlug, slugifyTitle } from "./slug";
 import { FILTER_GENRES, parseSection, type CatalogFilters, type CatalogSort } from "./filters";
 import { WEEKLY_HOT_ANIME } from "./featuredAnime";
 import { ADULT_ANIME } from "./adultAnime";
+import { HOT_MOVIE_IDS, HOT_TV_IDS } from "./hotCatalog";
 import { KOREAN_MOVIES, KOREAN_TV } from "./koreanCatalog";
 import { filterBlockedItems, isBlockedTitle } from "./blockedTitles";
 
@@ -1482,6 +1483,8 @@ export async function homeCatalog(lang: string) {
     adult18Rows,
     koreanSeriesRows,
     koreanMovieRows,
+    pinnedMovies,
+    pinnedSeries,
     dailyMovies,
     dailySeries,
     topRatedAnime,
@@ -1504,6 +1507,8 @@ export async function homeCatalog(lang: string) {
     Promise.all(ADULT_ANIME.map((item) => fetchFeaturedTitle(item.type, item.id, lang))),
     Promise.all(KOREAN_TV.slice(0, 28).map((item) => fetchFeaturedTitle(item.type, item.id, lang))),
     Promise.all(KOREAN_MOVIES.slice(0, 28).map((item) => fetchFeaturedTitle(item.type, item.id, lang))),
+    Promise.all(HOT_MOVIE_IDS.map((id) => fetchFeaturedTitle("movie", id, lang))),
+    Promise.all(HOT_TV_IDS.map((id) => fetchFeaturedTitle("tv", id, lang))),
     rail((page) => discoverDailyMovies(lang, page)),
     rail((page) => discoverDailySeries(lang, page)),
     discoverTopRatedAnime(lang),
@@ -1537,8 +1542,14 @@ export async function homeCatalog(lang: string) {
   }));
   return {
     trending: row(trending),
-    movies: row(movies),
-    series: row(series),
+    movies: uniqueItems([
+      ...pinnedMovies.filter((item): item is MediaItem => Boolean(item)),
+      ...row(movies),
+    ]).slice(0, 28),
+    series: uniqueItems([
+      ...pinnedSeries.filter((item): item is MediaItem => Boolean(item)),
+      ...row(series),
+    ]).slice(0, 28),
     foreignEpisodes: row(foreignEpisodes),
     animeEpisodes: fillAnime(row(animeEpisodes), row(animeSeries)),
     hotAnimeWeek,
