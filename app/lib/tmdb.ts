@@ -376,7 +376,7 @@ export async function discover(
   const common = { language, page, include_adult: "false" };
 
   if (category === "trending") {
-    const data = await discoverList("/trending/all/day", { language });
+    const data = await discoverList("/trending/all/day", { language, page });
     const items = (data?.results ?? [])
       .filter((item) => item.media_type === "movie" || item.media_type === "tv")
       .map((item) => mapItem(item));
@@ -571,12 +571,12 @@ function dailyReleaseWindow(days: number) {
   };
 }
 
-export async function discoverDailyMovies(lang: string): Promise<DiscoverResult> {
+export async function discoverDailyMovies(lang: string, page = 1): Promise<DiscoverResult> {
   const language = lang.startsWith("ar") ? "ar-SA" : "en-US";
   const { gte, lte } = dailyReleaseWindow(3);
   const data = await discoverList("/discover/movie", {
     language,
-    page: 1,
+    page,
     include_adult: "false",
     sort_by: "primary_release_date.desc",
     "primary_release_date.gte": gte,
@@ -584,15 +584,15 @@ export async function discoverDailyMovies(lang: string): Promise<DiscoverResult>
     "vote_count.gte": 1,
   });
   const items = (data?.results ?? []).map((item) => mapItem(item, "movie"));
-  return asResult(items, 1, pageCount(data), resultCount(data, items.length));
+  return asResult(items, page, pageCount(data), resultCount(data, items.length));
 }
 
-export async function discoverDailySeries(lang: string): Promise<DiscoverResult> {
+export async function discoverDailySeries(lang: string, page = 1): Promise<DiscoverResult> {
   const language = lang.startsWith("ar") ? "ar-SA" : "en-US";
   const { gte, lte } = dailyReleaseWindow(3);
   const data = await discoverList("/discover/tv", {
     language,
-    page: 1,
+    page,
     include_adult: "false",
     sort_by: "first_air_date.desc",
     "first_air_date.gte": gte,
@@ -600,7 +600,7 @@ export async function discoverDailySeries(lang: string): Promise<DiscoverResult>
     "vote_count.gte": 1,
   });
   const items = (data?.results ?? []).map((item) => mapItem(item, "tv"));
-  return asResult(items, 1, pageCount(data), resultCount(data, items.length));
+  return asResult(items, page, pageCount(data), resultCount(data, items.length));
 }
 
 export async function discoverCatalogMany(
@@ -1321,6 +1321,10 @@ async function fetchFeaturedTitle(
 }
 
 export async function homeCatalog(lang: string) {
+  const rail = async (load: (page: number) => Promise<DiscoverResult>) => {
+    const [a, b] = await Promise.all([load(1), load(2)]);
+    return asResult(uniqueItems([...a.items, ...b.items]), 2, Math.max(a.totalPages, b.totalPages), a.totalResults);
+  };
   const [
     trending,
     movies,
@@ -1340,29 +1344,29 @@ export async function homeCatalog(lang: string) {
     dailyMovies,
     dailySeries,
   ] = await Promise.all([
-    discover("trending", lang),
+    discoverMany("trending", lang, 1, 2),
     discoverMany("movies", lang, 1, 2),
     discoverMany("series", lang, 1, 2),
-    discoverNewEpisodes("foreign", lang),
-    discoverNewEpisodes("anime", lang),
-    discoverNewEpisodes("arabic", lang),
-    discoverCatalog("tv", "ramadan", lang),
+    rail((page) => discoverNewEpisodes("foreign", lang, page)),
+    rail((page) => discoverNewEpisodes("anime", lang, page)),
+    rail((page) => discoverNewEpisodes("arabic", lang, page)),
+    discoverCatalogMany("tv", "ramadan", lang, 1, 2),
     discoverCatalogMany("movie", "anime", lang, 1, 2),
     discoverCatalogMany("tv", "anime", lang, 1, 2),
     discoverCatalogMany("movie", "arabic", lang, 1, 2),
     discoverCatalogMany("tv", "arabic", lang, 1, 2),
-    discover("turkish", lang),
-    discover("asian", lang),
+    discoverMany("turkish", lang, 1, 2),
+    discoverMany("asian", lang, 1, 2),
     discoverFranchises(lang, 1),
     Promise.all(WEEKLY_HOT_ANIME.map((item) => fetchFeaturedTitle(item.type, item.id, lang))),
-    discoverDailyMovies(lang),
-    discoverDailySeries(lang),
+    rail((page) => discoverDailyMovies(lang, page)),
+    rail((page) => discoverDailySeries(lang, page)),
   ]);
-  const row = (result: DiscoverResult) => uniqueItems(result.items).slice(0, 24);
+  const row = (result: DiscoverResult) => uniqueItems(result.items).slice(0, 28);
   const hotAnimeWeek = uniqueItems(
     weeklyHotAnime.filter((item): item is MediaItem => Boolean(item))
   );
-  const newAnime = uniqueItems(row(animeSeries)).slice(0, 24);
+  const newAnime = uniqueItems(row(animeSeries)).slice(0, 28);
   return {
     trending: row(trending),
     movies: row(movies),
