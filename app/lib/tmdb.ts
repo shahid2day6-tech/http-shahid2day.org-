@@ -4,6 +4,7 @@ import { parseTitleSlug, slugifyTitle } from "./slug";
 import { FILTER_GENRES, parseSection, type CatalogFilters, type CatalogSort } from "./filters";
 import { WEEKLY_HOT_ANIME } from "./featuredAnime";
 import { ADULT_ANIME } from "./adultAnime";
+import { filterBlockedItems, isBlockedTitle } from "./blockedTitles";
 
 const TMDB = "https://api.themoviedb.org/3";
 const IMG = "https://image.tmdb.org/t/p";
@@ -216,11 +217,13 @@ export async function listSitemapItems(
       })
     )
   );
-  return rows.flatMap((data) =>
-    (data?.results ?? [])
-      .filter((row) => row.media_type !== "person")
-      .map((row) => mapItem(row, fallback))
-      .filter((item) => item.id > 0 && item.title)
+  return filterBlockedItems(
+    rows.flatMap((data) =>
+      (data?.results ?? [])
+        .filter((row) => row.media_type !== "person")
+        .map((row) => mapItem(row, fallback))
+        .filter((item) => item.id > 0 && item.title)
+    )
   );
 }
 
@@ -752,7 +755,7 @@ function uniqueItems(items: MediaItem[]): MediaItem[] {
   const seen = new Set<string>();
   return items.filter((item) => {
     const k = item.href ?? `${item.type}-${item.id}`;
-    if (seen.has(k) || !item.poster) return false;
+    if (seen.has(k) || !item.poster || isBlockedTitle(item.type, item.id)) return false;
     seen.add(k);
     return true;
   });
@@ -984,7 +987,7 @@ export async function searchMedia(query: string, lang: string): Promise<MediaIte
     .map((item) => mapItem(item))
     .filter((item) => {
       const key = `${item.type}-${item.id}`;
-      if (seen.has(key)) return false;
+      if (seen.has(key) || isBlockedTitle(item.type, item.id)) return false;
       seen.add(key);
       return true;
     })
@@ -1094,6 +1097,7 @@ export async function getTvSeason(
   season: number,
   lang: string
 ): Promise<{ seasonNumber: number; episodes: TvSeasonEpisode[] } | null> {
+  if (isBlockedTitle("tv", tvId)) return null;
   const language = lang.startsWith("ar") ? "ar-SA" : "en-US";
   const [primary, fallback] = await Promise.all([
     tmdb<{
@@ -1191,6 +1195,7 @@ export async function getTitle(
   id: number,
   lang: string
 ): Promise<TitleDetails | null> {
+  if (isBlockedTitle(type, id)) return null;
   const language = lang.startsWith("ar") ? "ar-SA" : "en-US";
   const extras =
     type === "tv"

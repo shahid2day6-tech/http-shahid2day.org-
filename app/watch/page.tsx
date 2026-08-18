@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import WatchPlayer from "../components/WatchPlayer";
 import { getTitle, getTvSeason } from "../lib/tmdb";
 
@@ -32,6 +33,7 @@ export default async function WatchPage({ searchParams }: Props) {
   }
 
   const title = await getTitle(type, Number(id), "ar");
+  if (!title) notFound();
   const seasonData = type === "tv" ? await getTvSeason(Number(id), season, "ar") : null;
 
   return (

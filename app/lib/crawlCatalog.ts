@@ -1,3 +1,4 @@
+import { isBlockedTitle } from "./blockedTitles";
 import { SITE_URL } from "./site";
 import { titleHref } from "./slug";
 
@@ -45,7 +46,7 @@ function mapResults(
   const out: CrawlLink[] = [];
   for (const row of data.results ?? []) {
     const id = Number(row.id);
-    if (!Number.isFinite(id) || id <= 0 || !row.poster_path) continue;
+    if (!Number.isFinite(id) || id <= 0 || !row.poster_path || isBlockedTitle(type, id)) continue;
     const arTitle = (type === "tv" ? row.name : row.title) || "";
     const enTitle = (type === "tv" ? row.original_name : row.original_title) || arTitle;
     const title = (arTitle || enTitle).trim();
