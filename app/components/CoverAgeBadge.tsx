@@ -16,7 +16,7 @@ export function CoverAgeBadge({
 
   return (
     <span
-      className={`pointer-events-none absolute top-2 end-2 z-20 rounded-md px-1.5 py-0.5 text-[10px] font-black tracking-wide text-white shadow ${ageBadgeClass(code)} ${className ?? ""}`}
+      className={`pointer-events-none absolute top-2 right-2 z-20 rounded-md px-1.5 py-0.5 text-[10px] font-black tracking-wide text-white shadow rtl:right-auto rtl:left-2 ${ageBadgeClass(code)} ${className ?? ""}`}
     >
       <span dir="ltr">{formatAgeBadge(code)}</span>
     </span>

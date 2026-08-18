@@ -36,7 +36,7 @@ export default function MediaCard({
             {item.title}
           </div>
         )}
-        <span className="absolute start-2 top-2 rounded-md bg-[#e50914] px-1.5 py-0.5 text-[10px] font-black text-white">
+        <span className="absolute left-2 top-2 z-10 rounded-md bg-[#e50914] px-1.5 py-0.5 text-[10px] font-black text-white rtl:left-auto rtl:right-2">
           {badge}
         </span>
         <CoverAgeBadge tmdbId={item.id} tmdbType={item.type} />
