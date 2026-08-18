@@ -268,6 +268,11 @@ export default function WatchPlayer({
               <button
                 key={server.name}
                 type="button"
+                data-no-mt
+                onPointerDown={(event) => {
+                  if (event.button !== 0) return;
+                  playOn(index);
+                }}
                 onClick={() => playOn(index)}
                 className={`relative shrink-0 rounded-lg px-4 py-2 text-sm font-black ${
                   selected ? "bg-[#e50914] text-white" : "bg-[#1a1a1a] text-[#d4d4d4]"
