@@ -105,13 +105,19 @@ function stripAsianScript(value: string): string {
     .trim();
 }
 
+function hasArabicScript(value: string): boolean {
+  return /[\u0600-\u06FF]/.test(value);
+}
+
 function pickDisplayTitle(...values: (string | null | undefined)[]): string {
   const cleaned = values.map((value) => String(value ?? "").trim()).filter(Boolean);
-  const english = cleaned.find((value) => hasLatin(value) && !hasAsianScript(value));
+  const english = cleaned.find(
+    (value) => hasLatin(value) && !hasAsianScript(value) && !hasArabicScript(value)
+  );
   if (english) return english;
-  const stripped = cleaned.map(stripAsianScript).find((value) => /[A-Za-z]{2,}/.test(value));
+  const stripped = cleaned.map(stripAsianScript).find((value) => hasLatin(value) && !hasArabicScript(value));
   if (stripped) return stripped;
-  return cleaned[0] ?? "";
+  return cleaned.find((value) => !hasAsianScript(value) && !hasArabicScript(value)) ?? cleaned[0] ?? "";
 }
 
 function mapItem(
@@ -1337,9 +1343,9 @@ export async function getTitle(
 async function fetchFeaturedTitle(
   type: "movie" | "tv",
   id: number,
-  lang: string
+  _lang: string
 ): Promise<MediaItem | null> {
-  const language = lang.startsWith("ar") ? "ar-SA" : "en-US";
+  const language = "en-US";
   const [data, english] = await Promise.all([
     tmdb<Record<string, unknown>>(`/${type}/${id}`, { language }),
     language === "en-US"
@@ -1466,7 +1472,12 @@ export async function homeCatalog(lang: string) {
   const newAnime = fillAnime(row(animeSeries), row(animeMovies));
   const anime18 = uniqueItems(
     adult18Rows.filter((item): item is MediaItem => Boolean(item))
-  ).map((item) => ({ ...item, isAdult: true }));
+  ).map((item) => ({
+    ...item,
+    isAdult: true,
+    title:
+      ADULT_ANIME.find((row) => row.id === item.id && row.type === item.type)?.title || item.title,
+  }));
   return {
     trending: row(trending),
     movies: row(movies),
