@@ -92,6 +92,76 @@ function CatalogMenu({
   );
 }
 
+function HrefMenu({
+  href,
+  labelKey,
+  items,
+}: {
+  href: string;
+  labelKey: DictKey;
+  items: { href: string; label: DictKey }[];
+}) {
+  const { t } = useLang();
+  const pathname = usePathname();
+  const rootRef = useRef<HTMLDivElement>(null);
+  const [open, setOpen] = useState(false);
+  const active = pathname === href || items.some((item) => pathname === item.href);
+
+  useEffect(() => {
+    function onPointer(event: MouseEvent) {
+      if (!rootRef.current?.contains(event.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", onPointer);
+    return () => document.removeEventListener("mousedown", onPointer);
+  }, []);
+
+  return (
+    <div
+      ref={rootRef}
+      className="relative shrink-0"
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+    >
+      <button
+        type="button"
+        className={`inline-flex items-center gap-1 px-2.5 py-1.5 text-[13px] font-bold sm:px-4 sm:text-base ${
+          active ? "text-white" : "text-white/80 hover:text-white"
+        }`}
+        aria-expanded={open}
+        onClick={() => setOpen((value) => !value)}
+      >
+        {t(labelKey)}
+        <span className="text-[10px]">▼</span>
+      </button>
+      {open ? (
+        <div className="absolute top-full start-0 z-[80] min-w-[230px] overflow-hidden rounded-b-lg bg-[#1a2332] py-1 shadow-2xl">
+          <Link
+            href={href}
+            onClick={() => setOpen(false)}
+            className={`block border-b border-white/10 px-4 py-2.5 text-sm font-bold ${
+              pathname === href ? "bg-white/10 text-white" : "text-white hover:bg-white/5"
+            }`}
+          >
+            {t(labelKey)}
+          </Link>
+          {items.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              onClick={() => setOpen(false)}
+              className={`block border-b border-white/10 px-4 py-2.5 text-sm font-bold last:border-b-0 ${
+                pathname === item.href ? "bg-white/10 text-white" : "text-white hover:bg-white/5"
+              }`}
+            >
+              {t(item.label)}
+            </Link>
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 export default function Navbar() {
   const { t, toggle } = useLang();
   const pathname = usePathname();
@@ -109,8 +179,26 @@ export default function Navbar() {
             >
               {t("home")}
             </Link>
-            <CatalogMenu kind="movie" href="/movies" labelKey="movies" groups={MOVIE_GROUPS} />
-            <CatalogMenu kind="tv" href="/series" labelKey="series" groups={SERIES_GROUPS} />
+            <CatalogMenu
+              kind="movie"
+              href="/movies"
+              labelKey="movies"
+              groups={MOVIE_GROUPS.filter((item) => item.group !== "anime")}
+            />
+            <CatalogMenu
+              kind="tv"
+              href="/series"
+              labelKey="series"
+              groups={SERIES_GROUPS.filter((item) => item.group !== "anime")}
+            />
+            <HrefMenu
+              href="/anime"
+              labelKey="anime"
+              items={[
+                { href: "/movies/anime", label: "animeMovies" },
+                { href: "/series/anime", label: "animeSeries" },
+              ]}
+            />
             <CatalogMenu
               kind="tv"
               href="/series/ramadan"
