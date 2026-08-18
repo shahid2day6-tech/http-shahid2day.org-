@@ -90,6 +90,23 @@ export function backdropUrl(path: string | null, size = "w1280"): string | null 
   return `${IMG}/${size}${path}`;
 }
 
+function hasLatin(value: string): boolean {
+  return /[A-Za-z]/.test(value);
+}
+
+function hasAsianScript(value: string): boolean {
+  return /[\u3040-\u30ff\u3400-\u9fff\uf900-\ufaff\uac00-\ud7af]/.test(value);
+}
+
+function pickDisplayTitle(...values: (string | null | undefined)[]): string {
+  const cleaned = values.map((value) => String(value ?? "").trim()).filter(Boolean);
+  const english = cleaned.find((value) => hasLatin(value) && !hasAsianScript(value));
+  if (english) return english;
+  const latin = cleaned.find((value) => hasLatin(value));
+  if (latin) return latin;
+  return cleaned[0] ?? "";
+}
+
 function mapItem(
   item: Record<string, unknown>,
   fallback?: MediaType
@@ -100,10 +117,7 @@ function mapItem(
   const originalLanguage = String(item.original_language ?? "");
   const localized = String(item.title ?? item.name ?? "");
   const original = String(item.original_title ?? item.original_name ?? "");
-  const title =
-    originalLanguage && originalLanguage !== "ar" && original
-      ? original
-      : localized || original;
+  const title = pickDisplayTitle(localized, original);
   return {
     id: Number(item.id),
     title,
@@ -165,6 +179,8 @@ function mergeListResponses(
     if (!en) return row;
     return {
       ...row,
+      title: pickDisplayTitle(en.title as string, en.name as string, row.title as string, row.original_title as string),
+      name: pickDisplayTitle(en.name as string, en.title as string, row.name as string, row.original_name as string),
       poster_path: row.poster_path || en.poster_path,
       backdrop_path: row.backdrop_path || en.backdrop_path,
       overview: pickText(row.overview as string, en.overview as string),
@@ -1217,18 +1233,14 @@ export async function getTitle(
 
   const arText = translationText(primary, "ar");
   const enText = translationText(primary, "en");
-  const originalLanguage = String(primary.original_language ?? "");
   const arabicName = pickText(primary.title as string, primary.name as string, arText.name);
-  const englishName = pickText(
+  const displayName = pickDisplayTitle(
     fallback ? pickText(fallback.title as string, fallback.name as string) : "",
     enText.name,
+    arabicName,
     primary.original_title as string,
     primary.original_name as string
   );
-  const displayName =
-    originalLanguage === "ar"
-      ? pickText(arabicName, englishName)
-      : pickText(englishName, arabicName);
   const overview = pickText(
     primary.overview as string,
     arText.overview,
@@ -1321,9 +1333,35 @@ async function fetchFeaturedTitle(
   lang: string
 ): Promise<MediaItem | null> {
   const language = lang.startsWith("ar") ? "ar-SA" : "en-US";
-  const data = await tmdb<Record<string, unknown>>(`/${type}/${id}`, { language });
+  const [data, english] = await Promise.all([
+    tmdb<Record<string, unknown>>(`/${type}/${id}`, { language }),
+    language === "en-US"
+      ? Promise.resolve(null)
+      : tmdb<Record<string, unknown>>(`/${type}/${id}`, { language: "en-US" }),
+  ]);
   if (!data || !Number(data.id)) return null;
-  const item = mapItem(data, type);
+  const item = mapItem(
+    {
+      ...data,
+      title: pickDisplayTitle(
+        english?.title as string,
+        english?.name as string,
+        data.title as string,
+        data.name as string,
+        data.original_title as string,
+        data.original_name as string
+      ),
+      name: pickDisplayTitle(
+        english?.name as string,
+        english?.title as string,
+        data.name as string,
+        data.title as string,
+        data.original_name as string,
+        data.original_title as string
+      ),
+    },
+    type
+  );
   return item.poster ? item : null;
 }
 
