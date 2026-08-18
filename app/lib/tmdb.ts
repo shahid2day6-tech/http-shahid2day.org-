@@ -3,6 +3,7 @@ import { BROWSE_PAGE_SIZE } from "./catalog";
 import { parseTitleSlug, slugifyTitle } from "./slug";
 import { FILTER_GENRES, parseSection, type CatalogFilters, type CatalogSort } from "./filters";
 import { WEEKLY_HOT_ANIME } from "./featuredAnime";
+import { ADULT_ANIME } from "./adultAnime";
 
 const TMDB = "https://api.themoviedb.org/3";
 const IMG = "https://image.tmdb.org/t/p";
@@ -22,6 +23,7 @@ export type MediaItem = {
   genreIds?: number[];
   href?: string;
   isFranchise?: boolean;
+  isAdult?: boolean;
 };
 
 export type CategoryKey =
@@ -1320,6 +1322,14 @@ async function fetchFeaturedTitle(
   return item.poster ? item : null;
 }
 
+export async function listAdultAnime(lang: string): Promise<MediaItem[]> {
+  const rows = await Promise.all(ADULT_ANIME.map((item) => fetchFeaturedTitle(item.type, item.id, lang)));
+  return uniqueItems(rows.filter((item): item is MediaItem => Boolean(item))).map((item) => ({
+    ...item,
+    isAdult: true,
+  }));
+}
+
 export async function homeCatalog(lang: string) {
   const rail = async (load: (page: number) => Promise<DiscoverResult>) => {
     const [a, b] = await Promise.all([load(1), load(2)]);
@@ -1341,6 +1351,7 @@ export async function homeCatalog(lang: string) {
     asian,
     franchises,
     weeklyHotAnime,
+    adult18Rows,
     dailyMovies,
     dailySeries,
   ] = await Promise.all([
@@ -1359,6 +1370,7 @@ export async function homeCatalog(lang: string) {
     discoverMany("asian", lang, 1, 2),
     discoverFranchises(lang, 1),
     Promise.all(WEEKLY_HOT_ANIME.map((item) => fetchFeaturedTitle(item.type, item.id, lang))),
+    Promise.all(ADULT_ANIME.map((item) => fetchFeaturedTitle(item.type, item.id, lang))),
     rail((page) => discoverDailyMovies(lang, page)),
     rail((page) => discoverDailySeries(lang, page)),
   ]);
@@ -1367,6 +1379,9 @@ export async function homeCatalog(lang: string) {
     weeklyHotAnime.filter((item): item is MediaItem => Boolean(item))
   );
   const newAnime = uniqueItems(row(animeSeries)).slice(0, 28);
+  const anime18 = uniqueItems(
+    adult18Rows.filter((item): item is MediaItem => Boolean(item))
+  ).map((item) => ({ ...item, isAdult: true }));
   return {
     trending: row(trending),
     movies: row(movies),
@@ -1375,6 +1390,7 @@ export async function homeCatalog(lang: string) {
     animeEpisodes: row(animeEpisodes),
     hotAnimeWeek,
     newAnime,
+    anime18,
     arabicEpisodes: row(arabicEpisodes),
     ramadan: row(ramadan),
     dailyMovies: row(dailyMovies),

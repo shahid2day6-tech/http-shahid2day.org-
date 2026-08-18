@@ -6,11 +6,14 @@ import {
   catalogHref,
 } from "./catalog";
 import { SITE_URL } from "./site";
+import { titleHref } from "./slug";
+import { submitIndexNow } from "./indexnow";
 import {
   discoverBrowse,
   discoverFranchises,
   discoverNewEpisodes,
   homeCatalog,
+  listAdultAnime,
   type CategoryKey,
 } from "./tmdb";
 
@@ -93,12 +96,23 @@ export async function refreshCatalog() {
     )
   );
 
+  const adult = await listAdultAnime("en");
+  const indexnow = await submitIndexNow([
+    SITE_URL,
+    `${SITE_URL}/`,
+    `${SITE_URL}/sitemap.xml`,
+    `${SITE_URL}/sitemap/0.xml`,
+    `${SITE_URL}/sitemap/3.xml`,
+    ...adult.map((item) => `${SITE_URL}${item.href ?? titleHref(item)}`),
+  ]);
+
   return {
     ok: true,
     at: new Date().toISOString(),
     ms: Date.now() - started,
     fetched,
     warmed,
+    indexnow,
     sections: {
       movies: MOVIE_GROUPS.map((item) => item.group),
       series: SERIES_GROUPS.map((item) => item.group),
