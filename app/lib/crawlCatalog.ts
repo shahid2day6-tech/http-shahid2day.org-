@@ -38,6 +38,17 @@ async function fetchList(path: string): Promise<TmdbList> {
   }
 }
 
+function latinTitle(...values: Array<string | undefined | null>): string {
+  const cleaned = values.map((value) => String(value ?? "").trim()).filter(Boolean);
+  const stripped = cleaned.map((value) =>
+    value
+      .replace(/[\u3040-\u30ff\u3400-\u9fff\uf900-\ufaff\uac00-\ud7af]+/g, " ")
+      .replace(/\s+/g, " ")
+      .trim()
+  );
+  return stripped.find((value) => /[A-Za-z]{2,}/.test(value)) || "";
+}
+
 function mapResults(
   data: TmdbList,
   type: "movie" | "tv",
@@ -47,12 +58,11 @@ function mapResults(
   for (const row of data.results ?? []) {
     const id = Number(row.id);
     if (!Number.isFinite(id) || id <= 0 || !row.poster_path || isBlockedTitle(type, id)) continue;
-    const arTitle = (type === "tv" ? row.name : row.title) || "";
-    const enTitle = (type === "tv" ? row.original_name : row.original_title) || arTitle;
-    const title = (arTitle || enTitle).trim();
-    if (!title) continue;
+    const localized = (type === "tv" ? row.name : row.title) || "";
+    const original = (type === "tv" ? row.original_name : row.original_title) || "";
+    const slugTitle = latinTitle(localized, original);
+    if (!slugTitle) continue;
     const year = ((type === "tv" ? row.first_air_date : row.release_date) || "").slice(0, 4);
-    const slugTitle = enTitle || title;
     out.push({
       type,
       href: titleHref({
@@ -70,8 +80,8 @@ function mapResults(
 export async function getCrawlCatalog(kind: "home" | "movies" | "series" = "home"): Promise<CrawlLink[]> {
   if (kind === "movies") {
     const [popular, nowPlaying] = await Promise.all([
-      fetchList(`/movie/popular?api_key=${TMDB_KEY}&language=ar-SA&page=1`),
-      fetchList(`/movie/now_playing?api_key=${TMDB_KEY}&language=ar-SA&page=1`),
+      fetchList(`/movie/popular?api_key=${TMDB_KEY}&language=en-US&page=1`),
+      fetchList(`/movie/now_playing?api_key=${TMDB_KEY}&language=en-US&page=1`),
     ]);
     return uniqueLinks([
       ...mapResults(nowPlaying, "movie", "فيلم"),
@@ -81,8 +91,8 @@ export async function getCrawlCatalog(kind: "home" | "movies" | "series" = "home
 
   if (kind === "series") {
     const [popular, onAir] = await Promise.all([
-      fetchList(`/tv/popular?api_key=${TMDB_KEY}&language=ar-SA&page=1`),
-      fetchList(`/tv/on_the_air?api_key=${TMDB_KEY}&language=ar-SA&page=1`),
+      fetchList(`/tv/popular?api_key=${TMDB_KEY}&language=en-US&page=1`),
+      fetchList(`/tv/on_the_air?api_key=${TMDB_KEY}&language=en-US&page=1`),
     ]);
     return uniqueLinks([
       ...mapResults(onAir, "tv", "مسلسل"),
@@ -91,8 +101,8 @@ export async function getCrawlCatalog(kind: "home" | "movies" | "series" = "home
   }
 
   const [movies, series] = await Promise.all([
-    fetchList(`/movie/popular?api_key=${TMDB_KEY}&language=ar-SA&page=1`),
-    fetchList(`/tv/popular?api_key=${TMDB_KEY}&language=ar-SA&page=1`),
+    fetchList(`/movie/popular?api_key=${TMDB_KEY}&language=en-US&page=1`),
+    fetchList(`/tv/popular?api_key=${TMDB_KEY}&language=en-US&page=1`),
   ]);
   return uniqueLinks([
     ...mapResults(movies, "movie", "فيلم"),

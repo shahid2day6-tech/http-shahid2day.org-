@@ -98,12 +98,19 @@ function hasAsianScript(value: string): boolean {
   return /[\u3040-\u30ff\u3400-\u9fff\uf900-\ufaff\uac00-\ud7af]/.test(value);
 }
 
+function stripAsianScript(value: string): string {
+  return value
+    .replace(/[\u3040-\u30ff\u3400-\u9fff\uf900-\ufaff\uac00-\ud7af]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function pickDisplayTitle(...values: (string | null | undefined)[]): string {
   const cleaned = values.map((value) => String(value ?? "").trim()).filter(Boolean);
   const english = cleaned.find((value) => hasLatin(value) && !hasAsianScript(value));
   if (english) return english;
-  const latin = cleaned.find((value) => hasLatin(value));
-  if (latin) return latin;
+  const stripped = cleaned.map(stripAsianScript).find((value) => /[A-Za-z]{2,}/.test(value));
+  if (stripped) return stripped;
   return cleaned[0] ?? "";
 }
 
