@@ -9,7 +9,7 @@ function parseIds(raw: string | null) {
     .split(",")
     .map((value) => Number(value.trim()))
     .filter((id) => Number.isFinite(id) && id > 0)
-    .slice(0, 40);
+    .slice(0, 80);
 }
 
 export async function GET(request: Request) {

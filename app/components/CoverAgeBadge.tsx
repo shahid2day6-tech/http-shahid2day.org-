@@ -7,15 +7,14 @@ export function CoverAgeBadge({
   tmdbId,
   tmdbType,
   className,
-  forceCode,
 }: {
   tmdbId: number;
   tmdbType: "movie" | "tv";
   className?: string;
-  forceCode?: "7" | "13" | "17" | "18";
 }) {
   const live = useTmdbAgeCode(tmdbType, tmdbId);
-  const code = forceCode ?? live ?? "13";
+  if (!live) return null;
+  const code = live;
 
   return (
     <span
