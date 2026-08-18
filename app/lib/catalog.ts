@@ -5,6 +5,7 @@ export type CatalogGroup =
   | "franchises"
   | "foreign"
   | "asian"
+  | "korean"
   | "anime"
   | "turkish"
   | "arabic"
@@ -21,6 +22,7 @@ export const MOVIE_GROUPS: { group: CatalogGroup; label: DictKey }[] = [
   { group: "franchises", label: "movieFranchises" },
   { group: "foreign", label: "foreignMovies" },
   { group: "asian", label: "asianMovies" },
+  { group: "korean", label: "koreanMovies" },
   { group: "anime", label: "animeMovies" },
   { group: "turkish", label: "turkishMovies" },
   { group: "arabic", label: "arabicMovies" },
@@ -30,6 +32,7 @@ export const MOVIE_GROUPS: { group: CatalogGroup; label: DictKey }[] = [
 export const SERIES_GROUPS: { group: CatalogGroup; label: DictKey }[] = [
   { group: "foreign", label: "foreignSeries" },
   { group: "asian", label: "asianSeries" },
+  { group: "korean", label: "koreanSeries" },
   { group: "anime", label: "animeSeries" },
   { group: "turkish", label: "turkishSeries" },
   { group: "arabic", label: "arabicSeries" },

@@ -14,6 +14,7 @@ import {
   discoverNewEpisodes,
   homeCatalog,
   listAdultAnime,
+  listKoreanTitles,
   type CategoryKey,
 } from "./tmdb";
 
@@ -97,6 +98,7 @@ export async function refreshCatalog() {
   );
 
   const adult = await listAdultAnime("en");
+  const korean = await listKoreanTitles("en");
   const indexnow = await submitIndexNow([
     SITE_URL,
     `${SITE_URL}/`,
@@ -104,6 +106,7 @@ export async function refreshCatalog() {
     `${SITE_URL}/sitemap/0.xml`,
     `${SITE_URL}/sitemap/3.xml`,
     ...adult.map((item) => `${SITE_URL}${item.href ?? titleHref(item)}`),
+    ...korean.map((item) => `${SITE_URL}${item.href ?? titleHref(item)}`),
   ]);
 
   return {

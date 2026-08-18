@@ -4,6 +4,7 @@ import { parseTitleSlug, slugifyTitle } from "./slug";
 import { FILTER_GENRES, parseSection, type CatalogFilters, type CatalogSort } from "./filters";
 import { WEEKLY_HOT_ANIME } from "./featuredAnime";
 import { ADULT_ANIME } from "./adultAnime";
+import { KOREAN_MOVIES, KOREAN_TV } from "./koreanCatalog";
 import { filterBlockedItems, isBlockedTitle } from "./blockedTitles";
 
 const TMDB = "https://api.themoviedb.org/3";
@@ -536,6 +537,9 @@ export async function discoverCatalog(
     common.with_origin_country = "JP|KR|CN|TH|TW|HK";
     common.without_genres = "16";
     common.without_keywords = "210024";
+  } else if (group === "korean") {
+    common.with_origin_country = "KR";
+    common.without_genres = "16";
   } else if (group === "anime") {
     common.with_genres = "16";
     if (kind === "tv") {
@@ -670,6 +674,26 @@ export async function discoverBrowse(
   }
   const page = Math.max(1, browsePage);
   const start = (page - 1) * BROWSE_PAGE_SIZE;
+  if ("kind" in source && source.group === "korean") {
+    const pinned = constrainCatalogItems(await listKoreanCatalog(source.kind, lang), filters);
+    const pinSlice = pinned.slice(start, start + BROWSE_PAGE_SIZE);
+    const tmdbStart = Math.floor(start / TMDB_PAGE_SIZE) + 1;
+    const tmdbEnd = Math.ceil((start + BROWSE_PAGE_SIZE) / TMDB_PAGE_SIZE) + 1;
+    const chunks = await Promise.all(
+      Array.from({ length: tmdbEnd - tmdbStart + 1 }, (_, i) =>
+        discoverCatalog(source.kind, source.group, lang, tmdbStart + i, filters)
+      )
+    );
+    const pinKeys = new Set(pinned.map((item) => `${item.type}:${item.id}`));
+    const fill = uniqueItems(chunks.flatMap((chunk) => chunk.items)).filter(
+      (item) => !pinKeys.has(`${item.type}:${item.id}`)
+    );
+    const items = [...pinSlice, ...fill].slice(0, BROWSE_PAGE_SIZE);
+    const tmdbTotal = chunks[0]?.totalResults ?? 0;
+    const totalResults = pinned.length + tmdbTotal;
+    const totalPages = Math.max(1, Math.min(500, Math.ceil(totalResults / BROWSE_PAGE_SIZE)));
+    return asResult(items, page, totalPages, totalResults);
+  }
   const tmdbStart = Math.floor(start / TMDB_PAGE_SIZE) + 1;
   const tmdbEnd = Math.ceil((start + BROWSE_PAGE_SIZE) / TMDB_PAGE_SIZE) + 1;
   const chunks = await Promise.all(
@@ -1386,6 +1410,23 @@ export async function listAdultAnime(lang: string): Promise<MediaItem[]> {
   }));
 }
 
+export async function listKoreanCatalog(kind: CatalogKind, lang: string): Promise<MediaItem[]> {
+  const pins = kind === "movie" ? KOREAN_MOVIES : KOREAN_TV;
+  const rows = await Promise.all(pins.map((item) => fetchFeaturedTitle(item.type, item.id, lang)));
+  return uniqueItems(rows.filter((item): item is MediaItem => Boolean(item))).map((item) => ({
+    ...item,
+    title: pins.find((row) => row.id === item.id && row.type === item.type)?.title || item.title,
+  }));
+}
+
+export async function listKoreanTitles(lang: string): Promise<MediaItem[]> {
+  const [tv, movies] = await Promise.all([
+    listKoreanCatalog("tv", lang),
+    listKoreanCatalog("movie", lang),
+  ]);
+  return uniqueItems([...tv, ...movies]);
+}
+
 async function discoverTopRatedAnime(lang: string): Promise<MediaItem[]> {
   const language = lang.startsWith("ar") ? "ar-SA" : "en-US";
   const shared = {
@@ -1439,6 +1480,8 @@ export async function homeCatalog(lang: string) {
     franchises,
     weeklyHotAnime,
     adult18Rows,
+    koreanSeriesRows,
+    koreanMovieRows,
     dailyMovies,
     dailySeries,
     topRatedAnime,
@@ -1459,6 +1502,8 @@ export async function homeCatalog(lang: string) {
     discoverFranchises(lang, 1),
     Promise.all(WEEKLY_HOT_ANIME.map((item) => fetchFeaturedTitle(item.type, item.id, lang))),
     Promise.all(ADULT_ANIME.map((item) => fetchFeaturedTitle(item.type, item.id, lang))),
+    Promise.all(KOREAN_TV.slice(0, 28).map((item) => fetchFeaturedTitle(item.type, item.id, lang))),
+    Promise.all(KOREAN_MOVIES.slice(0, 28).map((item) => fetchFeaturedTitle(item.type, item.id, lang))),
     rail((page) => discoverDailyMovies(lang, page)),
     rail((page) => discoverDailySeries(lang, page)),
     discoverTopRatedAnime(lang),
@@ -1478,6 +1523,18 @@ export async function homeCatalog(lang: string) {
     title:
       ADULT_ANIME.find((row) => row.id === item.id && row.type === item.type)?.title || item.title,
   }));
+  const koreanSeries = uniqueItems(
+    koreanSeriesRows.filter((item): item is MediaItem => Boolean(item))
+  ).map((item) => ({
+    ...item,
+    title: KOREAN_TV.find((row) => row.id === item.id)?.title || item.title,
+  }));
+  const koreanMovies = uniqueItems(
+    koreanMovieRows.filter((item): item is MediaItem => Boolean(item))
+  ).map((item) => ({
+    ...item,
+    title: KOREAN_MOVIES.find((row) => row.id === item.id)?.title || item.title,
+  }));
   return {
     trending: row(trending),
     movies: row(movies),
@@ -1488,6 +1545,8 @@ export async function homeCatalog(lang: string) {
     newAnime,
     topRatedAnime,
     anime18,
+    koreanSeries,
+    koreanMovies,
     arabicEpisodes: row(arabicEpisodes),
     ramadan: row(ramadan),
     dailyMovies: row(dailyMovies),

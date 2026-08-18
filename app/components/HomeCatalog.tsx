@@ -17,6 +17,8 @@ export default function HomeCatalog({
   topRatedAnime,
   hotAnimeWeek,
   anime18,
+  koreanSeries,
+  koreanMovies,
   arabicEpisodes,
   ramadan,
   dailyMovies,
@@ -38,6 +40,8 @@ export default function HomeCatalog({
   topRatedAnime: MediaItem[];
   hotAnimeWeek: MediaItem[];
   anime18: MediaItem[];
+  koreanSeries: MediaItem[];
+  koreanMovies: MediaItem[];
   arabicEpisodes: MediaItem[];
   ramadan: MediaItem[];
   dailyMovies: MediaItem[];
@@ -65,6 +69,8 @@ export default function HomeCatalog({
         <MediaRow title={t("topRatedAnime")} href="/series/anime" items={topRatedAnime} />
         <MediaRow title={t("hotAnimeWeek")} href="/series/anime" items={hotAnimeWeek} />
         <MediaRow title={t("anime18Rail")} href="/series/anime" items={anime18} />
+        <MediaRow title={t("koreanSeriesRail")} href="/series/korean" items={koreanSeries} />
+        <MediaRow title={t("koreanMoviesRail")} href="/movies/korean" items={koreanMovies} />
         <MediaRow title={t("newAnimeTitles")} href="/series/anime" items={newAnime} />
         <MediaRow title={t("newAnimeEpisodes")} href="/series/anime" items={animeEpisodes} />
         <MediaRow title={t("newArabicEpisodes")} href="/series/arabic" items={arabicEpisodes} />
