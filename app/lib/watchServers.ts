@@ -33,14 +33,14 @@ export function buildWatchServers(
 
   return [
     {
-      name: "Vidعربي",
-      label: "Vidعربي",
+      name: "shahid2day",
+      label: "shahid2day",
       recommended: true,
       url: `${vidlink}&sub=ar&ds_lang=ar&lang=ar&audio_lang=ar`,
     },
     {
-      name: "shahid2day",
-      label: "shahid2day",
+      name: "1Embed",
+      label: "1Embed",
       url: oneEmbed,
     },
     {
