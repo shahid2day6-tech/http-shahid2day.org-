@@ -13,10 +13,10 @@ export function ageBadgeClass(code: AgeCode) {
 
 const TMDB_KEY = process.env.TMDB_API_KEY ?? "";
 const BASE = "https://api.themoviedb.org/3";
-const FETCH_OPTS = { next: { revalidate: 604800, tags: ["tmdb-age"] } } as RequestInit;
+const FETCH_OPTS = { next: { revalidate: 86400, tags: ["tmdb-age-jp"] } } as RequestInit;
 
-/** Major boards used to pick the strictest *real* certification. */
-const COUNTRY_PREF = ["US", "GB", "JP", "DE", "FR", "KR", "AU", "CA", "BR", "NL", "AE", "SA", "EG"];
+/** Prefer Japan for anime, then US — do not take the strictest of every country. */
+const COUNTRY_PREF = ["JP", "US", "GB", "DE", "FR", "KR", "AU", "CA", "BR", "NL", "AE", "SA", "EG"];
 
 const AGE_RANK: Record<AgeCode, number> = { "7": 1, "13": 2, "17": 3, "18": 4 };
 
@@ -156,16 +156,20 @@ function pickFromCountries(
     if (!byCountry.has(cc)) byCountry.set(cc, row.cert);
   }
 
-  let best: AgeCode | null = null;
-  for (const cc of COUNTRY_PREF) {
-    best = stricter(best, mapTmdbCertification(byCountry.get(cc)));
+  const pref = COUNTRY_PREF;
+  for (const cc of pref) {
+    const code = mapTmdbCertification(byCountry.get(cc));
+    if (code) return code;
   }
-  if (best) return best;
 
+  let fallback: AgeCode | null = null;
   for (const cert of byCountry.values()) {
-    best = stricter(best, mapTmdbCertification(cert));
+    const code = mapTmdbCertification(cert);
+    if (!code) continue;
+    if (code !== "18") return code;
+    fallback = code;
   }
-  return best;
+  return fallback;
 }
 
 export async function fetchTmdbAgeCode(

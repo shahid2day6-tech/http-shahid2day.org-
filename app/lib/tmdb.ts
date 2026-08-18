@@ -1391,10 +1391,11 @@ async function discoverTopRatedAnime(lang: string): Promise<MediaItem[]> {
     with_genres: 16,
     with_original_language: "ja",
   };
-  const [tv1, tv2, tv3, movie1, movie2] = await Promise.all([
+  const [tv1, tv2, tv3, tv4, movie1, movie2] = await Promise.all([
     discoverList("/discover/tv", { ...shared, with_keywords: 210024, page: 1 }),
     discoverList("/discover/tv", { ...shared, with_keywords: 210024, page: 2 }),
     discoverList("/discover/tv", { ...shared, with_keywords: 210024, page: 3 }),
+    discoverList("/discover/tv", { ...shared, with_keywords: 210024, page: 4 }),
     discoverList("/discover/movie", { ...shared, page: 1 }),
     discoverList("/discover/movie", { ...shared, page: 2 }),
   ]);
@@ -1402,11 +1403,12 @@ async function discoverTopRatedAnime(lang: string): Promise<MediaItem[]> {
     ...(tv1?.results ?? []).map((item) => mapItem(item, "tv")),
     ...(tv2?.results ?? []).map((item) => mapItem(item, "tv")),
     ...(tv3?.results ?? []).map((item) => mapItem(item, "tv")),
+    ...(tv4?.results ?? []).map((item) => mapItem(item, "tv")),
     ...(movie1?.results ?? []).map((item) => mapItem(item, "movie")),
     ...(movie2?.results ?? []).map((item) => mapItem(item, "movie")),
   ])
     .filter((item) => Boolean(item.poster) && Number(item.rating) >= 8)
-    .slice(0, 28);
+    .slice(0, 30);
 }
 
 export async function homeCatalog(lang: string) {
