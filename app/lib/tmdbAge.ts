@@ -121,12 +121,6 @@ export function mapTmdbCertification(raw: string | null | undefined): AgeCode | 
   return null;
 }
 
-function stricter(a: AgeCode | null, b: AgeCode | null): AgeCode | null {
-  if (!a) return b;
-  if (!b) return a;
-  return AGE_RANK[b] > AGE_RANK[a] ? b : a;
-}
-
 function pickMovieCert(rows: ReleaseDateRow[] | undefined): string {
   if (!rows?.length) return "";
   let best: AgeCode | null = null;
