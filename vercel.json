@@ -1,6 +1,7 @@
 {
   "framework": "nextjs",
   "crons": [
-    { "path": "/api/cron/catalog-refresh", "schedule": "0 18 * * *" }
+    { "path": "/api/cron/catalog-refresh", "schedule": "0 6 * * *" },
+    { "path": "/api/cron/catalog-midday", "schedule": "0 18 * * *" }
   ]
 }

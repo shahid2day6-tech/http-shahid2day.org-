@@ -561,6 +561,48 @@ export async function discoverNewEpisodes(
   return asResult(items, page, pageCount(data), resultCount(data, items.length));
 }
 
+function dailyReleaseWindow(days: number) {
+  const end = new Date();
+  const start = new Date(end);
+  start.setDate(start.getDate() - days);
+  return {
+    gte: start.toISOString().slice(0, 10),
+    lte: end.toISOString().slice(0, 10),
+  };
+}
+
+export async function discoverDailyMovies(lang: string): Promise<DiscoverResult> {
+  const language = lang.startsWith("ar") ? "ar-SA" : "en-US";
+  const { gte, lte } = dailyReleaseWindow(3);
+  const data = await discoverList("/discover/movie", {
+    language,
+    page: 1,
+    include_adult: "false",
+    sort_by: "primary_release_date.desc",
+    "primary_release_date.gte": gte,
+    "primary_release_date.lte": lte,
+    "vote_count.gte": 1,
+  });
+  const items = (data?.results ?? []).map((item) => mapItem(item, "movie"));
+  return asResult(items, 1, pageCount(data), resultCount(data, items.length));
+}
+
+export async function discoverDailySeries(lang: string): Promise<DiscoverResult> {
+  const language = lang.startsWith("ar") ? "ar-SA" : "en-US";
+  const { gte, lte } = dailyReleaseWindow(3);
+  const data = await discoverList("/discover/tv", {
+    language,
+    page: 1,
+    include_adult: "false",
+    sort_by: "first_air_date.desc",
+    "first_air_date.gte": gte,
+    "first_air_date.lte": lte,
+    "vote_count.gte": 1,
+  });
+  const items = (data?.results ?? []).map((item) => mapItem(item, "tv"));
+  return asResult(items, 1, pageCount(data), resultCount(data, items.length));
+}
+
 export async function discoverCatalogMany(
   kind: CatalogKind,
   group: CatalogGroup,
@@ -1295,6 +1337,8 @@ export async function homeCatalog(lang: string) {
     asian,
     franchises,
     weeklyHotAnime,
+    dailyMovies,
+    dailySeries,
   ] = await Promise.all([
     discover("trending", lang),
     discoverMany("movies", lang, 1, 2),
@@ -1311,6 +1355,8 @@ export async function homeCatalog(lang: string) {
     discover("asian", lang),
     discoverFranchises(lang, 1),
     Promise.all(WEEKLY_HOT_ANIME.map((item) => fetchFeaturedTitle(item.type, item.id, lang))),
+    discoverDailyMovies(lang),
+    discoverDailySeries(lang),
   ]);
   const row = (result: DiscoverResult) => uniqueItems(result.items).slice(0, 24);
   const hotAnimeWeek = uniqueItems(
@@ -1327,6 +1373,8 @@ export async function homeCatalog(lang: string) {
     newAnime,
     arabicEpisodes: row(arabicEpisodes),
     ramadan: row(ramadan),
+    dailyMovies: row(dailyMovies),
+    dailySeries: row(dailySeries),
     animeMovies: row(animeMovies),
     animeSeries: row(animeSeries),
     arabicMovies: row(arabicMovies),

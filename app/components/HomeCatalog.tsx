@@ -17,6 +17,8 @@ export default function HomeCatalog({
   hotAnimeWeek,
   arabicEpisodes,
   ramadan,
+  dailyMovies,
+  dailySeries,
   animeMovies,
   animeSeries,
   arabicMovies,
@@ -34,6 +36,8 @@ export default function HomeCatalog({
   hotAnimeWeek: MediaItem[];
   arabicEpisodes: MediaItem[];
   ramadan: MediaItem[];
+  dailyMovies: MediaItem[];
+  dailySeries: MediaItem[];
   animeMovies: MediaItem[];
   animeSeries: MediaItem[];
   arabicMovies: MediaItem[];
@@ -50,6 +54,8 @@ export default function HomeCatalog({
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <CatalogToolbar />
         <MediaRow title={t("trending")} items={trending} />
+        <MediaRow title={t("addedTodayMovies")} href="/movies" items={dailyMovies} />
+        <MediaRow title={t("addedTodaySeries")} href="/series" items={dailySeries} />
         <MediaRow title={t("newForeignEpisodes")} href="/series/foreign" items={foreignEpisodes} />
         <SiteAdsterraRail variant="alt" className="mb-10" />
         <MediaRow title={t("hotAnimeWeek")} href="/series/anime" items={hotAnimeWeek} />
