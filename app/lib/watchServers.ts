@@ -33,9 +33,14 @@ export function buildWatchServers(
 
   return [
     {
+      name: "Vidعربي",
+      label: "Vidعربي",
+      recommended: true,
+      url: `${vidlink}&sub=ar&ds_lang=ar&lang=ar&audio_lang=ar`,
+    },
+    {
       name: "shahid2day",
       label: "shahid2day",
-      recommended: true,
       url: oneEmbed,
     },
     {
@@ -76,11 +81,6 @@ export function buildWatchServers(
         type === "tv"
           ? `https://player.videasy.to/tv/${id}/${season}/${episode}?color=e50914`
           : `https://player.videasy.to/movie/${id}?color=e50914`,
-    },
-    {
-      name: "Vidعربي",
-      label: "Vidعربي",
-      url: `${vidlink}&sub=ar&ds_lang=ar&lang=ar&audio_lang=ar`,
     },
     {
       name: "VidCore",
