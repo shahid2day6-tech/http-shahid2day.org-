@@ -1,11 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState, type ReactNode } from "react";
-import { listingTitle, type TitleDetails, type TvSeasonEpisode } from "../lib/tmdb";
+import type { ReactNode } from "react";
+import { listingTitle, type TitleDetails } from "../lib/tmdb";
 import { useLang } from "../context/LanguageContext";
 import MediaRow from "./MediaRow";
-import TvEpisodeBrowser, { type TvEpisode, type TvSeason } from "./TvEpisodeBrowser";
 import { SiteAdsterraRail } from "./ads/SiteAdsterraRail";
 
 function FactBox({ label, value }: { label: string; value: string }) {
@@ -49,73 +48,11 @@ function ActionBox({
 }
 
 export default function TitleView({ title }: { title: TitleDetails }) {
-  const { t, lang } = useLang();
+  const { t } = useLang();
   const firstSeason = title.seasonList?.[0]?.seasonNumber ?? 1;
-  const [selectedSeason, setSelectedSeason] = useState(firstSeason);
-  const [selectedEpisode, setSelectedEpisode] = useState(1);
-  const [episodes, setEpisodes] = useState<TvSeasonEpisode[]>([]);
-  const [epLoading, setEpLoading] = useState(false);
-
-  useEffect(() => {
-    if (title.type !== "tv") return;
-    let cancelled = false;
-    setEpLoading(true);
-    fetch(`/api/tv/${title.id}/season/${selectedSeason}?lang=${lang === "en" ? "en" : "ar"}`)
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (cancelled || !data || data.error) return;
-        setEpisodes((data.episodes ?? []) as TvSeasonEpisode[]);
-      })
-      .catch(() => {})
-      .finally(() => {
-        if (!cancelled) setEpLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [title.id, title.type, lang, selectedSeason]);
-
   const watchHref = `/watch?id=${title.id}&type=${title.type}${
-    title.type === "tv" ? `&season=${selectedSeason}&episode=${selectedEpisode}` : ""
+    title.type === "tv" ? `&season=${firstSeason}&episode=1` : ""
   }`;
-  const seasonCards: TvSeason[] =
-    title.type === "movie"
-      ? [
-          {
-            season_number: 1,
-            name: title.title,
-            episode_count: 1,
-            poster: title.poster,
-            year: title.year,
-          },
-        ]
-      : (title.seasonList ?? []).map((item) => ({
-          season_number: item.seasonNumber,
-          name: item.name,
-          episode_count: item.episodeCount,
-          poster: item.poster,
-          year: item.year,
-        }));
-  const episodeCards: TvEpisode[] =
-    title.type === "movie"
-      ? [
-          {
-            episode_number: 1,
-            name: title.title,
-            overview: title.overview,
-            still: title.backdrop || title.poster,
-            runtime: Number((title.runtime || "").replace(/\D/g, "")) || null,
-            vote_average: Number(title.rating) || 0,
-          },
-        ]
-      : episodes.map((item) => ({
-          episode_number: item.episodeNumber,
-          name: item.name,
-          overview: item.overview,
-          still: item.still,
-          runtime: item.runtime,
-          vote_average: item.voteAverage,
-        }));
 
   return (
     <article>
@@ -194,28 +131,6 @@ export default function TitleView({ title }: { title: TitleDetails }) {
           </ActionBox>
         </div>
       </section>
-
-      <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6">
-        {seasonCards.length > 0 ? (
-          <TvEpisodeBrowser
-            seasons={seasonCards}
-            episodes={episodeCards}
-            selectedSeason={title.type === "movie" ? 1 : selectedSeason}
-            selectedEpisode={title.type === "movie" ? 1 : selectedEpisode}
-            loading={title.type === "tv" && epLoading && episodeCards.length === 0}
-            onSelectSeason={(nextSeason) => {
-              setSelectedSeason(nextSeason);
-              setSelectedEpisode(1);
-            }}
-            onSelectEpisode={(nextEpisode) => {
-              setSelectedEpisode(nextEpisode);
-              window.location.href = `/watch?id=${title.id}&type=${title.type}${
-                title.type === "tv" ? `&season=${selectedSeason}&episode=${nextEpisode}` : ""
-              }`;
-            }}
-          />
-        ) : null}
-      </div>
 
       <div id="watch-on" className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
         {title.overview && (
