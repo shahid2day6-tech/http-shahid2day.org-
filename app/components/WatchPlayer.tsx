@@ -85,43 +85,28 @@ export default function WatchPlayer({
   const backHref = title ? titleHref(title) : "/";
   const heading = title ? listingTitle(title) : t("watchNow");
   const seasonCards: TvSeason[] =
-    type === "movie" && title
-      ? [
-          {
-            season_number: 1,
-            name: title.title,
-            episode_count: 1,
-            poster: title.poster,
-            year: title.year,
-          },
-        ]
-      : (title?.seasonList ?? []).map((item) => ({
-          season_number: item.seasonNumber,
-          name: item.name,
-          episode_count: item.episodeCount,
-          poster: item.poster,
-          year: item.year,
-        }));
+    type === "tv"
+      ? (title?.seasonList ?? [])
+          .filter((item) => item.seasonNumber > 0 && item.episodeCount > 0)
+          .map((item) => ({
+            season_number: item.seasonNumber,
+            name: item.name,
+            episode_count: item.episodeCount,
+            poster: item.poster,
+            year: item.year,
+          }))
+      : [];
   const episodeCards: TvEpisode[] =
-    type === "movie" && title
-      ? [
-          {
-            episode_number: 1,
-            name: title.title,
-            overview: title.overview,
-            still: title.backdrop || title.poster,
-            runtime: Number((title.runtime || "").replace(/\D/g, "")) || null,
-            vote_average: Number(title.rating) || 0,
-          },
-        ]
-      : episodes.map((item) => ({
+    type === "tv"
+      ? episodes.map((item) => ({
           episode_number: item.episodeNumber,
           name: item.name,
           overview: item.overview,
           still: item.still,
           runtime: item.runtime,
           vote_average: item.voteAverage,
-        }));
+        }))
+      : [];
   const episodeNav = useMemo(() => {
     const sorted = [...seasonCards].sort((a, b) => a.season_number - b.season_number);
     const index = sorted.findIndex((item) => item.season_number === selectedSeason);
@@ -408,18 +393,14 @@ export default function WatchPlayer({
           </div>
         ) : null}
 
-        {title && seasonCards.length > 0 ? (
+        {type === "tv" && seasonCards.length > 0 ? (
           <TvEpisodeBrowser
             seasons={seasonCards}
             episodes={episodeCards}
-            selectedSeason={type === "movie" ? 1 : selectedSeason}
-            selectedEpisode={type === "movie" ? 1 : selectedEpisode}
-            loading={type === "tv" && epLoading && episodeCards.length === 0}
+            selectedSeason={selectedSeason}
+            selectedEpisode={selectedEpisode}
+            loading={epLoading && episodeCards.length === 0}
             onSelectSeason={(nextSeason) => {
-              if (type === "movie") {
-                document.getElementById("watch-player")?.scrollIntoView({ behavior: "smooth", block: "start" });
-                return;
-              }
               pendingEpisodeRef.current = null;
               setSelectedSeason(nextSeason);
               syncUrl(nextSeason, selectedEpisode);
