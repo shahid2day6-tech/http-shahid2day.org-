@@ -5,6 +5,7 @@ import { SITE_URL } from "./site";
 export function staticSitemapPaths(): string[] {
   return [
     "",
+    "/about",
     "/movies",
     "/series",
     "/browse",

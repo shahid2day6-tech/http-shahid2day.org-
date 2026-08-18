@@ -33,6 +33,9 @@ export default function Footer() {
           <p className="mt-2">
             {t("rights")} © {year} {t("brand")}
           </p>
+          <div className="mt-4 flex flex-wrap gap-3 text-xs">
+            <Link href="/about" className="hover:text-[#e50914]">About</Link>
+          </div>
         </div>
       </div>
     </footer>
