@@ -299,9 +299,9 @@ export default function WatchPlayer({
               src={current.url}
               title={current.label}
               className="relative z-10 h-full w-full border-0"
-              allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
+              allow="autoplay; fullscreen; encrypted-media; picture-in-picture; clipboard-write"
               allowFullScreen
-              referrerPolicy="origin"
+              referrerPolicy="no-referrer-when-downgrade"
             />
           ) : (
             <button

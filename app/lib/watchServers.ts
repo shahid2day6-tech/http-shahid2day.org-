@@ -16,20 +16,42 @@ export function buildWatchServers(
       ? `https://vidlink.pro/tv/${id}/${season}/${episode}?primaryColor=e50914&secondaryColor=111111&autoplay=true`
       : `https://vidlink.pro/movie/${id}?primaryColor=e50914&secondaryColor=111111&autoplay=true`;
 
+  const oneEmbed =
+    type === "tv"
+      ? `https://1embed.cc/embed/tv/${id}/${season}/${episode}`
+      : `https://1embed.cc/embed/movie/${id}`;
+
+  const twoEmbed =
+    type === "tv"
+      ? `https://www.2embed.cc/embedtv/${id}?s=${season}&e=${episode}`
+      : `https://www.2embed.cc/embed/${id}`;
+
+  const vidsrcTo =
+    type === "tv"
+      ? `https://vidsrc.to/embed/tv/${id}/${season}/${episode}?ds_lang=ar`
+      : `https://vidsrc.to/embed/movie/${id}?ds_lang=ar`;
+
   return [
+    {
+      name: "shahid2day",
+      label: "shahid2day",
+      recommended: true,
+      url: oneEmbed,
+    },
+    {
+      name: "2Embed",
+      label: "2Embed",
+      url: twoEmbed,
+    },
     {
       name: "VidLink",
       label: "VidLink",
-      recommended: true,
       url: vidlink,
     },
     {
       name: "VidLink1",
       label: "VidLink1",
-      url:
-        type === "tv"
-          ? `https://vidsrc.me/embed/tv/${id}/${season}/${episode}?ds_lang=ar`
-          : `https://vidsrc.me/embed/movie/${id}?ds_lang=ar`,
+      url: vidsrcTo,
     },
     {
       name: "VidCC",
@@ -52,21 +74,13 @@ export function buildWatchServers(
       label: "Videasy",
       url:
         type === "tv"
-          ? `https://player.videasy.net/tv/${id}/${season}/${episode}?color=e50914`
-          : `https://player.videasy.net/movie/${id}?color=e50914`,
-    },
-    {
-      name: "Vidsharing",
-      label: "Vidsharing",
-      url:
-        type === "tv"
-          ? `https://1embed.cc/embed/tv/${id}/${season}/${episode}`
-          : `https://1embed.cc/embed/movie/${id}`,
+          ? `https://player.videasy.to/tv/${id}/${season}/${episode}?color=e50914`
+          : `https://player.videasy.to/movie/${id}?color=e50914`,
     },
     {
       name: "Vidعربي",
       label: "Vidعربي",
-      url: vidlink,
+      url: `${vidlink}&sub=ar&ds_lang=ar&lang=ar&audio_lang=ar`,
     },
     {
       name: "VidCore",
@@ -75,14 +89,6 @@ export function buildWatchServers(
         type === "tv"
           ? `https://vidcore.org/embed/tv/${id}/${season}/${episode}?sub=ar`
           : `https://vidcore.org/embed/movie/${id}?sub=ar`,
-    },
-    {
-      name: "EmbedAPI",
-      label: "EmbedAPI",
-      url:
-        type === "tv"
-          ? `https://watch.embed-api.stream/embed/tv/${id}/${season}/${episode}`
-          : `https://watch.embed-api.stream/embed/movie/${id}`,
     },
     {
       name: "Smashy",
