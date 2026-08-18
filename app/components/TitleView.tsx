@@ -3,6 +3,8 @@
 import Image from "next/image";
 import type { ReactNode } from "react";
 import { listingTitle, type TitleDetails } from "../lib/tmdb";
+import { formatAgeBadge } from "../lib/tmdbAge";
+import { useTmdbAgeCode } from "../lib/useTmdbAgeCode";
 import { useLang } from "../context/LanguageContext";
 import MediaRow from "./MediaRow";
 import { SiteAdsterraRail } from "./ads/SiteAdsterraRail";
@@ -49,6 +51,7 @@ function ActionBox({
 
 export default function TitleView({ title }: { title: TitleDetails }) {
   const { t } = useLang();
+  const ageCode = useTmdbAgeCode(title.type, title.id) ?? "13";
   const firstSeason = title.seasonList?.[0]?.seasonNumber ?? 1;
   const watchHref = `/watch?id=${title.id}&type=${title.type}${
     title.type === "tv" ? `&season=${firstSeason}&episode=1` : ""
@@ -83,6 +86,7 @@ export default function TitleView({ title }: { title: TitleDetails }) {
                 label={t("classification")}
                 value={title.type === "tv" ? t("show") : t("movie")}
               />
+              <FactBox label={t("ageRating")} value={formatAgeBadge(ageCode)} />
               <FactBox label={t("year")} value={title.year} />
               <FactBox
                 label={t("rating")}
