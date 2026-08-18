@@ -48,19 +48,29 @@ function CatalogMenu({
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => setOpen(false)}
     >
-      <button
-        type="button"
-        className={`inline-flex items-center gap-1 px-2.5 py-1.5 text-[13px] font-bold sm:px-4 sm:text-base ${
+      <div
+        className={`inline-flex items-center ${
           active ? "text-white" : "text-white/80 hover:text-white"
         }`}
-        aria-expanded={open}
-        onClick={() => setOpen((value) => !value)}
       >
-        {t(labelKey)}
-        <span className="text-[10px]">▼</span>
-      </button>
+        <Link
+          href={href}
+          className="px-2.5 py-1.5 text-[13px] font-bold sm:px-4 sm:text-base"
+        >
+          {t(labelKey)}
+        </Link>
+        <button
+          type="button"
+          className="-ms-1 pe-2.5 py-1.5 text-[10px] sm:pe-3"
+          aria-expanded={open}
+          aria-label={t(labelKey)}
+          onClick={() => setOpen((value) => !value)}
+        >
+          ▼
+        </button>
+      </div>
       {open ? (
-        <div className="absolute top-full start-0 z-[80] min-w-[230px] overflow-hidden rounded-b-lg bg-[#1a2332] py-1 shadow-2xl">
+        <div className="absolute top-full end-0 z-[200] min-w-[230px] overflow-hidden rounded-b-lg bg-[#1a2332] py-1 shadow-2xl sm:end-auto sm:start-0">
           <Link
             href={href}
             onClick={() => setOpen(false)}
@@ -122,19 +132,29 @@ function HrefMenu({
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => setOpen(false)}
     >
-      <button
-        type="button"
-        className={`inline-flex items-center gap-1 px-2.5 py-1.5 text-[13px] font-bold sm:px-4 sm:text-base ${
+      <div
+        className={`inline-flex items-center ${
           active ? "text-white" : "text-white/80 hover:text-white"
         }`}
-        aria-expanded={open}
-        onClick={() => setOpen((value) => !value)}
       >
-        {t(labelKey)}
-        <span className="text-[10px]">▼</span>
-      </button>
+        <Link
+          href={href}
+          className="px-2.5 py-1.5 text-[13px] font-bold sm:px-4 sm:text-base"
+        >
+          {t(labelKey)}
+        </Link>
+        <button
+          type="button"
+          className="-ms-1 pe-2.5 py-1.5 text-[10px] sm:pe-3"
+          aria-expanded={open}
+          aria-label={t(labelKey)}
+          onClick={() => setOpen((value) => !value)}
+        >
+          ▼
+        </button>
+      </div>
       {open ? (
-        <div className="absolute top-full start-0 z-[80] min-w-[230px] overflow-hidden rounded-b-lg bg-[#1a2332] py-1 shadow-2xl">
+        <div className="absolute top-full end-0 z-[200] min-w-[230px] overflow-hidden rounded-b-lg bg-[#1a2332] py-1 shadow-2xl sm:end-auto sm:start-0">
           <Link
             href={href}
             onClick={() => setOpen(false)}
@@ -167,9 +187,9 @@ export default function Navbar() {
   const pathname = usePathname();
 
   return (
-    <header className="sticky top-0 z-50">
-      <div className="bg-[#9d0b12]">
-        <div className="mx-auto flex max-w-7xl items-center gap-2 px-2 py-2 sm:gap-3 sm:px-6 sm:py-3">
+    <header className="sticky top-0 z-50 overflow-visible">
+      <div className="relative z-[60] overflow-visible bg-[#9d0b12]">
+        <div className="mx-auto flex max-w-7xl items-center gap-2 overflow-visible px-2 py-2 sm:gap-3 sm:px-6 sm:py-3">
           <nav className="flex min-w-0 flex-1 items-center gap-0.5 overflow-visible sm:gap-2">
             <Link
               href="/"
