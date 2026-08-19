@@ -1,11 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLang } from "../context/LanguageContext";
 import { listingTitle, type TitleDetails, type TvSeasonEpisode } from "../lib/tmdb";
-import { titleHref } from "../lib/slug";
 import { buildWatchServers } from "../lib/watchServers";
 import TvEpisodeBrowser, { type TvEpisode, type TvSeason } from "./TvEpisodeBrowser";
 import WatchSuggestions from "./WatchSuggestions";
@@ -82,7 +80,6 @@ export default function WatchPlayer({
     [type, id, selectedSeason, selectedEpisode]
   );
   const current = servers[Math.min(active, Math.max(servers.length - 1, 0))];
-  const backHref = title ? titleHref(title) : "/";
   const heading = title ? listingTitle(title) : t("watchNow");
   const seasonCards: TvSeason[] =
     type === "tv"
@@ -163,18 +160,6 @@ export default function WatchPlayer({
 
   return (
     <div className="min-h-screen bg-black text-white">
-      <div className="mx-auto flex max-w-[1100px] items-center justify-between gap-3 px-4 py-3">
-        <Link href={backHref} className="text-sm font-bold text-[#e50914]">
-          ← {t("details")}
-        </Link>
-        <p className="truncate text-sm font-black sm:text-base" dir="auto">
-          {heading}
-        </p>
-        <span className="shrink-0 rounded-md bg-[#e50914] px-2 py-1 text-[11px] font-black">
-          {t("subtitled")}
-        </span>
-      </div>
-
       {title ? (
         <section className="mx-auto mb-4 max-w-[1100px] overflow-hidden rounded-2xl border border-[#262626] bg-[#141414] px-4">
           <div className="flex flex-col gap-4 py-4 sm:flex-row sm:items-end">
