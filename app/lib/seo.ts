@@ -1,6 +1,7 @@
 import { SITE_NAME_AR, SITE_NAME_EN } from "./site";
 import { FEATURED_ANIME_KEYWORDS } from "./featuredAnime";
 import { FEATURED_KOREAN_KEYWORDS } from "./koreanCatalog";
+import { FEATURED_TURKISH_KEYWORDS } from "./turkishCatalog";
 import { ADULT_ANIME_KEYWORDS } from "./adultAnime";
 
 export const ENGLISH_SEO_KEYWORDS = [
@@ -623,6 +624,7 @@ export function pageKeywords(...extra: string[]): string[] {
     SITE_NAME_AR,
     ...FEATURED_ANIME_KEYWORDS,
     ...FEATURED_KOREAN_KEYWORDS,
+    ...FEATURED_TURKISH_KEYWORDS,
     ...ADULT_ANIME_KEYWORDS,
     ...extra,
     ...SEO_KEYWORDS,

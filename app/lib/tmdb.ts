@@ -6,6 +6,7 @@ import { WEEKLY_HOT_ANIME } from "./featuredAnime";
 import { ADULT_ANIME } from "./adultAnime";
 import { HOT_MOVIE_IDS, HOT_TV_IDS } from "./hotCatalog";
 import { KOREAN_MOVIES, KOREAN_TV } from "./koreanCatalog";
+import { TURKISH_MOVIES, TURKISH_TV } from "./turkishCatalog";
 import { filterBlockedItems, isBlockedTitle } from "./blockedTitles";
 
 const TMDB = "https://api.themoviedb.org/3";
@@ -676,8 +677,13 @@ export async function discoverBrowse(
   }
   const page = Math.max(1, browsePage);
   const start = (page - 1) * BROWSE_PAGE_SIZE;
-  if ("kind" in source && source.group === "korean") {
-    const pinned = constrainCatalogItems(await listKoreanCatalog(source.kind, lang), filters);
+  if ("kind" in source && (source.group === "korean" || source.group === "turkish")) {
+    const pinned = constrainCatalogItems(
+      source.group === "korean"
+        ? await listKoreanCatalog(source.kind, lang)
+        : await listTurkishCatalog(source.kind, lang),
+      filters
+    );
     const pinSlice = pinned.slice(start, start + BROWSE_PAGE_SIZE);
     const tmdbStart = Math.floor(start / TMDB_PAGE_SIZE) + 1;
     const tmdbEnd = Math.ceil((start + BROWSE_PAGE_SIZE) / TMDB_PAGE_SIZE) + 1;
@@ -1434,6 +1440,23 @@ export async function listKoreanTitles(lang: string): Promise<MediaItem[]> {
   return uniqueItems([...tv, ...movies]);
 }
 
+export async function listTurkishCatalog(kind: CatalogKind, lang: string): Promise<MediaItem[]> {
+  const pins = kind === "movie" ? TURKISH_MOVIES : TURKISH_TV;
+  const rows = await Promise.all(pins.map((item) => fetchFeaturedTitle(item.type, item.id, lang)));
+  return uniqueItems(rows.filter((item): item is MediaItem => Boolean(item))).map((item) => ({
+    ...item,
+    title: pins.find((row) => row.id === item.id && row.type === item.type)?.title || item.title,
+  }));
+}
+
+export async function listTurkishTitles(lang: string): Promise<MediaItem[]> {
+  const [tv, movies] = await Promise.all([
+    listTurkishCatalog("tv", lang),
+    listTurkishCatalog("movie", lang),
+  ]);
+  return uniqueItems([...tv, ...movies]);
+}
+
 async function discoverTopRatedAnime(lang: string): Promise<MediaItem[]> {
   const language = lang.startsWith("ar") ? "ar-SA" : "en-US";
   const shared = {
@@ -1489,6 +1512,8 @@ export async function homeCatalog(lang: string) {
     adult18Rows,
     koreanSeriesRows,
     koreanMovieRows,
+    turkishSeriesRows,
+    turkishMovieRows,
     pinnedMovies,
     pinnedSeries,
     dailyMovies,
@@ -1513,6 +1538,8 @@ export async function homeCatalog(lang: string) {
     Promise.all(ADULT_ANIME.map((item) => fetchFeaturedTitle(item.type, item.id, lang))),
     Promise.all(KOREAN_TV.slice(0, 28).map((item) => fetchFeaturedTitle(item.type, item.id, lang))),
     Promise.all(KOREAN_MOVIES.slice(0, 28).map((item) => fetchFeaturedTitle(item.type, item.id, lang))),
+    Promise.all(TURKISH_TV.slice(0, 28).map((item) => fetchFeaturedTitle(item.type, item.id, lang))),
+    Promise.all(TURKISH_MOVIES.slice(0, 28).map((item) => fetchFeaturedTitle(item.type, item.id, lang))),
     Promise.all(HOT_MOVIE_IDS.map((id) => fetchFeaturedTitle("movie", id, lang))),
     Promise.all(HOT_TV_IDS.map((id) => fetchFeaturedTitle("tv", id, lang))),
     rail((page) => discoverDailyMovies(lang, page)),
@@ -1546,6 +1573,20 @@ export async function homeCatalog(lang: string) {
     ...item,
     title: KOREAN_MOVIES.find((row) => row.id === item.id)?.title || item.title,
   }));
+  const turkishPinned = uniqueItems([
+    ...turkishSeriesRows
+      .filter((item): item is MediaItem => Boolean(item))
+      .map((item) => ({
+        ...item,
+        title: TURKISH_TV.find((row) => row.id === item.id)?.title || item.title,
+      })),
+    ...turkishMovieRows
+      .filter((item): item is MediaItem => Boolean(item))
+      .map((item) => ({
+        ...item,
+        title: TURKISH_MOVIES.find((row) => row.id === item.id)?.title || item.title,
+      })),
+  ]);
   return {
     trending: row(trending),
     movies: uniqueItems([
@@ -1572,7 +1613,7 @@ export async function homeCatalog(lang: string) {
     animeSeries: row(animeSeries),
     arabicMovies: row(arabicMovies),
     arabicSeries: row(arabicSeries),
-    turkish: row(turkish),
+    turkish: uniqueItems([...turkishPinned, ...row(turkish)]).slice(0, 28),
     asian: row(asian),
     franchises: row(franchises),
   };
