@@ -5,6 +5,7 @@ import type { MediaItem } from "../lib/tmdb";
 import { useLang } from "../context/LanguageContext";
 import MediaCard from "./MediaCard";
 import { InGridAdCard } from "./ads/InGridAdCard";
+import { pickRandomInsertAfter } from "./ads/randomInGridSlots";
 
 export default function WatchSuggestions({ items }: { items: MediaItem[] }) {
   const { t, isRtl } = useLang();
@@ -30,6 +31,13 @@ export default function WatchSuggestions({ items }: { items: MediaItem[] }) {
   }, [items.length]);
 
   if (!items.length) return null;
+
+  const insertAfter = pickRandomInsertAfter(
+    items.length,
+    items.length >= 8 ? 2 : 1,
+    6,
+    "watch-suggest",
+  );
 
   function scrollByAmount(direction: "next" | "prev") {
     const el = scrollRef.current;
@@ -94,10 +102,10 @@ export default function WatchSuggestions({ items }: { items: MediaItem[] }) {
               <MediaCard item={item} movieLabel={t("movie")} showLabel={t("show")} />
             </div>
           );
-          if (index !== 3) return [card];
+          if (!insertAfter.has(index + 1)) return [card];
           return [
-            <InGridAdCard key="suggest-ad" className="w-[165px] shrink-0 sm:w-[180px]" />,
             card,
+            <InGridAdCard key={`suggest-ad-${index}`} className="w-[165px] shrink-0 sm:w-[180px]" />,
           ];
         })}
       </div>

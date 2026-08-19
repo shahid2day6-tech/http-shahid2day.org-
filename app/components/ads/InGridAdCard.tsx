@@ -14,6 +14,7 @@ export function InGridAdCard({ className = "" }: { className?: string }) {
   const network = useCoverAdNetwork();
   const frameRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
+  const [empty, setEmpty] = useState(false);
 
   useEffect(() => {
     const el = frameRef.current;
@@ -30,7 +31,7 @@ export function InGridAdCard({ className = "" }: { className?: string }) {
     return () => ro.disconnect();
   }, [network]);
 
-  if (!network) return null;
+  if (!network || empty) return null;
 
   return (
     <div className={className}>
@@ -48,7 +49,7 @@ export function InGridAdCard({ className = "" }: { className?: string }) {
             }}
           >
             {network === "adsterra" ? (
-              <AdsterraBanner size="300x250" skipClaim nativeSize />
+              <AdsterraBanner size="300x250" skipClaim nativeSize onEmpty={() => setEmpty(true)} />
             ) : (
               <HilltopBanner300 skipClaim />
             )}
