@@ -124,7 +124,7 @@ export default function BrowseGrid({
       {items.length === 0 ? (
         <p className="text-[#a3a3a3]">{t("noResults")}</p>
       ) : (
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4">
           {withInGridAds(
             items.map((item) => (
               <MediaCard

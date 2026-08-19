@@ -40,7 +40,7 @@ export default function MediaRow({
           const card = (
             <div
               key={item.href ?? `${item.type}-${item.id}`}
-              className="w-[148px] shrink-0 scroll-snap-start sm:w-[168px]"
+              className="w-[188px] shrink-0 scroll-snap-start sm:w-[216px] lg:w-[236px]"
             >
               <MediaCard item={item} movieLabel={t("movie")} showLabel={t("show")} />
             </div>
@@ -50,7 +50,7 @@ export default function MediaRow({
             card,
             <InGridAdCard
               key={`${title}-ad-${index}`}
-              className="w-[148px] shrink-0 scroll-snap-start sm:w-[168px]"
+              className="w-[188px] shrink-0 scroll-snap-start sm:w-[216px] lg:w-[236px]"
             />,
           ];
         })}
