@@ -77,7 +77,9 @@ function mapResults(
   return out;
 }
 
-export async function getCrawlCatalog(kind: "home" | "movies" | "series" = "home"): Promise<CrawlLink[]> {
+export async function getCrawlCatalog(
+  kind: "home" | "movies" | "series" | "anime" = "home"
+): Promise<CrawlLink[]> {
   if (kind === "movies") {
     const [popular, nowPlaying] = await Promise.all([
       fetchList(`/movie/popular?api_key=${TMDB_KEY}&language=en-US&page=1`),
@@ -97,6 +99,25 @@ export async function getCrawlCatalog(kind: "home" | "movies" | "series" = "home
     return uniqueLinks([
       ...mapResults(onAir, "tv", "مسلسل"),
       ...mapResults(popular, "tv", "مسلسل"),
+    ]);
+  }
+
+  if (kind === "anime") {
+    const [tv1, tv2, movies] = await Promise.all([
+      fetchList(
+        `/discover/tv?api_key=${TMDB_KEY}&language=en-US&with_genres=16&with_origin_country=JP&sort_by=popularity.desc&page=1`
+      ),
+      fetchList(
+        `/discover/tv?api_key=${TMDB_KEY}&language=en-US&with_genres=16&with_origin_country=JP&sort_by=popularity.desc&page=2`
+      ),
+      fetchList(
+        `/discover/movie?api_key=${TMDB_KEY}&language=en-US&with_genres=16&with_original_language=ja&sort_by=popularity.desc&page=1`
+      ),
+    ]);
+    return uniqueLinks([
+      ...mapResults(tv1, "tv", "انمي"),
+      ...mapResults(tv2, "tv", "انمي"),
+      ...mapResults(movies, "movie", "انمي"),
     ]);
   }
 
