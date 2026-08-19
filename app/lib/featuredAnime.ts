@@ -2,8 +2,40 @@
 
 export type WeeklyHotAnime = { id: number; type: "tv" | "movie" };
 
-/** الأكثر مشاهدة انمي هذا الأسبوع — order matches the requested lists. */
-export const WEEKLY_HOT_ANIME: WeeklyHotAnime[] = [
+const TRENDING_SEARCH_ANIME: WeeklyHotAnime[] = [
+  { id: 37854, type: "tv" }, // One Piece
+  { id: 85937, type: "tv" }, // Demon Slayer
+  { id: 95479, type: "tv" }, // Jujutsu Kaisen
+  { id: 1429, type: "tv" }, // Attack on Titan
+  { id: 127532, type: "tv" }, // Solo Leveling
+  { id: 240411, type: "tv" }, // Dan Da Dan
+  { id: 209867, type: "tv" }, // Frieren: Beyond Journey's End
+  { id: 114410, type: "tv" }, // Chainsaw Man
+  { id: 120089, type: "tv" }, // Spy x Family
+  { id: 65930, type: "tv" }, // My Hero Academia
+  { id: 65494, type: "tv" }, // Re:Zero
+  { id: 203737, type: "tv" }, // Mashle
+  { id: 221211, type: "tv" }, // Kaiju No. 8
+  { id: 220542, type: "tv" }, // The Apothecary Diaries
+  { id: 207332, type: "tv" }, // Sakamoto Days
+  { id: 256721, type: "tv" }, // Gachiakuta
+  { id: 223500, type: "tv" }, // Wind Breaker
+  { id: 203075, type: "tv" }, // Oshi no Ko
+  { id: 63926, type: "tv" }, // One Punch Man
+  { id: 46298, type: "tv" }, // Hunter x Hunter
+  { id: 13916, type: "tv" }, // Death Note
+  { id: 46260, type: "tv" }, // Naruto
+  { id: 30984, type: "tv" }, // Bleach
+  { id: 88803, type: "tv" }, // Vinland Saga
+  { id: 135051, type: "tv" }, // Blue Lock
+  { id: 86031, type: "tv" }, // Dr. Stone
+  { id: 31911, type: "tv" }, // Fullmetal Alchemist: Brotherhood
+  { id: 42509, type: "tv" }, // Haikyuu!!
+  { id: 68436, type: "tv" }, // Black Clover
+  { id: 90090, type: "tv" }, // Fire Force
+];
+
+const LEGACY_WEEKLY_HOT_ANIME: WeeklyHotAnime[] = [
   { id: 285166, type: "tv" }, // Jack-of-All-Trades, Party of None (Yuusha Party wo Oidasareta Kiyoubinbou)
   { id: 324502, type: "tv" }, // Overgeared (premieres October 2026)
   // List 1
@@ -50,11 +82,129 @@ export const WEEKLY_HOT_ANIME: WeeklyHotAnime[] = [
   { id: 114868, type: "tv" }, // Record of Ragnarok
 ];
 
+function uniquePins(items: WeeklyHotAnime[]): WeeklyHotAnime[] {
+  const seen = new Set<string>();
+  return items.filter((item) => {
+    const key = `${item.type}-${item.id}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+/** الأكثر مشاهدة / الأشهر / الأكثر بحثاً — trending first, then the existing weekly rail. */
+export const WEEKLY_HOT_ANIME: WeeklyHotAnime[] = uniquePins([
+  ...TRENDING_SEARCH_ANIME,
+  ...LEGACY_WEEKLY_HOT_ANIME,
+]);
+
 export const FEATURED_ANIME_IDS: number[] = WEEKLY_HOT_ANIME.filter((item) => item.type === "tv").map(
   (item) => item.id
 );
 
 export const FEATURED_ANIME_KEYWORDS: string[] = [
+  "انمي مترجم اون لاين",
+  "أشهر الانميات",
+  "انميات جديدة 2026",
+  "الاكثر بحثا انمي",
+  "One Piece",
+  "ون بيس",
+  "مشاهدة One Piece مترجم",
+  "انمي ون بيس مترجم اون لاين",
+  "Demon Slayer",
+  "قاتل الشياطين",
+  "مشاهدة Demon Slayer مترجم",
+  "انمي قاتل الشياطين مترجم",
+  "Jujutsu Kaisen",
+  "جوجوتسو كايسن",
+  "مشاهدة Jujutsu Kaisen مترجم",
+  "انمي جوجوتسو مترجم",
+  "Attack on Titan",
+  "هجوم العمالقة",
+  "مشاهدة Attack on Titan مترجم",
+  "انمي هجوم العمالقة مترجم",
+  "Solo Leveling",
+  "سولوليفينغ",
+  "مشاهدة Solo Leveling مترجم",
+  "انمي سولو ليفلنغ مترجم",
+  "Dandadan",
+  "Dan Da Dan",
+  "داندا دان",
+  "مشاهدة Dandadan مترجم",
+  "انمي داندا دان مترجم",
+  "Frieren",
+  "فريرن",
+  "مشاهدة Frieren مترجم",
+  "انمي فريرن مترجم",
+  "Chainsaw Man",
+  "رجل المنشار",
+  "مشاهدة Chainsaw Man مترجم",
+  "Spy x Family",
+  "سباي فاميلي",
+  "مشاهدة Spy x Family مترجم",
+  "My Hero Academia",
+  "أكاديمية البطولة",
+  "مشاهدة My Hero Academia مترجم",
+  "Re:Zero",
+  "ري زيرو",
+  "مشاهدة Re:Zero مترجم",
+  "Mashle",
+  "ماشل",
+  "مشاهدة Mashle مترجم",
+  "Kaiju No. 8",
+  "كيجو رقم 8",
+  "مشاهدة Kaiju No. 8 مترجم",
+  "The Apothecary Diaries",
+  "مذكرات الصيدلانية",
+  "مشاهدة The Apothecary Diaries مترجم",
+  "Sakamoto Days",
+  "أيام ساكاموتو",
+  "مشاهدة Sakamoto Days مترجم",
+  "Gachiakuta",
+  "غاتشياكوتا",
+  "مشاهدة Gachiakuta مترجم",
+  "Wind Breaker",
+  "ويند بريكر",
+  "مشاهدة Wind Breaker مترجم",
+  "Oshi no Ko",
+  "أوشي نو كو",
+  "مشاهدة Oshi no Ko مترجم",
+  "One Punch Man",
+  "رجل اللكمة الواحدة",
+  "مشاهدة One Punch Man مترجم",
+  "Hunter x Hunter",
+  "القناص",
+  "مشاهدة Hunter x Hunter مترجم",
+  "Death Note",
+  "مذكرة الموت",
+  "مشاهدة Death Note مترجم",
+  "Naruto",
+  "ناروتو",
+  "مشاهدة Naruto مترجم",
+  "Bleach",
+  "بليتش",
+  "مشاهدة Bleach مترجم",
+  "Vinland Saga",
+  "ملحمة فينلاند",
+  "مشاهدة Vinland Saga مترجم",
+  "Blue Lock",
+  "بلو لوك",
+  "مشاهدة Blue Lock مترجم",
+  "Dr. Stone",
+  "دكتور ستون",
+  "مشاهدة Dr. Stone مترجم",
+  "Fullmetal Alchemist Brotherhood",
+  "الخيميائي الفولاذي",
+  "مشاهدة Fullmetal Alchemist مترجم",
+  "Haikyuu",
+  "هايكيو",
+  "مشاهدة Haikyuu مترجم",
+  "Black Clover",
+  "بلاك كلوفر",
+  "مشاهدة Black Clover مترجم",
+  "Fire Force",
+  "فاير فورس",
+  "مشاهدة Fire Force مترجم",
   "Yuusha Party wo Oidasareta Kiyoubinbou",
   "Jack-of-All-Trades, Party of None",
   "勇者パーティを追い出された器用貧乏",

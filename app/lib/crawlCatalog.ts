@@ -1,3 +1,4 @@
+import { WEEKLY_HOT_ANIME } from "./featuredAnime";
 import { isBlockedTitle } from "./blockedTitles";
 import { SITE_URL } from "./site";
 import { titleHref } from "./slug";
@@ -77,6 +78,24 @@ function mapResults(
   return out;
 }
 
+async function fetchTitleRow(type: "movie" | "tv", id: number) {
+  const data = await fetchList(`/${type}/${id}?api_key=${TMDB_KEY}&language=en-US`);
+  const row = data as unknown as NonNullable<TmdbList["results"]>[number];
+  if (!row?.id && !row?.name && !row?.title) return null;
+  return row;
+}
+
+async function featuredAnimeLinks(kindWord: string): Promise<CrawlLink[]> {
+  const rows = await Promise.all(
+    WEEKLY_HOT_ANIME.slice(0, 30).map(async (item) => {
+      const row = await fetchTitleRow(item.type, item.id);
+      if (!row) return [] as CrawlLink[];
+      return mapResults({ results: [row] }, item.type, kindWord);
+    })
+  );
+  return uniqueLinks(rows.flat());
+}
+
 export async function getCrawlCatalog(
   kind: "home" | "movies" | "series" | "anime" = "home"
 ): Promise<CrawlLink[]> {
@@ -103,6 +122,7 @@ export async function getCrawlCatalog(
   }
 
   if (kind === "anime") {
+    const featured = await featuredAnimeLinks("انمي");
     const [tv1, tv2, movies] = await Promise.all([
       fetchList(
         `/discover/tv?api_key=${TMDB_KEY}&language=en-US&with_genres=16&with_origin_country=JP&sort_by=popularity.desc&page=1`
@@ -115,6 +135,7 @@ export async function getCrawlCatalog(
       ),
     ]);
     return uniqueLinks([
+      ...featured,
       ...mapResults(tv1, "tv", "انمي"),
       ...mapResults(tv2, "tv", "انمي"),
       ...mapResults(movies, "movie", "انمي"),

@@ -1411,6 +1411,11 @@ export async function listAdultAnime(lang: string): Promise<MediaItem[]> {
   }));
 }
 
+export async function listFeaturedAnime(lang: string): Promise<MediaItem[]> {
+  const rows = await Promise.all(WEEKLY_HOT_ANIME.map((item) => fetchFeaturedTitle(item.type, item.id, lang)));
+  return uniqueItems(rows.filter((item): item is MediaItem => Boolean(item)));
+}
+
 export async function listKoreanCatalog(kind: CatalogKind, lang: string): Promise<MediaItem[]> {
   const pins = kind === "movie" ? KOREAN_MOVIES : KOREAN_TV;
   const rows = await Promise.all(pins.map((item) => fetchFeaturedTitle(item.type, item.id, lang)));

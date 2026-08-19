@@ -5,6 +5,7 @@ import { titleHref } from "./lib/slug";
 import {
   discoverFranchises,
   listAdultAnime,
+  listFeaturedAnime,
   listKoreanTitles,
   listSitemapItems,
   type MediaItem,
@@ -59,15 +60,16 @@ export default async function sitemap({ id }: { id: number | string }): Promise<
   }
 
   if (index === 3) {
-    const [animeTv, animeMovies, asianTv, asianMovies, adultAnime, koreanTitles] = await Promise.all([
+    const [animeTv, animeMovies, asianTv, asianMovies, adultAnime, featuredAnime, koreanTitles] = await Promise.all([
       listSitemapItems("/discover/tv", { with_genres: "16", with_origin_country: "JP", sort_by: "popularity.desc" }, 12),
       listSitemapItems("/discover/movie", { with_genres: "16", with_original_language: "ja", sort_by: "popularity.desc" }, 12),
       listSitemapItems("/discover/tv", { with_origin_country: "JP|KR|CN|TH", without_genres: "16", sort_by: "popularity.desc" }, 8),
       listSitemapItems("/discover/movie", { with_origin_country: "JP|KR|CN|TH", without_genres: "16", sort_by: "popularity.desc" }, 8),
       listAdultAnime("en"),
+      listFeaturedAnime("en"),
       listKoreanTitles("en"),
     ]);
-    return titleEntries([...adultAnime, ...koreanTitles, ...animeTv, ...animeMovies, ...asianTv, ...asianMovies]);
+    return titleEntries([...featuredAnime, ...adultAnime, ...koreanTitles, ...animeTv, ...animeMovies, ...asianTv, ...asianMovies]);
   }
 
   const [arabicTv, arabicMovies, turkishTv, turkishMovies, ramadan, franchises] = await Promise.all([
