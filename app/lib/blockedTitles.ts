@@ -6,6 +6,8 @@ const BLOCKED_TITLES = new Set([
   "tv:244447", // The Hunting Wives (2025)
   "movie:672", // Harry Potter and the Chamber of Secrets (2002) — OSN
   "tv:1639", // Gossip Girl (2007) — OSN
+  "movie:257211", // The Intern (2015) — OSN / GULF DTH FZ LLC
+  "tv:1426", // Shameless (2011) — OSN / GULF DTH FZ LLC
 ]);
 
 export function isBlockedTitle(type: MediaType, id: number): boolean {
@@ -16,4 +18,20 @@ export function filterBlockedItems<T extends { type: MediaType; id: number }>(
   items: T[]
 ): T[] {
   return items.filter((item) => !isBlockedTitle(item.type, item.id));
+}
+
+export function isBlockedWatchParam(param: string, type: MediaType): boolean {
+  let decoded = param;
+  try {
+    decoded = decodeURIComponent(param);
+  } catch {
+    /* keep raw */
+  }
+  const lower = decoded.toLowerCase();
+  if (type === "movie" && (/the-intern-2015/.test(lower) || (/المتدرب/.test(decoded) && /2015/.test(decoded)))) {
+    return true;
+  }
+  if (type === "tv" && /shameless-2011/.test(lower)) return true;
+  if (/^\d+$/.test(decoded.trim()) && isBlockedTitle(type, Number(decoded.trim()))) return true;
+  return false;
 }
