@@ -5,7 +5,6 @@ export type MostWatchedTitle = { id: number; type: "movie" | "tv" };
 
 /** GATE24 + famous titles pinned to the Most watched today / trending rail. */
 export const MOST_WATCHED_TODAY: MostWatchedTitle[] = [
-  { id: 323579, type: "tv" }, // GATE24: The Border
   { id: 1288445, type: "movie" }, // Mutiny (2026)
   { id: 1084244, type: "movie" }, // Toy Story 5
   { id: 108978, type: "tv" }, // Reacher
