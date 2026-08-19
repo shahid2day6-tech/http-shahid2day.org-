@@ -10,6 +10,8 @@ import { MonetagTag } from "./components/ads/MonetagTag";
 import { MonetagVignette } from "./components/ads/MonetagVignette";
 import { MonetagOnclick } from "./components/ads/MonetagOnclick";
 import { MonetagClickGate } from "./components/ads/MonetagClickGate";
+import { AdChromeGuard } from "./components/ads/AdChromeGuard";
+import { PlayerCornerAds } from "./components/ads/PlayerCornerAds";
 import { SITE_LOGO, SITE_NAME_AR, SITE_NAME_EN, SITE_URL } from "./lib/site";
 import { pageKeywords, SEO_DESCRIPTION } from "./lib/seo";
 import { htmlLangDir, parseUiLang, UI_LANG_KEY } from "./lib/langPref";
@@ -151,6 +153,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         />
         <LanguageProvider initialLang={initialLang}>
           <SiteShell>{children}</SiteShell>
+          <AdChromeGuard />
+          <PlayerCornerAds />
           <MonetagClickGate />
           <MonetagTag />
           <MonetagVignette />

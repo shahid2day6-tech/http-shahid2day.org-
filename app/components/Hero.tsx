@@ -25,7 +25,10 @@ export default function Hero({ items }: { items: MediaItem[] }) {
   const href = titleHref(current);
 
   return (
-    <section className="relative mb-6 h-[min(72svh,560px)] min-h-[360px] overflow-hidden rounded-b-3xl border-b border-[#243044] sm:mb-8 sm:h-[min(70svh,620px)] md:h-[min(64svh,680px)] lg:h-[min(58vw,620px)]">
+    <section
+      data-site-hero="1"
+      className="relative mb-6 h-[min(72svh,560px)] min-h-[360px] overflow-hidden rounded-b-3xl border-b border-[#243044] sm:mb-8 sm:h-[min(70svh,620px)] md:h-[min(64svh,680px)] lg:h-[min(58vw,620px)]"
+    >
       <Image
         src={current.backdrop!}
         alt={current.title}
@@ -38,7 +41,7 @@ export default function Hero({ items }: { items: MediaItem[] }) {
       <div className="absolute inset-0 flex items-end">
         <div className="mx-auto w-full max-w-7xl px-4 pb-6 sm:px-6 sm:pb-10 md:pb-14">
           <p className="mb-2 inline-flex rounded-full border border-[#e50914]/50 bg-[#e50914]/15 px-3 py-1 text-xs font-bold text-[#e6e2d8] sm:mb-3">
-            {t("trending")}
+            {t("heroLatest")}
           </p>
           <h1 className="max-w-2xl text-2xl font-black leading-tight sm:text-4xl md:text-5xl" dir="auto">
             {current.title}

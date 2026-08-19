@@ -7,12 +7,10 @@ import { SiteAdsterraRail } from "./ads/SiteAdsterraRail";
 export default function SiteShell({ children }: { children: React.ReactNode }) {
   return (
     <>
-      <Navbar />
-      <div className="mx-auto max-w-7xl px-4 pt-4 sm:px-6">
-        <SiteAdsterraRail />
-        <SiteAdsterraRail variant="box" className="mt-4" />
+      <div data-site-chrome="1">
+        <Navbar />
       </div>
-      <main>{children}</main>
+      <main data-site-root="1">{children}</main>
       <div className="mx-auto max-w-7xl px-4 pb-2 sm:px-6">
         <SiteAdsterraRail variant="alt" className="mt-6" />
       </div>

@@ -7,6 +7,36 @@ import MediaRow from "./MediaRow";
 import CatalogToolbar from "./CatalogToolbar";
 import { SiteAdsterraRail } from "./ads/SiteAdsterraRail";
 
+function latestHeroItems(
+  dailyMovies: MediaItem[],
+  dailySeries: MediaItem[],
+  newAnime: MediaItem[],
+  trending: MediaItem[],
+): MediaItem[] {
+  const seen = new Set<string>();
+  const out: MediaItem[] = [];
+  const push = (item?: MediaItem) => {
+    if (!item?.backdrop) return;
+    const key = `${item.type}:${item.id}`;
+    if (seen.has(key)) return;
+    seen.add(key);
+    out.push(item);
+  };
+  const byYear = (a: MediaItem, b: MediaItem) => (b.year || "").localeCompare(a.year || "");
+  const movies = dailyMovies.filter((item) => item.backdrop);
+  const series = dailySeries.filter((item) => item.backdrop);
+  const anime = newAnime.filter((item) => item.backdrop);
+  [movies[0], series[0], anime[0]]
+    .filter((item): item is MediaItem => Boolean(item))
+    .sort(byYear)
+    .forEach(push);
+  movies.forEach(push);
+  series.forEach(push);
+  anime.forEach(push);
+  trending.forEach(push);
+  return out.slice(0, 6);
+}
+
 export default function HomeCatalog({
   trending,
   movies,
@@ -55,11 +85,19 @@ export default function HomeCatalog({
   franchises: MediaItem[];
 }) {
   const { t } = useLang();
+  const heroItems = latestHeroItems(dailyMovies, dailySeries, newAnime, trending);
 
   return (
     <>
-      <Hero items={trending} />
+      <Hero items={heroItems} />
+      <div
+        data-mv-ad-below-hero="1"
+        dir="ltr"
+        className="relative z-20 mx-auto flex max-w-7xl flex-col items-end gap-2 px-4 py-2 sm:px-6"
+      />
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        <SiteAdsterraRail className="mb-4" />
+        <SiteAdsterraRail variant="box" className="mb-6" />
         <CatalogToolbar />
         <MediaRow title={t("trending")} items={trending} />
         <MediaRow title={t("addedTodayMovies")} href="/movies" items={dailyMovies} />
