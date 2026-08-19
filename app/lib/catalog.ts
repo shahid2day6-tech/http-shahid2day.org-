@@ -4,6 +4,9 @@ export type CatalogKind = "movie" | "tv";
 export type CatalogGroup =
   | "franchises"
   | "foreign"
+  | "english"
+  | "spanish"
+  | "french"
   | "asian"
   | "korean"
   | "anime"
@@ -21,6 +24,9 @@ export type CatalogGroup =
 export const MOVIE_GROUPS: { group: CatalogGroup; label: DictKey }[] = [
   { group: "franchises", label: "movieFranchises" },
   { group: "foreign", label: "foreignMovies" },
+  { group: "english", label: "englishMovies" },
+  { group: "spanish", label: "spanishMovies" },
+  { group: "french", label: "frenchMovies" },
   { group: "asian", label: "asianMovies" },
   { group: "korean", label: "koreanMovies" },
   { group: "anime", label: "animeMovies" },
@@ -31,6 +37,9 @@ export const MOVIE_GROUPS: { group: CatalogGroup; label: DictKey }[] = [
 
 export const SERIES_GROUPS: { group: CatalogGroup; label: DictKey }[] = [
   { group: "foreign", label: "foreignSeries" },
+  { group: "english", label: "englishSeries" },
+  { group: "spanish", label: "spanishSeries" },
+  { group: "french", label: "frenchSeries" },
   { group: "asian", label: "asianSeries" },
   { group: "korean", label: "koreanSeries" },
   { group: "anime", label: "animeSeries" },

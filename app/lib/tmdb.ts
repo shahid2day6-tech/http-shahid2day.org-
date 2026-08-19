@@ -557,6 +557,15 @@ export async function discoverCatalog(
     common.with_original_language = "ar";
   } else if (group === "indian") {
     common.with_origin_country = "IN";
+  } else if (group === "english") {
+    common.with_original_language = "en";
+    if (kind === "tv") common.without_genres = "16";
+  } else if (group === "spanish") {
+    common.with_original_language = "es";
+    if (kind === "tv") common.without_genres = "16";
+  } else if (group === "french") {
+    common.with_original_language = "fr";
+    if (kind === "tv") common.without_genres = "16";
   } else if (group.startsWith("ramadan")) {
     const data = await discoverRamadan(group, lang, page);
     return asResult(
@@ -678,7 +687,7 @@ export async function discoverBrowse(
   }
   const page = Math.max(1, browsePage);
   const start = (page - 1) * BROWSE_PAGE_SIZE;
-  if ("kind" in source && (source.group === "korean" || source.group === "turkish" || source.group === "foreign")) {
+  if ("kind" in source && (source.group === "korean" || source.group === "turkish" || source.group === "foreign" || source.group === "english")) {
     const pinned = constrainCatalogItems(
       source.group === "korean"
         ? await listKoreanCatalog(source.kind, lang)
