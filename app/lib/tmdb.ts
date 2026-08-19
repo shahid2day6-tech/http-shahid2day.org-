@@ -198,8 +198,8 @@ function mergeListResponses(
       ...row,
       title: pickDisplayTitle(en.title as string, en.name as string, row.title as string, row.original_title as string),
       name: pickDisplayTitle(en.name as string, en.title as string, row.name as string, row.original_name as string),
-      poster_path: row.poster_path || en.poster_path,
-      backdrop_path: row.backdrop_path || en.backdrop_path,
+      poster_path: en.poster_path || row.poster_path,
+      backdrop_path: en.backdrop_path || row.backdrop_path,
       overview: pickText(row.overview as string, en.overview as string),
       original_title: row.original_title || en.original_title,
       original_name: row.original_name || en.original_name,
@@ -1312,8 +1312,8 @@ export async function getTitle(
       original_title: displayName,
       original_name: displayName,
       overview,
-      poster_path: primary.poster_path || fallback?.poster_path,
-      backdrop_path: primary.backdrop_path || fallback?.backdrop_path,
+      poster_path: fallback?.poster_path || primary.poster_path,
+      backdrop_path: fallback?.backdrop_path || primary.backdrop_path,
     },
     type
   );
