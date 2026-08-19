@@ -231,7 +231,8 @@ function pageRange(count: number): number[] {
 export async function listSitemapItems(
   path: string,
   params: Record<string, string | number>,
-  pages = 8
+  pages = 8,
+  startPage = 1
 ): Promise<MediaItem[]> {
   const fallback: MediaType | undefined = path.includes("/tv")
     ? "tv"
@@ -239,10 +240,10 @@ export async function listSitemapItems(
       ? "movie"
       : undefined;
   const rows = await Promise.all(
-    pageRange(pages).map((page) =>
+    pageRange(pages).map((offset) =>
       tmdb<ListResponse>(path, {
         ...params,
-        page,
+        page: startPage + offset - 1,
         include_adult: "false",
         language: "en-US",
       })

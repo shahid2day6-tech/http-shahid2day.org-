@@ -6,6 +6,7 @@ import {
   catalogHref,
 } from "./catalog";
 import { SITE_URL } from "./site";
+import { SITEMAP_COUNT } from "./sitemap-routes";
 import { titleHref } from "./slug";
 import { submitIndexNow } from "./indexnow";
 import {
@@ -50,6 +51,7 @@ const WARM_PATHS = [
   ),
   ...SERIES_GROUPS.map((item) => `/api/discover?kind=tv&group=${item.group}&lang=ar`),
   "/sitemap.xml",
+  "/sitemap-index",
   "/sitemap/0.xml",
   "/sitemap/1.xml",
   "/sitemap/2.xml",
@@ -86,7 +88,8 @@ export async function refreshCatalog() {
   revalidateTag("tmdb");
   for (const path of SECTION_PATHS) revalidatePath(path);
   revalidatePath("/sitemap.xml");
-  for (const id of [0, 1, 2, 3, 4]) revalidatePath(`/sitemap/${id}.xml`);
+  revalidatePath("/sitemap-index");
+  for (let id = 0; id < SITEMAP_COUNT; id += 1) revalidatePath(`/sitemap/${id}.xml`);
 
   const warmed = await settledCount(
     WARM_PATHS.map((path) =>
@@ -103,6 +106,7 @@ export async function refreshCatalog() {
     SITE_URL,
     `${SITE_URL}/`,
     `${SITE_URL}/sitemap.xml`,
+    `${SITE_URL}/sitemap-index`,
     `${SITE_URL}/sitemap/0.xml`,
     `${SITE_URL}/sitemap/3.xml`,
     ...adult.map((item) => `${SITE_URL}${item.href ?? titleHref(item)}`),
