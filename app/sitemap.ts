@@ -1,11 +1,8 @@
 import type { MetadataRoute } from "next";
 import { SITE_URL } from "./lib/site";
 import {
-  ANIME_MOVIE_CHUNKS,
-  ANIME_MOVIE_PAGES,
   ANIME_PAGES_PER_FILE,
-  ANIME_TV_CHUNKS,
-  ANIME_TV_PAGES,
+  ANIME_SITEMAP_STREAMS,
   SITEMAP_CORE_COUNT,
   SITEMAP_COUNT,
   staticSitemapPaths,
@@ -98,34 +95,15 @@ export default async function sitemap(props: {
     ];
   }
 
-  const animeTvStart = SITEMAP_CORE_COUNT;
-  const animeTvEnd = animeTvStart + ANIME_TV_CHUNKS - 1;
-  if (index >= animeTvStart && index <= animeTvEnd) {
-    const { startPage, count } = chunkRange(index - animeTvStart, ANIME_TV_PAGES);
-    if (count <= 0) return [];
-    return titleEntries(
-      await listSitemapItems(
-        "/discover/tv",
-        { with_genres: "16", with_origin_country: "JP", sort_by: "popularity.desc" },
-        count,
-        startPage
-      )
-    );
-  }
-
-  const animeMovieStart = animeTvEnd + 1;
-  const animeMovieEnd = animeMovieStart + ANIME_MOVIE_CHUNKS - 1;
-  if (index >= animeMovieStart && index <= animeMovieEnd) {
-    const { startPage, count } = chunkRange(index - animeMovieStart, ANIME_MOVIE_PAGES);
-    if (count <= 0) return [];
-    return titleEntries(
-      await listSitemapItems(
-        "/discover/movie",
-        { with_genres: "16", with_original_language: "ja", sort_by: "popularity.desc" },
-        count,
-        startPage
-      )
-    );
+  let offset = SITEMAP_CORE_COUNT;
+  for (const stream of ANIME_SITEMAP_STREAMS) {
+    const chunks = Math.ceil(stream.pages / ANIME_PAGES_PER_FILE);
+    if (index >= offset && index < offset + chunks) {
+      const { startPage, count } = chunkRange(index - offset, stream.pages);
+      if (count <= 0) return [];
+      return titleEntries(await listSitemapItems(stream.path, stream.params, count, startPage));
+    }
+    offset += chunks;
   }
 
   return [];

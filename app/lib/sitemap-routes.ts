@@ -3,12 +3,24 @@ import { SORT_MODES } from "./filters";
 import { SITE_URL } from "./site";
 
 export const SITEMAP_CORE_COUNT = 5;
-export const ANIME_TV_PAGES = 500;
-export const ANIME_MOVIE_PAGES = 200;
 export const ANIME_PAGES_PER_FILE = 15;
-export const ANIME_TV_CHUNKS = Math.ceil(ANIME_TV_PAGES / ANIME_PAGES_PER_FILE);
-export const ANIME_MOVIE_CHUNKS = Math.ceil(ANIME_MOVIE_PAGES / ANIME_PAGES_PER_FILE);
-export const SITEMAP_COUNT = SITEMAP_CORE_COUNT + ANIME_TV_CHUNKS + ANIME_MOVIE_CHUNKS;
+
+export const ANIME_SITEMAP_STREAMS: Array<{
+  path: "/discover/tv" | "/discover/movie";
+  params: Record<string, string>;
+  pages: number;
+}> = [
+  { path: "/discover/tv", params: { with_genres: "16", with_origin_country: "JP", sort_by: "popularity.desc" }, pages: 500 },
+  { path: "/discover/movie", params: { with_genres: "16", with_original_language: "ja", sort_by: "popularity.desc" }, pages: 500 },
+  { path: "/discover/tv", params: { with_genres: "16", with_original_language: "zh", sort_by: "popularity.desc" }, pages: 130 },
+  { path: "/discover/movie", params: { with_genres: "16", with_original_language: "zh", sort_by: "popularity.desc" }, pages: 80 },
+  { path: "/discover/tv", params: { with_genres: "16", with_original_language: "ko", sort_by: "popularity.desc" }, pages: 30 },
+  { path: "/discover/movie", params: { with_genres: "16", with_original_language: "ko", sort_by: "popularity.desc" }, pages: 40 },
+];
+
+export const SITEMAP_COUNT =
+  SITEMAP_CORE_COUNT +
+  ANIME_SITEMAP_STREAMS.reduce((n, stream) => n + Math.ceil(stream.pages / ANIME_PAGES_PER_FILE), 0);
 
 export function staticSitemapPaths(): string[] {
   return [
