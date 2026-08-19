@@ -16,6 +16,8 @@ export const ANIME_SITEMAP_STREAMS: Array<{
   { path: "/discover/movie", params: { with_genres: "16", with_original_language: "zh", sort_by: "popularity.desc" }, pages: 80 },
   { path: "/discover/tv", params: { with_genres: "16", with_original_language: "ko", sort_by: "popularity.desc" }, pages: 30 },
   { path: "/discover/movie", params: { with_genres: "16", with_original_language: "ko", sort_by: "popularity.desc" }, pages: 40 },
+  { path: "/discover/tv", params: { with_original_language: "ko", sort_by: "popularity.desc" }, pages: 500 },
+  { path: "/discover/movie", params: { with_original_language: "ko", sort_by: "popularity.desc" }, pages: 500 },
 ];
 
 export const SITEMAP_COUNT =

@@ -2,7 +2,43 @@
 
 export type KoreanTitle = { id: number; type: "tv" | "movie"; title: string };
 
-export const KOREAN_TV: KoreanTitle[] = [
+function uniqueKorean(items: KoreanTitle[]): KoreanTitle[] {
+  const seen = new Set<string>();
+  return items.filter((item) => {
+    const key = `${item.type}:${item.id}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+export const KOREAN_TV: KoreanTitle[] = uniqueKorean([
+  { id: 219246, type: "tv", title: "When Life Gives You Tangerines" },
+  { id: 226527, type: "tv", title: "Hierarchy" },
+  { id: 212204, type: "tv", title: "Twinkling Watermelon" },
+  { id: 215072, type: "tv", title: "A Shop for Killers" },
+  { id: 219652, type: "tv", title: "The Frog" },
+  { id: 231280, type: "tv", title: "Good Boy" },
+  { id: 235355, type: "tv", title: "Resident Playbook" },
+  { id: 217553, type: "tv", title: "The Trauma Code: Heroes on Call" },
+  { id: 230448, type: "tv", title: "Mr. Plankton" },
+  { id: 235577, type: "tv", title: "The Judge from Hell" },
+  { id: 241454, type: "tv", title: "Love Next Door" },
+  { id: 233349, type: "tv", title: "Cinderella at 2AM" },
+  { id: 156484, type: "tv", title: "The 8 Show" },
+  { id: 212553, type: "tv", title: "The Bequeathed" },
+  { id: 205082, type: "tv", title: "Vigilante" },
+  { id: 196474, type: "tv", title: "A Time Called You" },
+  { id: 246748, type: "tv", title: "The Tyrant" },
+  { id: 226529, type: "tv", title: "Light Shop" },
+  { id: 281006, type: "tv", title: "Tastefully Yours" },
+  { id: 261980, type: "tv", title: "Our Unwritten Seoul" },
+  { id: 258025, type: "tv", title: "Head Over Heels" },
+  { id: 233347, type: "tv", title: "Study Group" },
+  { id: 232766, type: "tv", title: "Mercy for None" },
+  { id: 227191, type: "tv", title: "Nine Puzzles" },
+  { id: 211224, type: "tv", title: "The Nice Guy" },
+  { id: 233686, type: "tv", title: "Karma" },
   { id: 278904, type: "tv", title: "No Mercy" },
   { id: 93405, type: "tv", title: "Squid Game" },
   { id: 94796, type: "tv", title: "Crash Landing on You" },
@@ -166,9 +202,23 @@ export const KOREAN_TV: KoreanTitle[] = [
   { id: 201019, type: "tv", title: "Tale of the Nine Tailed 1938" },
   { id: 84155, type: "tv", title: "The Sound of Your Heart: Reboot" },
   { id: 57647, type: "tv", title: "Good Doctor" },
-];
+]);
 
-export const KOREAN_MOVIES: KoreanTitle[] = [
+export const KOREAN_MOVIES: KoreanTitle[] = uniqueKorean([
+  { id: 919207, type: "movie", title: "12.12: The Day" },
+  { id: 610251, type: "movie", title: "Harbin" },
+  { id: 1075676, type: "movie", title: "Uprising" },
+  { id: 1089223, type: "movie", title: "Revolver" },
+  { id: 921436, type: "movie", title: "Escape" },
+  { id: 965094, type: "movie", title: "Pilot" },
+  { id: 1091051, type: "movie", title: "Victory" },
+  { id: 936245, type: "movie", title: "Hidden Face" },
+  { id: 1002088, type: "movie", title: "Mission: Cross" },
+  { id: 793387, type: "movie", title: "Holy Night: Demon Hunters" },
+  { id: 1224993, type: "movie", title: "Dark Nuns" },
+  { id: 726139, type: "movie", title: "Project Silence" },
+  { id: 783110, type: "movie", title: "Smugglers" },
+  { id: 901121, type: "movie", title: "Cobweb" },
   { id: 496243, type: "movie", title: "Parasite" },
   { id: 396535, type: "movie", title: "Train to Busan" },
   { id: 670, type: "movie", title: "Oldboy" },
@@ -295,4 +345,44 @@ export const KOREAN_MOVIES: KoreanTitle[] = [
   { id: 580626, type: "movie", title: "The Divine Move 2: The Wrathful" },
   { id: 736820, type: "movie", title: "Confidential Assignment 2: International" },
   { id: 995926, type: "movie", title: "I, the Executioner" },
+]);
+
+export const FEATURED_KOREAN_KEYWORDS: string[] = [
+  "مسلسلات كورية مترجمة",
+  "افلام كورية مترجمة",
+  "دراما كورية",
+  "أشهر المسلسلات الكورية",
+  "أكثر مسلسلات كورية بحثا",
+  "korean drama",
+  "K-drama",
+  "korean movies",
+  "When Life Gives You Tangerines",
+  "عندما تهديك الحياة اليوسفي",
+  "Squid Game",
+  "لعبة الحبار",
+  "Hierarchy",
+  "Twinkling Watermelon",
+  "A Shop for Killers",
+  "The Frog",
+  "Good Boy",
+  "Resident Playbook",
+  "The Trauma Code",
+  "Queen of Tears",
+  "ملكة الدموع",
+  "Lovely Runner",
+  "Crash Landing on You",
+  "هبوط اضطراري على قلبك",
+  "The Glory",
+  "المجد",
+  "All of Us Are Dead",
+  "كلنا أموات",
+  "Parasite",
+  "الطفيلي",
+  "Train to Busan",
+  "قطار بوسان",
+  "Oldboy",
+  "Exhuma",
+  "The Roundup",
+  "12.12 The Day",
+  "Harbin",
 ];
