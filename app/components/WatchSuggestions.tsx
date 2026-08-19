@@ -98,14 +98,14 @@ export default function WatchSuggestions({ items }: { items: MediaItem[] }) {
       <div ref={scrollRef} className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
         {items.flatMap((item, index) => {
           const card = (
-            <div key={item.href ?? `${item.type}-${item.id}`} className="w-[188px] shrink-0 sm:w-[216px] lg:w-[236px]">
+            <div key={item.href ?? `${item.type}-${item.id}`} className="w-[210px] shrink-0 sm:w-[260px] lg:w-[300px]">
               <MediaCard item={item} movieLabel={t("movie")} showLabel={t("show")} />
             </div>
           );
           if (!insertAfter.has(index + 1)) return [card];
           return [
             card,
-            <InGridAdCard key={`suggest-ad-${index}`} className="w-[188px] shrink-0 sm:w-[216px] lg:w-[236px]" />,
+            <InGridAdCard key={`suggest-ad-${index}`} className="w-[210px] shrink-0 sm:w-[260px] lg:w-[300px]" />,
           ];
         })}
       </div>

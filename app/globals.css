@@ -108,7 +108,7 @@ a {
 
 .row-scroll {
   display: flex;
-  gap: 1rem;
+  gap: 1.15rem;
   overflow-x: auto;
   padding-bottom: 0.5rem;
   scroll-snap-type: x mandatory;
