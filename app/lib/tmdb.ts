@@ -4,10 +4,11 @@ import { parseTitleSlug, slugifyTitle } from "./slug";
 import { FILTER_GENRES, parseSection, type CatalogFilters, type CatalogSort } from "./filters";
 import { WEEKLY_HOT_ANIME } from "./featuredAnime";
 import { ADULT_ANIME } from "./adultAnime";
-import { HOT_MOVIE_IDS, HOT_TV_IDS } from "./hotCatalog";
+import { HOT_MOVIE_IDS, HOT_TV_IDS, MOST_WATCHED_TODAY } from "./hotCatalog";
 import { KOREAN_MOVIES, KOREAN_TV } from "./koreanCatalog";
 import { TURKISH_MOVIES, TURKISH_TV } from "./turkishCatalog";
 import { FOREIGN_MOVIES, FOREIGN_TV } from "./foreignCatalog";
+import { ASIAN_MOVIES, ASIAN_TV } from "./asianCatalog";
 import { filterBlockedItems, isBlockedTitle } from "./blockedTitles";
 
 const TMDB = "https://api.themoviedb.org/3";
@@ -694,13 +695,15 @@ export async function discoverBrowse(
   }
   const page = Math.max(1, browsePage);
   const start = (page - 1) * BROWSE_PAGE_SIZE;
-  if ("kind" in source && (source.group === "korean" || source.group === "turkish" || source.group === "foreign" || source.group === "english")) {
+  if ("kind" in source && (source.group === "korean" || source.group === "turkish" || source.group === "foreign" || source.group === "english" || source.group === "asian")) {
     const pinned = constrainCatalogItems(
       source.group === "korean"
         ? await listKoreanCatalog(source.kind, lang)
         : source.group === "turkish"
           ? await listTurkishCatalog(source.kind, lang)
-          : await listForeignCatalog(source.kind, lang),
+          : source.group === "asian"
+            ? await listAsianCatalog(source.kind, lang)
+            : await listForeignCatalog(source.kind, lang),
       filters
     );
     const pinSlice = pinned.slice(start, start + BROWSE_PAGE_SIZE);
@@ -1494,6 +1497,15 @@ export async function listForeignTitles(lang: string): Promise<MediaItem[]> {
   return uniqueItems([...tv, ...movies]);
 }
 
+export async function listAsianCatalog(kind: CatalogKind, lang: string): Promise<MediaItem[]> {
+  const pins = kind === "movie" ? ASIAN_MOVIES : ASIAN_TV;
+  const rows = await Promise.all(pins.map((item) => fetchFeaturedTitle(item.type, item.id, lang)));
+  return uniqueItems(rows.filter((item): item is MediaItem => Boolean(item))).map((item) => ({
+    ...item,
+    title: pins.find((row) => row.id === item.id && row.type === item.type)?.title || item.title,
+  }));
+}
+
 async function discoverTopRatedAnime(lang: string): Promise<MediaItem[]> {
   const language = lang.startsWith("ar") ? "ar-SA" : "en-US";
   const shared = {
@@ -1553,6 +1565,7 @@ export async function homeCatalog(lang: string) {
     turkishMovieRows,
     pinnedMovies,
     pinnedSeries,
+    mostWatchedRows,
     dailyMovies,
     dailySeries,
     topRatedAnime,
@@ -1579,6 +1592,7 @@ export async function homeCatalog(lang: string) {
     Promise.all(TURKISH_MOVIES.slice(0, 28).map((item) => fetchFeaturedTitle(item.type, item.id, lang))),
     Promise.all(HOT_MOVIE_IDS.map((id) => fetchFeaturedTitle("movie", id, lang))),
     Promise.all(HOT_TV_IDS.map((id) => fetchFeaturedTitle("tv", id, lang))),
+    Promise.all(MOST_WATCHED_TODAY.map((item) => fetchFeaturedTitle(item.type, item.id, lang))),
     rail((page) => discoverDailyMovies(lang, page)),
     rail((page) => discoverDailySeries(lang, page)),
     discoverTopRatedAnime(lang),
@@ -1625,7 +1639,10 @@ export async function homeCatalog(lang: string) {
       })),
   ]);
   return {
-    trending: row(trending),
+    trending: uniqueItems([
+      ...mostWatchedRows.filter((item): item is MediaItem => Boolean(item)),
+      ...row(trending),
+    ]).slice(0, 28),
     movies: uniqueItems([
       ...pinnedMovies.filter((item): item is MediaItem => Boolean(item)),
       ...row(movies),
@@ -1651,7 +1668,10 @@ export async function homeCatalog(lang: string) {
     arabicMovies: row(arabicMovies),
     arabicSeries: row(arabicSeries),
     turkish: uniqueItems([...turkishPinned, ...row(turkish)]).slice(0, 28),
-    asian: row(asian),
+    asian: uniqueItems([
+      ...(await listAsianCatalog("tv", lang)),
+      ...row(asian),
+    ]).slice(0, 28),
     franchises: row(franchises),
   };
 }

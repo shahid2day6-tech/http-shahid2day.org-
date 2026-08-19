@@ -3,6 +3,19 @@
 export type WeeklyHotAnime = { id: number; type: "tv" | "movie" };
 
 const TRENDING_SEARCH_ANIME: WeeklyHotAnime[] = [
+  { id: 95479, type: "tv" }, // Jujutsu Kaisen
+  { id: 260463, type: "tv" }, // Daemons of the Shadow Realm
+  { id: 205050, type: "tv" }, // Shangri-La Frontier
+  { id: 61415, type: "tv" }, // Fate/stay night [Unlimited Blade Works]
+  { id: 94664, type: "tv" }, // Mushoku Tensei
+  { id: 207784, type: "tv" }, // Delicious in Dungeon
+  { id: 82684, type: "tv" }, // That Time I Got Reincarnated as a Slime
+  { id: 218843, type: "tv" }, // Four Knights of the Apocalypse
+  { id: 119495, type: "tv" }, // The Eminence in Shadow
+  { id: 117465, type: "tv" }, // Hell's Paradise
+  { id: 114868, type: "tv" }, // Record of Ragnarok
+  { id: 207332, type: "tv" }, // Sakamoto Days
+  { id: 37854, type: "tv" }, // One Piece
   { id: 37854, type: "tv" }, // One Piece
   { id: 85937, type: "tv" }, // Demon Slayer
   { id: 95479, type: "tv" }, // Jujutsu Kaisen

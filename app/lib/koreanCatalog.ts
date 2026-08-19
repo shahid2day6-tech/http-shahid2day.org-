@@ -13,6 +13,17 @@ function uniqueKorean(items: KoreanTitle[]): KoreanTitle[] {
 }
 
 export const KOREAN_TV: KoreanTitle[] = uniqueKorean([
+  { id: 296206, type: "tv", title: "Agent Kim Reactivated" },
+  { id: 291496, type: "tv", title: "Our Sticky Love" },
+  { id: 209110, type: "tv", title: "The Price of Confession" },
+  { id: 127529, type: "tv", title: "Bloodhounds" },
+  { id: 112833, type: "tv", title: "Juvenile Justice" },
+  { id: 99480, type: "tv", title: "The Good Detective" },
+  { id: 79070, type: "tv", title: "Partners for Justice" },
+  { id: 113622, type: "tv", title: "Sisyphus" },
+  { id: 202783, type: "tv", title: "A Killer Paradox" },
+  { id: 110356, type: "tv", title: "My Name" },
+  { id: 70593, type: "tv", title: "Kingdom" },
   { id: 219246, type: "tv", title: "When Life Gives You Tangerines" },
   { id: 226527, type: "tv", title: "Hierarchy" },
   { id: 212204, type: "tv", title: "Twinkling Watermelon" },
