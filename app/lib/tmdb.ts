@@ -124,13 +124,20 @@ function pickDisplayTitle(...values: (string | null | undefined)[]): string {
   return cleaned.find((value) => !hasAsianScript(value) && !hasArabicScript(value)) ?? cleaned[0] ?? "";
 }
 
+function resolveMediaType(item: Record<string, unknown>, fallback?: MediaType): MediaType {
+  if (item.media_type === "tv" || item.media_type === "movie") return item.media_type;
+  if (fallback) return fallback;
+  if (item.first_air_date && !item.release_date) return "tv";
+  if (item.release_date && !item.first_air_date) return "movie";
+  if (item.name && !item.title) return "tv";
+  return "movie";
+}
+
 function mapItem(
   item: Record<string, unknown>,
   fallback?: MediaType
 ): MediaItem {
-  const mediaType =
-    fallback ??
-    (item.media_type === "tv" || item.name ? "tv" : "movie");
+  const mediaType = resolveMediaType(item, fallback);
   const originalLanguage = String(item.original_language ?? "");
   const localized = String(item.title ?? item.name ?? "");
   const original = String(item.original_title ?? item.original_name ?? "");
@@ -1022,7 +1029,7 @@ export async function getTitleBySlug(
     const second = await tmdb<ListResponse>(path, base);
     rows = second?.results ?? [];
   }
-  const items = rows.map((row) => mapItem(row, parsed.type));
+  const items = rows.map((row) => mapItem(row, parsed.type)).filter((item) => item.type === parsed.type);
   const needle = parsed.titleSlug;
   const ranked = items
     .map((item) => {
@@ -1031,12 +1038,13 @@ export async function getTitleBySlug(
       if (slugTitle === needle) score += 8;
       else if (slugTitle.startsWith(needle) || needle.startsWith(slugTitle)) score += 4;
       else if (slugTitle.includes(needle) || needle.includes(slugTitle)) score += 2;
-      if (parsed.year && item.year === parsed.year) score += 5;
+      if (parsed.year && item.year === parsed.year) score += 6;
       return { item, score };
     })
     .filter((row) => row.score > 0)
     .sort((a, b) => b.score - a.score);
-  const match = ranked[0]?.item ?? items[0];
+  const yearHits = parsed.year ? ranked.filter((row) => row.item.year === parsed.year) : ranked;
+  const match = (yearHits[0] ?? (!parsed.year ? ranked[0] : undefined))?.item;
   if (!match) return null;
   return getTitle(match.type, match.id, lang);
 }
