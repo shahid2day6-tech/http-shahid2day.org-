@@ -7,6 +7,7 @@ import { ADULT_ANIME } from "./adultAnime";
 import { HOT_MOVIE_IDS, HOT_TV_IDS } from "./hotCatalog";
 import { KOREAN_MOVIES, KOREAN_TV } from "./koreanCatalog";
 import { TURKISH_MOVIES, TURKISH_TV } from "./turkishCatalog";
+import { FOREIGN_MOVIES, FOREIGN_TV } from "./foreignCatalog";
 import { filterBlockedItems, isBlockedTitle } from "./blockedTitles";
 
 const TMDB = "https://api.themoviedb.org/3";
@@ -677,11 +678,13 @@ export async function discoverBrowse(
   }
   const page = Math.max(1, browsePage);
   const start = (page - 1) * BROWSE_PAGE_SIZE;
-  if ("kind" in source && (source.group === "korean" || source.group === "turkish")) {
+  if ("kind" in source && (source.group === "korean" || source.group === "turkish" || source.group === "foreign")) {
     const pinned = constrainCatalogItems(
       source.group === "korean"
         ? await listKoreanCatalog(source.kind, lang)
-        : await listTurkishCatalog(source.kind, lang),
+        : source.group === "turkish"
+          ? await listTurkishCatalog(source.kind, lang)
+          : await listForeignCatalog(source.kind, lang),
       filters
     );
     const pinSlice = pinned.slice(start, start + BROWSE_PAGE_SIZE);
@@ -1453,6 +1456,23 @@ export async function listTurkishTitles(lang: string): Promise<MediaItem[]> {
   const [tv, movies] = await Promise.all([
     listTurkishCatalog("tv", lang),
     listTurkishCatalog("movie", lang),
+  ]);
+  return uniqueItems([...tv, ...movies]);
+}
+
+export async function listForeignCatalog(kind: CatalogKind, lang: string): Promise<MediaItem[]> {
+  const pins = kind === "movie" ? FOREIGN_MOVIES : FOREIGN_TV;
+  const rows = await Promise.all(pins.map((item) => fetchFeaturedTitle(item.type, item.id, lang)));
+  return uniqueItems(rows.filter((item): item is MediaItem => Boolean(item))).map((item) => ({
+    ...item,
+    title: pins.find((row) => row.id === item.id && row.type === item.type)?.title || item.title,
+  }));
+}
+
+export async function listForeignTitles(lang: string): Promise<MediaItem[]> {
+  const [tv, movies] = await Promise.all([
+    listForeignCatalog("tv", lang),
+    listForeignCatalog("movie", lang),
   ]);
   return uniqueItems([...tv, ...movies]);
 }

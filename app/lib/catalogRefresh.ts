@@ -17,6 +17,7 @@ import {
   listAdultAnime,
   listKoreanTitles,
   listTurkishTitles,
+  listForeignTitles,
   type CategoryKey,
 } from "./tmdb";
 
@@ -104,6 +105,7 @@ export async function refreshCatalog() {
   const adult = await listAdultAnime("en");
   const korean = await listKoreanTitles("en");
   const turkish = await listTurkishTitles("en");
+  const foreign = await listForeignTitles("en");
   const indexnow = await submitIndexNow([
     SITE_URL,
     `${SITE_URL}/`,
@@ -114,6 +116,7 @@ export async function refreshCatalog() {
     ...adult.map((item) => `${SITE_URL}${item.href ?? titleHref(item)}`),
     ...korean.map((item) => `${SITE_URL}${item.href ?? titleHref(item)}`),
     ...turkish.map((item) => `${SITE_URL}${item.href ?? titleHref(item)}`),
+    ...foreign.map((item) => `${SITE_URL}${item.href ?? titleHref(item)}`),
   ]);
 
   return {

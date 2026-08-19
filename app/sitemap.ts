@@ -14,6 +14,7 @@ import {
   listFeaturedAnime,
   listKoreanTitles,
   listTurkishTitles,
+  listForeignTitles,
   listSitemapItems,
   type MediaItem,
 } from "./lib/tmdb";
@@ -71,15 +72,16 @@ export default async function sitemap(props: {
   }
 
   if (index === 3) {
-    const [adultAnime, featuredAnime, koreanTitles, turkishTitles, asianTv, asianMovies] = await Promise.all([
+    const [adultAnime, featuredAnime, koreanTitles, turkishTitles, foreignTitles, asianTv, asianMovies] = await Promise.all([
       listAdultAnime("en"),
       listFeaturedAnime("en"),
       listKoreanTitles("en"),
       listTurkishTitles("en"),
+      listForeignTitles("en"),
       listSitemapItems("/discover/tv", { with_origin_country: "JP|KR|CN|TH", without_genres: "16", sort_by: "popularity.desc" }, 8),
       listSitemapItems("/discover/movie", { with_origin_country: "JP|KR|CN|TH", without_genres: "16", sort_by: "popularity.desc" }, 8),
     ]);
-    return titleEntries([...featuredAnime, ...adultAnime, ...koreanTitles, ...turkishTitles, ...asianTv, ...asianMovies]);
+    return titleEntries([...featuredAnime, ...adultAnime, ...koreanTitles, ...turkishTitles, ...foreignTitles, ...asianTv, ...asianMovies]);
   }
 
   if (index === 4) {
