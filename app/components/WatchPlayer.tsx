@@ -64,6 +64,13 @@ export default function WatchPlayer({
         if (pending && list.some((item) => item.episodeNumber === pending)) {
           setSelectedEpisode(pending);
           pendingEpisodeRef.current = null;
+        } else if (
+          list.length > 0 &&
+          !list.some((item) => item.episodeNumber === selectedEpisode)
+        ) {
+          const lastAired = Math.max(...list.map((item) => item.episodeNumber));
+          setSelectedEpisode(lastAired);
+          syncUrl(selectedSeason, lastAired);
         }
       })
       .catch(() => {})

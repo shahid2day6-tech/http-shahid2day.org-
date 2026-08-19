@@ -76,10 +76,20 @@ export type TvSeasonEpisode = {
   episodeNumber: number;
   name: string;
   overview: string;
+  airDate: string;
   still: string | null;
   runtime: number | null;
   voteAverage: number;
 };
+
+function utcToday(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+/** Hide unaired / same-day episodes so embed hosts do not fill in the wrong title. */
+export function hasEpisodeAired(airDate: string): boolean {
+  return Boolean(airDate) && airDate < utcToday();
+}
 
 function key(): string {
   return process.env.TMDB_API_KEY ?? "";
@@ -1210,6 +1220,7 @@ export async function getTvSeason(
         episodeNumber: number,
         name: pickText(episode.name as string, enEp?.name as string) || `الحلقة ${number}`,
         overview: pickText(episode.overview as string, enEp?.overview as string),
+        airDate: String(episode.air_date ?? enEp?.air_date ?? ""),
         still: posterUrl(
           ((episode.still_path as string | null) ?? (enEp?.still_path as string | null) ?? null),
           "w300"
@@ -1217,7 +1228,7 @@ export async function getTvSeason(
         runtime: Number(episode.runtime ?? enEp?.runtime ?? 0) || null,
         voteAverage: Number(episode.vote_average ?? 0),
       };
-    }),
+    }).filter((episode) => hasEpisodeAired(episode.airDate)),
   };
 }
 

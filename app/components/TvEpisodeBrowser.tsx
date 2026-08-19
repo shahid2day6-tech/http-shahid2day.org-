@@ -106,7 +106,10 @@ export default function TvEpisodeBrowser({
                 {currentSeason.name || `${t("season")} ${currentSeason.season_number}`}
               </p>
               <p className="text-xs text-white/80">
-                {[currentSeason.year, `${currentSeason.episode_count} ${t("episodes")}`]
+                {[
+                  currentSeason.year,
+                  `${sortedEpisodes.length || currentSeason.episode_count} ${t("episodes")}`,
+                ]
                   .filter(Boolean)
                   .join(" · ")}
               </p>
