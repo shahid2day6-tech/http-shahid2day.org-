@@ -71,13 +71,11 @@ export default function TitleView({ title }: { title: TitleDetails }) {
           />
         )}
         <div className="hero-mask absolute inset-0" />
-        <div className="relative mx-auto flex max-w-7xl flex-col items-center gap-5 px-4 py-6 sm:px-6 md:flex-row md:items-end md:gap-8 md:py-10 lg:pl-[252px]">
-          {title.poster && (
-            <div className="relative aspect-[2/3] w-[min(78vw,280px)] shrink-0 overflow-hidden rounded-2xl border border-[#262626] shadow-2xl sm:w-[300px] md:w-[320px] lg:w-[360px]">
-              <Image src={title.poster} alt={title.title} fill className="object-cover" sizes="(max-width: 768px) 78vw, 360px" />
-            </div>
-          )}
-          <div className="w-full max-w-2xl">
+        <div
+          dir="ltr"
+          className="relative mx-auto flex max-w-7xl flex-col items-center gap-5 px-4 py-6 sm:px-6 md:flex-row md:items-end md:justify-between md:gap-8 md:py-10 lg:pl-[252px]"
+        >
+          <div className="w-full max-w-2xl md:pb-2">
             <h1 className="text-2xl font-black sm:text-4xl md:text-5xl" dir="rtl">
               {listingTitle(title)}
             </h1>
@@ -105,6 +103,11 @@ export default function TitleView({ title }: { title: TitleDetails }) {
               <FactBox label={t("genres")} value={title.genres.join(" / ")} />
             </div>
           </div>
+          {title.poster && (
+            <div className="relative aspect-[2/3] w-[min(78vw,280px)] shrink-0 overflow-hidden rounded-2xl border border-[#262626] shadow-2xl order-first sm:w-[300px] md:order-none md:w-[320px] lg:w-[360px]">
+              <Image src={title.poster} alt={title.title} fill className="object-cover" sizes="(max-width: 768px) 78vw, 360px" />
+            </div>
+          )}
         </div>
         <div className="relative z-10 mx-auto mb-6 flex w-full max-w-md flex-row justify-center gap-3 px-4 lg:absolute lg:bottom-16 lg:left-4 lg:mx-0 lg:mb-0 lg:w-[220px] lg:max-w-none lg:flex-col lg:px-0">
           <ActionBox href={watchHref} label={t("watchNow")} tone="red">
