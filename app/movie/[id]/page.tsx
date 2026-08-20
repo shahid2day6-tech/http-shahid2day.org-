@@ -1,6 +1,8 @@
+import { cookies } from "next/headers";
 import { notFound, permanentRedirect } from "next/navigation";
 import { titleHref } from "../../lib/slug";
 import { getTitle } from "../../lib/tmdb";
+import { parseUiLang, UI_LANG_KEY } from "../../lib/langPref";
 
 export const revalidate = 3600;
 
@@ -10,5 +12,6 @@ export default async function MovieIdRedirect({ params }: Props) {
   const { id } = await params;
   const title = await getTitle("movie", Number(id), "ar");
   if (!title) notFound();
-  permanentRedirect(titleHref(title));
+  const lang = parseUiLang((await cookies()).get(UI_LANG_KEY)?.value);
+  permanentRedirect(titleHref(title, lang));
 }

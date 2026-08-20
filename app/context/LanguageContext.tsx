@@ -1,8 +1,10 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import { dict, type DictKey, type Lang } from "../lib/i18n";
 import { DEFAULT_LANG, persistLang, readBrowserLang } from "../lib/langPref";
+import { switchTitleSlugLang } from "../lib/slug";
 
 type Ctx = {
   lang: Lang;
@@ -21,6 +23,8 @@ export function LanguageProvider({
   initialLang?: Lang;
 }) {
   const [lang, setLang] = useState<Lang>(initialLang);
+  const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     const stored = readBrowserLang();
@@ -46,9 +50,13 @@ export function LanguageProvider({
         const next = lang === "ar" ? "en" : "ar";
         setLang(next);
         persistLang(next);
+        const switched = switchTitleSlugLang(pathname, next);
+        if (switched && switched !== pathname) {
+          router.replace(switched);
+        }
       },
     }),
-    [lang]
+    [lang, pathname, router]
   );
 
   return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>;

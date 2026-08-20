@@ -1,11 +1,14 @@
 "use client";
 
+import { useEffect } from "react";
 import Image from "next/image";
+import { usePathname, useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 import { listingTitle, titleGenres, titleOverview, titleRuntime, type TitleDetails } from "../lib/tmdb";
 import { formatAgeBadge } from "../lib/tmdbAge";
 import { useTmdbAgeCode } from "../lib/useTmdbAgeCode";
 import { useLang } from "../context/LanguageContext";
+import { titleHref } from "../lib/slug";
 import MediaRow from "./MediaRow";
 import { SiteAdsterraRail } from "./ads/SiteAdsterraRail";
 
@@ -51,6 +54,8 @@ function ActionBox({
 
 export default function TitleView({ title }: { title: TitleDetails }) {
   const { t, lang } = useLang();
+  const router = useRouter();
+  const pathname = usePathname();
   const ageCode = useTmdbAgeCode(title.type, title.id) ?? "13";
   const firstSeason = title.seasonList?.[0]?.seasonNumber ?? 1;
   const watchHref = `/watch?id=${title.id}&type=${title.type}${
@@ -60,6 +65,19 @@ export default function TitleView({ title }: { title: TitleDetails }) {
   const overview = titleOverview(title, lang);
   const genreText = titleGenres(title, lang);
   const runtimeText = titleRuntime(title, lang);
+
+  useEffect(() => {
+    const wanted = titleHref(title, lang);
+    let current = pathname;
+    try {
+      current = decodeURIComponent(pathname);
+    } catch {
+      /* keep */
+    }
+    if (wanted && current !== wanted) {
+      router.replace(wanted);
+    }
+  }, [lang, pathname, router, title]);
 
   return (
     <article>

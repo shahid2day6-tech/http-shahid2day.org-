@@ -1,9 +1,23 @@
+import type { Lang } from "./i18n";
 import type { MediaItem, MediaType } from "./tmdb";
 
-const MOVIE_PREFIX = "فيلم-";
-const SERIES_PREFIX = "مسلسل-";
-const SUBTITLED_SUFFIX = "-مترجم-اون-لاين";
-const ONLINE_SUFFIX = "-اون-لاين";
+const AR = {
+  movie: "فيلم-",
+  series: "مسلسل-",
+  subtitled: "-مترجم-اون-لاين",
+  online: "-اون-لاين",
+} as const;
+
+const EN = {
+  movie: "movie-",
+  series: "series-",
+  subtitled: "-subtitled-online",
+  online: "-online",
+} as const;
+
+function affixes(lang: Lang) {
+  return lang === "en" ? EN : AR;
+}
 
 export function slugifyTitle(title: string): string {
   return title
@@ -18,13 +32,15 @@ export function slugifyTitle(title: string): string {
 }
 
 export function titleHref(
-  item: Pick<MediaItem, "title" | "type" | "year" | "originalLanguage">
+  item: Pick<MediaItem, "title" | "type" | "year" | "originalLanguage">,
+  lang: Lang = "ar"
 ): string {
-  const prefix = item.type === "tv" ? SERIES_PREFIX : MOVIE_PREFIX;
+  const parts = affixes(lang);
+  const prefix = item.type === "tv" ? parts.series : parts.movie;
   const suffix =
     item.originalLanguage && item.originalLanguage !== "ar"
-      ? SUBTITLED_SUFFIX
-      : ONLINE_SUFFIX;
+      ? parts.subtitled
+      : parts.online;
   const name = slugifyTitle(item.title);
   const year = /^\d{4}$/.test(item.year) ? item.year : "";
   const body = [name, year].filter(Boolean).join("-");
@@ -36,26 +52,55 @@ export type ParsedTitleSlug = {
   titleSlug: string;
   query: string;
   year: string;
+  slugLang: Lang;
+  subtitled: boolean;
 };
 
 export function parseTitleSlug(raw: string): ParsedTitleSlug | null {
-  const slug = decodeURIComponent(raw).replace(/^\/+|\/+$/g, "");
+  let slug = raw;
+  try {
+    slug = decodeURIComponent(raw);
+  } catch {
+    /* keep raw */
+  }
+  slug = slug.replace(/^\/+|\/+$/g, "");
+
   let type: MediaType;
   let rest: string;
-  if (slug.startsWith(MOVIE_PREFIX)) {
+  let slugLang: Lang;
+  if (slug.startsWith(AR.movie)) {
     type = "movie";
-    rest = slug.slice(MOVIE_PREFIX.length);
-  } else if (slug.startsWith(SERIES_PREFIX)) {
+    rest = slug.slice(AR.movie.length);
+    slugLang = "ar";
+  } else if (slug.startsWith(AR.series)) {
     type = "tv";
-    rest = slug.slice(SERIES_PREFIX.length);
+    rest = slug.slice(AR.series.length);
+    slugLang = "ar";
+  } else if (slug.startsWith(EN.movie)) {
+    type = "movie";
+    rest = slug.slice(EN.movie.length);
+    slugLang = "en";
+  } else if (slug.startsWith(EN.series)) {
+    type = "tv";
+    rest = slug.slice(EN.series.length);
+    slugLang = "en";
   } else {
     return null;
   }
 
-  if (rest.endsWith(SUBTITLED_SUFFIX)) {
-    rest = rest.slice(0, -SUBTITLED_SUFFIX.length);
-  } else if (rest.endsWith(ONLINE_SUFFIX)) {
-    rest = rest.slice(0, -ONLINE_SUFFIX.length);
+  let subtitled = true;
+  if (rest.endsWith(AR.subtitled)) {
+    rest = rest.slice(0, -AR.subtitled.length);
+    subtitled = true;
+  } else if (rest.endsWith(EN.subtitled)) {
+    rest = rest.slice(0, -EN.subtitled.length);
+    subtitled = true;
+  } else if (rest.endsWith(AR.online)) {
+    rest = rest.slice(0, -AR.online.length);
+    subtitled = false;
+  } else if (rest.endsWith(EN.online)) {
+    rest = rest.slice(0, -EN.online.length);
+    subtitled = false;
   }
 
   const yearMatch = rest.match(/-(\d{4})$/);
@@ -67,5 +112,21 @@ export function parseTitleSlug(raw: string): ParsedTitleSlug | null {
     titleSlug,
     query: titleSlug.replace(/-/g, " "),
     year,
+    slugLang,
+    subtitled,
   };
+}
+
+export function switchTitleSlugLang(path: string, lang: Lang): string | null {
+  const parsed = parseTitleSlug(path);
+  if (!parsed) return null;
+  return titleHref(
+    {
+      title: parsed.query,
+      type: parsed.type,
+      year: parsed.year,
+      originalLanguage: parsed.subtitled ? "en" : "ar",
+    },
+    lang
+  );
 }

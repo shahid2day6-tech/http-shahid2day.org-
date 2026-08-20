@@ -8,7 +8,7 @@ import { titleHref } from "../lib/slug";
 import { useLang } from "../context/LanguageContext";
 
 export default function Hero({ items }: { items: MediaItem[] }) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const slides = items.filter((item) => item.backdrop).slice(0, 6);
   const [index, setIndex] = useState(0);
 
@@ -22,7 +22,7 @@ export default function Hero({ items }: { items: MediaItem[] }) {
 
   const current = slides[index];
   if (!current) return null;
-  const href = titleHref(current);
+  const href = titleHref(current, lang);
 
   return (
     <section

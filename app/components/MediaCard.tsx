@@ -16,8 +16,8 @@ export default function MediaCard({
   movieLabel: string;
   showLabel: string;
 }) {
-  const { t } = useLang();
-  const href = item.href ?? titleHref(item);
+  const { t, lang } = useLang();
+  const href = item.href ?? titleHref(item, lang);
   const badge = item.isFranchise ? t("franchise") : item.type === "tv" ? showLabel : movieLabel;
 
   return (

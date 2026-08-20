@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useLang } from "../context/LanguageContext";
 import type { CrawlLink } from "../lib/crawlCatalog";
 import type { DictKey } from "../lib/i18n";
+import { switchTitleSlugLang } from "../lib/slug";
 
 export default function CrawlableCatalogView({
   kind,
@@ -37,10 +38,11 @@ export default function CrawlableCatalogView({
               : `Watch ${link.type === "tv" ? t("show") : t("movie")} ${link.title}${
                   link.year ? ` ${link.year}` : ""
                 } ${t("subtitledOnline")}`;
+          const href = lang === "ar" ? link.href : switchTitleSlugLang(link.href, "en") ?? link.href;
           return (
             <li key={link.href}>
               <Link
-                href={link.href}
+                href={href}
                 className="block rounded-lg border border-[#262626] bg-[#141414] px-3 py-2 text-sm text-white transition hover:border-[#e50914] hover:text-[#e50914]"
               >
                 {label}
