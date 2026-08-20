@@ -9,5 +9,7 @@ export async function GET(
   const lang = req.nextUrl.searchParams.get("lang") ?? "ar";
   const title = await getTitle("movie", Number(id), lang);
   if (!title) return NextResponse.json({ error: "not found" }, { status: 404 });
-  return NextResponse.json(title);
+  return NextResponse.json(title, {
+    headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" },
+  });
 }

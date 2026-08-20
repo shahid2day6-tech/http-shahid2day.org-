@@ -6,9 +6,7 @@ import { dict, type DictKey } from "../lib/i18n";
 import { pageKeywords } from "../lib/seo";
 import { discoverFiltered } from "../lib/tmdb";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
-export const fetchCache = "force-no-store";
+export const revalidate = 600;
 
 type Props = {
   searchParams: Promise<{

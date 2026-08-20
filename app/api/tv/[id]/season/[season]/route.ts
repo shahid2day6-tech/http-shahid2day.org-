@@ -9,5 +9,7 @@ export async function GET(
   const lang = req.nextUrl.searchParams.get("lang") ?? "ar";
   const data = await getTvSeason(Number(id), Number(season), lang);
   if (!data) return NextResponse.json({ error: "not found" }, { status: 404 });
-  return NextResponse.json(data);
+  return NextResponse.json(data, {
+    headers: { "Cache-Control": "public, s-maxage=600, stale-while-revalidate=1800" },
+  });
 }

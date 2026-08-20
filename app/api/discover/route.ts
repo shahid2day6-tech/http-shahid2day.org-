@@ -3,9 +3,7 @@ import { isMovieGroup, isTvCatalogGroup, type CatalogGroup, type CatalogKind } f
 import { isCatalogSort } from "../../lib/filters";
 import { discoverBrowse, discoverFiltered, type CategoryKey, type DiscoverResult } from "../../lib/tmdb";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
-export const fetchCache = "force-no-store";
+export const revalidate = 600;
 
 const CATEGORIES: CategoryKey[] = [
   "trending",
@@ -25,7 +23,7 @@ function json(data: DiscoverResult, status = 200) {
       totalPages: data.totalPages,
       totalResults: data.totalResults,
     },
-    { status, headers: { "Cache-Control": "no-store" } }
+    { status, headers: { "Cache-Control": "public, s-maxage=600, stale-while-revalidate=1800" } }
   );
 }
 
