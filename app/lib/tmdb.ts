@@ -10,6 +10,7 @@ import { TURKISH_MOVIES, TURKISH_TV } from "./turkishCatalog";
 import { FOREIGN_MOVIES, FOREIGN_TV } from "./foreignCatalog";
 import { ASIAN_MOVIES, ASIAN_TV } from "./asianCatalog";
 import { filterBlockedItems, isBlockedTitle } from "./blockedTitles";
+import { dict, type Lang } from "./i18n";
 
 const TMDB = "https://api.themoviedb.org/3";
 const IMG = "https://image.tmdb.org/t/p";
@@ -43,7 +44,10 @@ export type CategoryKey =
 
 export type TitleDetails = MediaItem & {
   genres: string[];
+  genresEn?: string[];
+  overviewEn?: string;
   runtime: string;
+  runtimeMinutes?: number;
   trailer: string | null;
   cast: { name: string; character: string; photo: string | null }[];
   similar: MediaItem[];
@@ -173,11 +177,45 @@ function mapItem(
   };
 }
 
-export function listingTitle(item: Pick<MediaItem, "title" | "type" | "year" | "originalLanguage">): string {
-  const kind = item.type === "tv" ? "مسلسل" : "فيلم";
+export function listingTitle(
+  item: Pick<MediaItem, "title" | "type" | "year" | "originalLanguage">,
+  lang: Lang = "ar"
+): string {
+  const copy = dict[lang];
+  const kind = item.type === "tv" ? copy.show : copy.movie;
   const status =
-    item.originalLanguage && item.originalLanguage !== "ar" ? "مترجم اون لاين" : "اون لاين";
+    item.originalLanguage && item.originalLanguage !== "ar"
+      ? copy.subtitledOnline
+      : copy.online;
   return [kind, item.title, item.year, status].filter(Boolean).join(" ");
+}
+
+export function titleOverview(title: TitleDetails, lang: Lang): string {
+  if (lang === "en") return title.overviewEn || title.overview;
+  return title.overview || title.overviewEn || "";
+}
+
+export function titleGenres(title: TitleDetails, lang: Lang): string {
+  const ids = title.genreIds ?? [];
+  if (ids.length) {
+    const labels = ids
+      .map((id) => {
+        const match = FILTER_GENRES.find(
+          (genre) => genre.movieId === id || genre.tvId === id
+        );
+        return match ? dict[lang][match.labelKey] : "";
+      })
+      .filter(Boolean);
+    if (labels.length) return labels.join(" / ");
+  }
+  if (lang === "en" && title.genresEn?.length) return title.genresEn.join(" / ");
+  return title.genres.join(" / ");
+}
+
+export function titleRuntime(title: TitleDetails, lang: Lang): string {
+  const minutes = title.runtimeMinutes || Number(String(title.runtime).replace(/\D/g, ""));
+  if (!minutes) return "";
+  return `${minutes} ${dict[lang].minuteShort}`;
 }
 
 async function tmdb<T>(
@@ -1320,12 +1358,16 @@ export async function getTitle(
     primary.original_title as string,
     primary.original_name as string
   );
-  const overview = pickText(
-    primary.overview as string,
-    arText.overview,
-    fallback?.overview as string,
-    enText.overview
+  const overviewAr = pickText(
+    language === "ar-SA" ? (primary.overview as string) : "",
+    arText.overview
   );
+  const overviewEn = pickText(
+    fallback?.overview as string,
+    enText.overview,
+    language !== "ar-SA" ? (primary.overview as string) : ""
+  );
+  const overview = overviewAr || overviewEn;
   const item = mapItem(
     {
       ...primary,
@@ -1336,13 +1378,25 @@ export async function getTitle(
       overview,
       poster_path: fallback?.poster_path || primary.poster_path,
       backdrop_path: fallback?.backdrop_path || primary.backdrop_path,
+      genre_ids: (
+        (primary.genres as { id?: number }[] | undefined) ??
+        (fallback?.genres as { id?: number }[] | undefined) ??
+        []
+      )
+        .map((genre) => Number(genre.id))
+        .filter((id) => Number.isFinite(id) && id > 0),
     },
     type
   );
 
-  const genres = ((primary.genres as { name: string }[]) ?? [])
+  const arGenres = ((language === "ar-SA" ? primary.genres : null) as { name: string }[] | null)?.map((genre) => genre.name).filter(Boolean)
+    ?? [];
+  const enGenres = (
+    ((fallback?.genres ?? (language !== "ar-SA" ? primary.genres : null)) as { name: string }[] | null) ?? []
+  )
     .map((genre) => genre.name)
     .filter(Boolean);
+  const genres = arGenres.length ? arGenres : enGenres;
   if (!genres.length) {
     genres.push(
       ...((fallback?.genres as { name: string }[]) ?? []).map((genre) => genre.name).filter(Boolean)
@@ -1392,7 +1446,10 @@ export async function getTitle(
   return {
     ...item,
     genres,
+    genresEn: enGenres,
+    overviewEn,
     runtime: runtimeMinutes ? `${runtimeMinutes} د` : "",
+    runtimeMinutes: runtimeMinutes || undefined,
     trailer: trailerKey(primary) ?? trailerKey(fallback),
     cast,
     similar,

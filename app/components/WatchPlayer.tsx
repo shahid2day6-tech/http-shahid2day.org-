@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useLang } from "../context/LanguageContext";
-import { listingTitle, type TitleDetails, type TvSeasonEpisode } from "../lib/tmdb";
+import { listingTitle, titleGenres, titleOverview, titleRuntime, type TitleDetails, type TvSeasonEpisode } from "../lib/tmdb";
 import { buildWatchServers } from "../lib/watchServers";
 import TvEpisodeBrowser, { type TvEpisode, type TvSeason } from "./TvEpisodeBrowser";
 import WatchSuggestions from "./WatchSuggestions";
@@ -87,7 +87,7 @@ export default function WatchPlayer({
     [type, id, selectedSeason, selectedEpisode]
   );
   const current = servers[Math.min(active, Math.max(servers.length - 1, 0))];
-  const heading = title ? listingTitle(title) : t("watchNow");
+  const heading = title ? listingTitle(title, lang) : t("watchNow");
   const seasonCards: TvSeason[] =
     type === "tv"
       ? (title?.seasonList ?? [])
@@ -190,16 +190,16 @@ export default function WatchPlayer({
               <p className="mt-2 text-sm font-semibold text-[#d4d4d4]">
                 {[
                   title.type === "tv" ? t("show") : t("movie"),
-                  title.runtime,
-                  title.genres.slice(0, 3).join(" / "),
+                  titleRuntime(title, lang),
+                  titleGenres(title, lang).split(" / ").slice(0, 3).join(" / "),
                   title.rating !== "0" ? `★ ${title.rating}` : "",
                 ]
                   .filter(Boolean)
                   .join(" · ")}
               </p>
-              {title.overview ? (
+              {titleOverview(title, lang) ? (
                 <p className="mt-3 line-clamp-3 text-sm leading-7 text-[#a3a3a3]" dir="auto">
-                  {title.overview}
+                  {titleOverview(title, lang)}
                 </p>
               ) : null}
             </div>

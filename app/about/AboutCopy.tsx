@@ -17,14 +17,18 @@ export default function AboutCopy() {
       <p className="mb-8 text-sm leading-relaxed text-[#d6cfc2]">
         {isAr
           ? "أفلام ومسلسلات مترجمة اون لاين. shahid2day (شاهد تو داي) منصة لعرض واستكشاف المحتوى الترفيهي، تساعد المستخدمين في الوصول إلى الأفلام والمسلسلات والأنمي ضمن تجربة متعددة اللغات."
-          : "أفلام ومسلسلات مترجمة اون لاين. shahid2day is an entertainment discovery and streaming interface designed to help users find movies, TV series, and anime in one place with a multilingual experience."}
+          : "SHAHID2DAY is an entertainment discovery platform that helps users find movies, TV series, and anime in one place, with a multilingual experience."}
       </p>
 
       <div className="space-y-6 text-sm leading-relaxed text-[#d6cfc2]">
         <section>
-          <h2 className="mb-2 text-lg font-semibold text-white">أفلام ومسلسلات مترجمة اون لاين</h2>
+          <h2 className="mb-2 text-lg font-semibold text-white">
+            {isAr ? "أفلام ومسلسلات مترجمة اون لاين" : "Movies and series subtitled online"}
+          </h2>
           <p>
-            أفلام ومسلسلات مترجمة اون لاين. شاهد أحدث الأفلام والمسلسلات المترجمة مجاناً بجودة HD على شاهد تو داي.
+            {isAr
+              ? "أفلام ومسلسلات مترجمة اون لاين. شاهد أحدث الأفلام والمسلسلات المترجمة مجاناً بجودة HD على شاهد تو داي."
+              : "Watch the latest subtitled movies and series in HD on SHAHID2DAY."}
           </p>
         </section>
         <section>

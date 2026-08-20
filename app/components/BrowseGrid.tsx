@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import type { CatalogGroup, CatalogKind } from "../lib/catalog";
 import type { CategoryKey, MediaItem } from "../lib/tmdb";
 import { sectionFrom, type CatalogSort } from "../lib/filters";
+import type { DictKey } from "../lib/i18n";
 import { useLang } from "../context/LanguageContext";
 import MediaCard from "./MediaCard";
 import CatalogToolbar from "./CatalogToolbar";
@@ -25,6 +26,7 @@ function paginationItems(current: number, total: number): (number | "gap")[] {
 
 export default function BrowseGrid({
   title,
+  titleKey,
   category,
   kind,
   group,
@@ -38,6 +40,7 @@ export default function BrowseGrid({
   embedded = false,
 }: {
   title: string;
+  titleKey?: DictKey;
   category?: CategoryKey;
   kind?: CatalogKind;
   group?: CatalogGroup;
@@ -51,6 +54,29 @@ export default function BrowseGrid({
   embedded?: boolean;
 }) {
   const { t, lang } = useLang();
+  const categoryTitleKey: DictKey | undefined =
+    category === "movies"
+      ? "movies"
+      : category === "series"
+        ? "series"
+        : category === "anime"
+          ? "anime"
+          : category === "arabic"
+            ? "arabic"
+            : category === "turkish"
+              ? "turkish"
+              : category === "asian"
+                ? "asian"
+                : category === "trending"
+                  ? "trending"
+                  : undefined;
+  const heading = titleKey
+    ? title && titleKey === "franchise"
+      ? `${t(titleKey)} ${title}`
+      : t(titleKey)
+    : categoryTitleKey
+      ? t(categoryTitleKey)
+      : title;
   const seed = initialItems ?? staticItems ?? [];
   const [items, setItems] = useState(seed);
   const [page, setPage] = useState(initialPage);
@@ -114,7 +140,7 @@ export default function BrowseGrid({
         />
       )}
       <div className="mb-6">
-        <h1 className="text-3xl font-black">{title}</h1>
+        <h1 className="text-3xl font-black">{heading}</h1>
         <p className="mt-1 text-sm text-[#a3a3a3]">
           {t("showingCount")
             .replace("{count}", String(items.length))

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import type { ReactNode } from "react";
-import { listingTitle, type TitleDetails } from "../lib/tmdb";
+import { listingTitle, titleGenres, titleOverview, titleRuntime, type TitleDetails } from "../lib/tmdb";
 import { formatAgeBadge } from "../lib/tmdbAge";
 import { useTmdbAgeCode } from "../lib/useTmdbAgeCode";
 import { useLang } from "../context/LanguageContext";
@@ -50,12 +50,16 @@ function ActionBox({
 }
 
 export default function TitleView({ title }: { title: TitleDetails }) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const ageCode = useTmdbAgeCode(title.type, title.id) ?? "13";
   const firstSeason = title.seasonList?.[0]?.seasonNumber ?? 1;
   const watchHref = `/watch?id=${title.id}&type=${title.type}${
     title.type === "tv" ? `&season=${firstSeason}&episode=1` : ""
   }`;
+  const heading = listingTitle(title, lang);
+  const overview = titleOverview(title, lang);
+  const genreText = titleGenres(title, lang);
+  const runtimeText = titleRuntime(title, lang);
 
   return (
     <article>
@@ -76,8 +80,8 @@ export default function TitleView({ title }: { title: TitleDetails }) {
           className="relative mx-auto flex max-w-7xl flex-col items-center gap-5 px-4 py-6 sm:px-6 md:flex-row md:items-end md:justify-between md:gap-8 md:py-10 lg:pl-[252px]"
         >
           <div className="w-full max-w-2xl md:pb-2">
-            <h1 className="text-2xl font-black sm:text-4xl md:text-5xl" dir="rtl">
-              {listingTitle(title)}
+            <h1 className="text-2xl font-black sm:text-4xl md:text-5xl" dir={lang === "ar" ? "rtl" : "ltr"}>
+              {heading}
             </h1>
             <div className="mt-4 flex flex-col items-start gap-2">
               <FactBox
@@ -98,9 +102,9 @@ export default function TitleView({ title }: { title: TitleDetails }) {
                 label={t("episodes")}
                 value={title.episodes ? String(title.episodes) : ""}
               />
-              <FactBox label={t("duration")} value={title.runtime} />
+              <FactBox label={t("duration")} value={runtimeText} />
               <FactBox label={t("network")} value={title.network ?? ""} />
-              <FactBox label={t("genres")} value={title.genres.join(" / ")} />
+              <FactBox label={t("genres")} value={genreText} />
             </div>
           </div>
           {title.poster && (
@@ -140,11 +144,11 @@ export default function TitleView({ title }: { title: TitleDetails }) {
       </section>
 
       <div id="watch-on" className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-        {title.overview && (
+        {overview && (
           <section className="mb-10 max-w-3xl rounded-2xl bg-[#141414] p-5 sm:p-6">
             <h2 className="mb-3 text-xl font-black">{t("overview")}</h2>
             <p className="leading-8 text-[#d4d4d4]" dir="auto">
-              {title.overview}
+              {overview}
             </p>
           </section>
         )}

@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import TitleView from "../components/TitleView";
 import { parseTitleSlug } from "../lib/slug";
-import { getTitleBySlug, listingTitle } from "../lib/tmdb";
+import { getTitleBySlug, listingTitle, titleOverview } from "../lib/tmdb";
 import { titleKeywords } from "../lib/seo";
 import { isBlockedWatchParam } from "../lib/blockedTitles";
+import { parseUiLang, UI_LANG_KEY } from "../lib/langPref";
 
 export const revalidate = 3600;
 
@@ -20,14 +22,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
   const title = await getTitleBySlug(slug, "ar");
   if (!title) return { title: "شاهد تو داي" };
-  const heading = listingTitle(title);
+  const lang = parseUiLang((await cookies()).get(UI_LANG_KEY)?.value);
+  const heading = listingTitle(title, lang);
+  const description = titleOverview(title, lang) || heading;
   return {
     title: heading,
-    description: title.overview || heading,
+    description: description,
     keywords: titleKeywords(title.title, heading, { year: title.year, type: title.type }),
     openGraph: {
-      title: `${heading} | شاهد تو داي | SHAHID2DAY`,
-      description: title.overview || heading,
+      title: `${heading} | SHAHID2DAY | شاهد تو داي`,
+      description,
     },
   };
 }

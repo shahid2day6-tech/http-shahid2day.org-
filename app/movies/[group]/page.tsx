@@ -31,6 +31,7 @@ export default async function MovieGroupPage({ params }: Props) {
   return (
     <BrowseGrid
       title={dict.ar[item.label]}
+      titleKey={item.label}
       kind="movie"
       group={group}
       initialItems={data.items}

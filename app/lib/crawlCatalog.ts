@@ -10,6 +10,8 @@ export type CrawlLink = {
   href: string;
   label: string;
   type: "movie" | "tv";
+  title?: string;
+  year?: string;
 };
 
 type TmdbList = {
@@ -72,6 +74,8 @@ function mapResults(
         year,
         originalLanguage: row.original_language || "en",
       }),
+      title: slugTitle,
+      year,
       label: `مشاهدة ${kindWord} ${slugTitle}${year ? ` ${year}` : ""} مترجم شاهد تو داي`,
     });
   }

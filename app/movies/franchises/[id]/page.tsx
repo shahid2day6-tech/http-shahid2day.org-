@@ -24,7 +24,8 @@ export default async function FranchisePage({ params }: Props) {
 
   return (
     <BrowseGrid
-      title={`سلسلة ${data.title}`}
+      title={data.title}
+      titleKey="franchise"
       items={data.items}
       showFilters={false}
       totalResults={data.items.length}

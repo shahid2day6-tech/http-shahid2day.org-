@@ -33,6 +33,7 @@ export default async function SeriesGroupPage({ params }: Props) {
   return (
     <BrowseGrid
       title={dict.ar[item.label]}
+      titleKey={item.label}
       kind="tv"
       group={group}
       initialItems={data.items}
